@@ -175,6 +175,10 @@ a.btn { text-decoration: none; }
 .perks p b { color: #ffe07a; }
 .fine { display: block; margin-top: var(--s2); font-size: var(--fs-xs); line-height: 1.35; opacity: .85; }
 .hint { font-size: var(--fs-s); text-align: center; color: var(--ink2); margin: 0 var(--s2) var(--s3); line-height: 1.35; }
+/* Short centred copy wraps into even lines, so its last line never holds a lone word ("them.", "payment.", "doby).");
+   longer left-aligned copy only avoids the lone word. (Ignored where text-wrap isn't supported: it just wraps as before.) */
+.hint, .mode-text p, .mode-text .warn, .dialog p, .icard-lore, .ad-screen small, .row-title, .row-sub, .perks p span, .fine { text-wrap: balance; }
+.dialog .about p, .about li { text-wrap: pretty; }
 
 /* A section label: words and a pixel rule, quieter than the window's title plate ("Daily ──────── 5:12:09"). */
 .sec { display: flex; align-items: center; gap: var(--s2); margin: var(--s4) 0 var(--s2); font-size: var(--fs-m); font-weight: 400; line-height: 1.15; color: var(--wood-d); }
@@ -300,7 +304,9 @@ a.btn { text-decoration: none; }
 /* The price key: green (coins buy it); grey with its lip and a meter while you save up (.btn.poor). */
 .up-cost { width: 100%; min-height: 44px; font-size: var(--fs-m); padding: 0 2px; }
 .up-cost .cost { gap: var(--s1); }
-.up-cost .badge { top: -10px; right: -6px; background: var(--plum-d); }
+/* The bulk count hangs on the key's top corner, clear of the price (at -10px from the padding box it sat 10 px into
+   the face and covered the last letter of "1.38M"). */
+.up-cost .badge { top: calc(-5 * var(--p) - 8px); right: -6px; padding: 2px 4px; background: var(--plum-d); }
 .up-row.afford .up-cost { animation: afford .9s var(--breathe) 1; }
 @keyframes afford { 40% { transform: scale(1.04); } }
 @keyframes afford-shine { 40% { opacity: .22; } }
@@ -338,6 +344,12 @@ a.btn { text-decoration: none; }
 #mode-fill { position: absolute; inset: 0 auto 0 0; width: 100%; transform-origin: left; transform: scaleX(var(--k, 1)); background: var(--gold); box-shadow: inset 0 var(--p) 0 #fff3a8; }
 #mode-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-xs); text-shadow: var(--sh); font-variant-numeric: tabular-nums; }
 .mode-progress { text-align: center; font-size: var(--fs-xl); margin-top: var(--s1); text-shadow: var(--sh); }
+/* A short window (a phone held sideways): the progress sits beside the clock, so the field keeps its depth. */
+@media (max-height: 560px) {
+  #mode-hud { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--s2); align-items: center; }
+  .mode-top { grid-column: 1 / -1; }
+  .mode-progress { font-size: var(--fs-l); line-height: 1; margin-top: var(--s2); min-width: 3ch; }
+}
 
 /* ---------- banner & toasts ---------- */
 .banner { position: absolute; z-index: 5; left: 0; right: 0; top: 36%; text-align: center; font-size: var(--fs-xxl); color: var(--white); padding: var(--s2) var(--s4); background: rgba(43, 26, 46, .72); box-shadow: 0 calc(var(--p) * 2) 0 var(--gold), 0 calc(var(--p) * -2) 0 var(--gold); text-shadow: var(--sh); opacity: 0; transform: scaleY(0); transition: opacity .25s, transform .35s var(--spring); pointer-events: none; }
@@ -402,6 +414,12 @@ a.btn { text-decoration: none; }
 .grade.halo { text-shadow: var(--sh); }
 .toast .grade, .center .grade, .odds .grade, .dlg-body .grade, .reward-line .grade, .inline .grade, .row-title .grade, .egg-name .grade { position: static; display: inline-block; vertical-align: middle; }
 .tile { position: relative; aspect-ratio: 1; display: grid; place-items: center; touch-action: none; max-width: 100%; min-width: 0; background: color-mix(in srgb, var(--gc, #d9c296) 40%, #fbeec9); box-shadow: var(--edge), var(--bevel); }
+/* Safari before 16.2 (iOS 15) has no color-mix(): with a var() in it the whole background would drop to transparent
+   (no earlier fallback survives that), so the tiles get the card colour and the egg rays a plain white. */
+@supports not (background: color-mix(in srgb, red 50%, white)) {
+  .tile { background: var(--parch3); }
+  .egg-stage .egg-rays { background: repeating-conic-gradient(from 0deg, rgba(255, 248, 236, .7) 0 12deg, transparent 12deg 30deg); }
+}
 .tile.empty { background: rgba(120, 80, 40, .14); box-shadow: inset 0 0 0 var(--p) rgba(43, 26, 46, .25); }
 .tile.slot.empty { background: rgba(43, 26, 46, .28); box-shadow: inset 0 0 0 var(--p) var(--ink); }
 .tile.sel { outline: calc(var(--p) * 2) solid var(--gold); outline-offset: var(--p); }
@@ -449,8 +467,11 @@ a.btn { text-decoration: none; }
 .stats3 b { display: flex; align-items: center; justify-content: center; gap: 3px; width: 100%; box-sizing: border-box; background: var(--dark); color: var(--white); text-shadow: var(--sh1); padding: 4px 6px; font-size: var(--fs-m); box-shadow: var(--edge); white-space: nowrap; }
 .odds { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .odds td, .odds th { padding: 6px 4px; text-align: center; border-bottom: var(--p) solid var(--parch2); }
-.draw-result { display: grid; grid-template-columns: repeat(5, 56px); justify-content: center; gap: var(--s2); padding-top: var(--s2); }
+/* Up to five a row; a pull of one or two sits in the middle (five fixed columns put a single tile at the left edge).
+   The grade letter sits inside its tile, never on the neighbour above. */
+.draw-result { display: grid; grid-template-columns: repeat(auto-fit, 56px); justify-content: center; gap: var(--s2); padding-top: var(--s2); width: 100%; max-width: calc(5 * 56px + 4 * var(--s2)); }
 .draw-result .tile { width: 56px; }
+.draw-result .tile > .grade { top: var(--p); left: var(--p); }
 .draw-result.rare .tile { box-shadow: var(--edge), 0 0 0 calc(var(--p) * 3) var(--gc); }
 
 /* skins */
@@ -475,6 +496,14 @@ a.btn { text-decoration: none; }
 .buff.on { background: #d4f2c8; }
 .buff b { font-size: var(--fs-s); } .buff small { font-size: var(--fs-xs); color: var(--ink2); }
 .buff .btn { width: 100%; min-width: 0; }
+/* The clock and the key sit on the card's floor, so they line up across the three cards when one name takes two lines
+   ("Баф швидкості", "Buff szybkości"). */
+.buff .timer { margin-top: auto; }
+/* Under 390 px "[ad] +30 min" no longer fits beside its icon (it ran over the key's frame): a two-line key, the ad
+   icon over the words. */
+@media (max-width: 389px) {
+  .buff .btn { flex-direction: column; gap: 2px; min-height: 58px; padding: 0; font-size: var(--fs-s); }
+}
 .timer { display: inline-block; background: var(--dark); color: var(--white); text-shadow: var(--sh1); padding: 2px 8px; font-variant-numeric: tabular-nums; box-shadow: var(--edge); font-size: var(--fs-s); white-space: nowrap; }
 .timer.big { font-size: var(--fs-l); padding: 4px 10px; }
 
@@ -552,7 +581,9 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
   padding: 0 var(--s3); border: solid transparent; border-width: calc(4 * var(--p)) calc(5 * var(--p)); border-image: var(--ui-plate, var(--ui-sign)) 4 5 fill / calc(4 * var(--p)) calc(5 * var(--p)); image-rendering: pixelated;
   font-size: var(--fs-xl); line-height: 1.1; color: var(--white); text-shadow: var(--sh); overflow-wrap: normal; text-wrap: balance; }
 .dialog p { margin: var(--s2) 0; text-align: center; line-height: 1.35; }
-.dlg-body { max-height: min(70vh, calc(100vh - 200px)); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+/* dvh where it exists: in Safari (the web build on an iPhone) 100vh is the height with the toolbars hidden, so a long
+   dialog's buttons could sit under the bottom bar. */
+.dlg-body { max-height: min(70vh, calc(100vh - 200px)); max-height: min(70dvh, calc(100dvh - 200px)); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
 .dlg-btns { display: flex; gap: var(--s2); justify-content: center; margin-top: var(--s3); flex-wrap: wrap; }
 .dlg-btns .btn { flex: 1 1 0; min-width: 0; min-height: 48px; }
 /* Seed pick (seeds.js): three seeds stacked, each its icon, name and what it does */
@@ -664,6 +695,13 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .story-pips i { width: 8px; height: 8px; background: var(--dark2); box-shadow: var(--edge), 0 0 0 calc(var(--p) * 2) rgba(255, 248, 236, .25); }
 .story-pips i.on { background: var(--gold); }
 .story-next { min-width: 168px; }
+/* Under 480 px tall (sideways): a smaller picture (story.js), the words a step smaller on a line wider than it, the
+   picture centred over them. */
+@media (max-height: 479px) {
+  .story { gap: var(--s2); }
+  .story-pic { margin: 0 auto; }
+  .story-cap { width: max(var(--story-w, 240px), min(280px, calc(100vw - 2 * var(--gl) - 12 * var(--p)))); min-height: 0; padding: var(--s2); font-size: var(--fs-m); }
+}
 /* A new garden ahead (main.js onBossWin): where the squad hops next, and a line about it, under "Boss defeated!". The
    banner rests on the upgrades instead of the middle of the field, so its three lines cover the field, not the rows. */
 .banner.sub { top: auto; bottom: calc(var(--bottom-h, var(--hotbar-h)) + var(--s2)); line-height: 1.1; }
@@ -705,7 +743,7 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
   .row { gap: var(--s2); }
   .row-act .btn { min-width: 64px; }
   .card { padding: var(--s2); }
-  .draw-result { grid-template-columns: repeat(4, 52px); }
+  .draw-result { grid-template-columns: repeat(auto-fit, 52px); max-width: calc(4 * 52px + 3 * var(--s2)); }
   .draw-result .tile { width: 52px; }
 }
 /* Up to 700 px tall the tool rail (taller than the wallet) stops pushing the field down: it hangs over the field's
@@ -764,10 +802,10 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
    (the world is 160 art pixels across whatever the width). */
 @media (min-aspect-ratio: 1/1) {
   body { background: #4f7a3c; }
-  #app { width: clamp(360px, (100vh - 456px) * 3.5, 480px); margin: 0 auto; box-shadow: 0 0 0 var(--p) var(--ink); }
+  #app { width: clamp(360px, (100vh - 456px) * 3.5, 480px); width: clamp(360px, (100dvh - 456px) * 3.5, 480px); margin: 0 auto; box-shadow: 0 0 0 var(--p) var(--ink); }
 }
 @media (min-aspect-ratio: 1/1) and (max-height: 560px) {
-  #app { width: clamp(360px, (100vh - 274px) * 3.5, 480px); }
+  #app { width: clamp(360px, (100vh - 274px) * 3.5, 480px); width: clamp(360px, (100dvh - 274px) * 3.5, 480px); }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
@@ -788,6 +826,8 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .icard-stats b { font-variant-numeric: tabular-nums; text-align: right; }
 .icard-next { display: grid; grid-template-columns: auto 48px minmax(0, 1fr); align-items: center; gap: var(--s2); width: 100%; font-size: var(--fs-s); text-align: left; }
 .icard-next .tile { width: 48px; height: 48px; aspect-ratio: auto; }
+/* "Merge two:" was the browser's own smaller size (15 px, off the type scale). */
+.icard-next small { font-size: var(--fs-xs); }
 
 /* ---------- the Garden Album ---------- */
 .album-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: var(--s3) 0 var(--s1); }
@@ -802,6 +842,10 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .atile.shiny:not(.unseen), .icard-art.shiny { background: linear-gradient(135deg, #ffe0f4, #e0f6ff 35%, #fff6cc 65%, #e6ffe0); background-size: 300% 300%; animation: shine 4s var(--breathe) infinite alternate; }
 @keyframes shine { to { background-position: 100% 100%; } }
 .atile .badge { font-size: var(--fs-xs); }
+/* NEW on a found entry: the one NEW marker (docs/DESIGN_SYSTEM.md 6), gold like on the hotbar, inside the tile's
+   top-right corner (a green badge used to hang off the top-left over the neighbour and the section rule, and a shiny
+   tile, which clips for its shimmer, cut it in half). */
+.atile .newtag { position: absolute; z-index: 2; top: var(--p); right: var(--p); font-style: normal; font-size: var(--fs-xs); line-height: 1; padding: 2px 3px; background: #ffd23f; color: var(--ink); text-shadow: none; box-shadow: var(--edge); pointer-events: none; }
 .album-groups button { height: 36px; }
 
 /* Tabs size to their words, so a long one ("Переродження") takes the room a short one doesn't need.
@@ -843,6 +887,12 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .foot-row { display: flex; gap: var(--s2); }
 .foot-row > .btn { flex: 1 1 0; min-width: 0; }
 .foot-row > .btn.fit { flex: 0 0 auto; padding: 0 var(--s3); }
+/* Raid / Tower / Cave: [Quick clear] beside [Challenge], the full width of the footer like every other window's
+   (the old .mode-btns column stacked them in a 300-px strip, so this footer alone was narrower and taller). */
+.sheet-foot .foot-row.mode-btns { flex-direction: row; flex-wrap: wrap; align-items: center; max-width: none; margin: 0; }
+/* Where "Szybkie przejście" leaves Challenge under 120 px (360 px phones) they stack, each the full width. */
+.sheet-foot .mode-btns > .btn.fit { flex: 1 0 auto; }
+.sheet-foot .mode-btns > .btn.big { flex: 3 1 120px; }
 .sheet-foot .odds-line { margin: 0 0 var(--s2); gap: 0 6px; line-height: 1.15; }
 .sheet-foot .gdot { display: none; }
 .sheet-foot .timer.big { display: block; width: fit-content; margin: 0 auto var(--s2); text-align: center; }
@@ -895,6 +945,8 @@ label.set-row { cursor: pointer; }
 }
 @media (max-width: 359px) {
   .sheet-wallet .chip + .chip { display: none; }
+  /* "Переродитись" beside the x3 key ran into both edges of its key at 26 px. */
+  .sheet-foot .btn.big { font-size: var(--fs-m); }
   .tabs.n4 { display: grid; grid-template-columns: 1fr 1fr; }
   .stats3 .stat { padding: var(--s1) 0; }
   .stats3 .stat b { gap: 2px; font-size: var(--fs-s); }
@@ -1362,8 +1414,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     strings: {
       'game.title': 'Bunny Boom',
       'world': 'World {w}-{s}',
-      'farming': 'Farming {w}-{s}',
-      'stage.clear': 'Stage Clear!',
+      'farming': 'Farm {w}-{s}',
+      'stage.clear': 'Stage clear!',
       'boss.down': 'Boss defeated!',
       'boss.fail': 'Too slow! Get stronger and try again',
       'boss.challenge': 'Challenge Boss',
@@ -1385,10 +1437,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'draw': 'Draw', 'draw10': 'Draw x10', 'draw.free': 'Free draw', 'draw.ad': 'Ad draw', 'draw.epic': 'Epic draw', 'draw.full': 'No free space. Merge first!', 'draw.got': 'You got {name}!', 'draw.result': 'New!',
       'equipbest': 'Equip best', 'slot.locked': 'Opens at World {w}', 'auto.merge': 'Auto', 'auto.need': "Auto merge comes with the Garden Club",
       'odds': 'Odds', 'odds.title': 'Draw odds', 'odds.text': 'Each draw gives one item. Higher grades come only from merging.',
-      'stat.dmg': 'Damage', 'stat.rate': 'Shots/s', 'stat.money': 'Money', 'stat.speed': 'Speed', 'stat.power': 'Power', 'stat.crit': 'Crit Rate', 'stat.critdmg': 'Crit Dmg',
+      'stat.dmg': 'Damage', 'stat.rate': 'Shots/s', 'stat.money': 'Money', 'stat.speed': 'Speed', 'stat.power': 'Power', 'stat.crit': 'Crit chance', 'stat.critdmg': 'Crit damage',
       // skins
       'skin.title': 'Costumes', 'skin.tip': 'A costume\'s bonus counts even when you wear another one.',
-      'skin.u.world': 'Reach World {w}', 'skin.u.rebirths': 'Rebirth {n} times', 'skin.u.iap': 'In the Shop',
+      'skin.u.world': 'Reach World {w}', 'skin.u.rebirths': 'Rebirth ×{n}', 'skin.u.iap': 'In the Shop',
       // rebirth
       'rb.title': 'Rebirth', 'rb.avail': 'Moonstones you get now', 'rb.do': 'Rebirth', 'rb.super': 'Super Rebirth x3', 'rb.need': 'Reach World 5 to rebirth',
       'rb.confirm': 'Start again from World 1 with {n} Moonstones? You keep crystals, blasters, pets, butterflies and costumes.',
@@ -1400,8 +1452,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'raid.title': 'Slug Raid', 'raid.text': 'Slugs are coming for the carrots! Stop every one of them.', 'raid.lvl': 'Wave {n}', 'raid.tip': 'From wave {w} some slugs wear acorn caps: tap to knock them off!',
       'tower.title': 'Boss Tower', 'tower.text': 'Defeat the boss within {s} seconds!', 'tower.lvl': 'Lv.{n}',
       'cave.title': 'Crystal Cave', 'cave.text': 'Mine as many crystals as you can in {s} seconds!', 'cave.tip': 'Every hit counts as 1, whatever the blaster. Tap rocks to dig faster!', 'cave.entries': 'Entries', 'cave.best': 'Best: {n}',
-      'mode.noup': 'Coin upgrades and Rebirth do not apply here.', 'mode.win': 'Victory!', 'mode.timeup': "Time's up!", 'mode.lose': 'Defeat', 'mode.left': '{n} left', 'mode.time': 'Time',
-      'mode.sweep': 'Quick Clear', 'mode.sweep.d': 'Collect your best level\'s reward again (once a day)', 'mode.sweep.used': 'Used today', 'mode.noticket': 'No entries left today',
+      'mode.noup': 'Coin upgrades and Rebirth do not apply here.', 'mode.win': 'Victory!', 'mode.timeup': "Time's up!", 'mode.lose': 'Defeat', 'mode.exit.q': 'Leave this fight? It counts as a loss.', 'mode.left': '{n} left', 'mode.time': 'Time',
+      'mode.sweep': 'Quick clear', 'mode.sweep.d': 'Collect your best level\'s reward again (once a day)', 'mode.sweep.used': 'Used today', 'mode.noticket': 'No entries left today',
       'cave.more': 'More entries', 'cave.passd': 'Daily Crystal Cave entries become 6',
       // trip
       'trip.title': 'Trip', 'trip.text': 'Send your bunny on a trip and come back with treasure.', 'trip.go': 'Go ({t})', 'trip.away': 'Back in {t}', 'trip.ad': 'Speed up 1h', 'trip.ad.none': 'No more speed-ups today', 'trip.back': 'Your bunny is back!', 'trip.unlock': 'Opens at World 5',
@@ -1423,7 +1475,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'pity.left': "{g} or better within {n} draws", 'pity.text': "Paid draws only: an x10 always holds an {a} or better, and your {n}th draw at the latest is an {g} or better.",
       'tut.new': "New: {name}!", 'tut.power': "*Spend coins here* to hit harder", 'tut.hold': "*Hold* to keep buying levels", 'tut.stage': "*Pop 10 veggies* to clear the field", 'tut.boss': "Beat it in {s}s!", 'tut.retry': "Upgrade, then try again", 'tut.gear': "*Open Blasters*: a gift inside", 'tut.freedraw': "*Draw a free blaster*!", 'tut.merge': "*Drag* onto its twin to merge", 'tut.equip': "*Drag it here* to equip", 'pass.tierup': "Garden Pass: tier {n}!",
       'tut.opens.stage': "Opens at stage {s}",
-      'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "Claim {n} crystals each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.manage': "Manage", 'club.fine.store': "Renews monthly at {p} until you cancel. Cancel anytime in Google Play > Payments & subscriptions.", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass · Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
+      'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "Claim {n} crystals each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.manage': "Manage", 'club.fine.store': "Renews monthly at {p} until you cancel. Cancel anytime in Google Play > Payments & subscriptions.", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass\u00a0· Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
       // Seed pick before a Raid or Tower run (seeds.js)
       'seed.title': 'Pick a seed', 'seed.sub': 'One perk for this run only',
       'seed.sharp': 'Sharp seeds', 'seed.sharp.d': '+35% damage', 'seed.quick': 'Quick seeds', 'seed.quick.d': '+30% shots per second',
@@ -1495,7 +1547,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'ad.title': 'Advertisement', 'ad.test': 'Test ad. The store build shows a real video ad here.', 'ad.skip': 'Skip in {n}', 'ad.close': 'Get reward', 'ad.vip': 'Ad skipped (No Ads)', 'ad.broken': "The ad broke, but the reward is yours.", 'ad.credit': "You already watched this ad: the reward comes without one.", 'ad.recovered': "Your ad reward from last time", 'ad.recovered.credit': "Last time's ad counts: your next draw or x3 rebirth needs no ad.", 'pass.season': "This season: {d} days, through {date}", 'pass.season.long': "This season: through {date}", 'pass.premium.season': "Premium is for this season only: {d} days, through {date}. The next season starts free again.", 'pass.premium.season.long': "Premium is for this season only, through {date}. The next season starts free again.",
       // missions & daily
       'mission.title': 'Mission', 'mission.claim': 'Claim',
-      'm.world': 'Reach World {n}', 'm.upgrades': 'Buy {n} upgrades', 'm.kills': 'Smash {n} veggies', 'm.draws': 'Draw {n} times', 'm.merges': 'Merge {n} times', 'm.raid': 'Clear Raid wave {n}', 'm.tower': 'Beat Boss Tower Lv.{n}', 'm.caves': 'Visit the Crystal Cave {n} times', 'm.rebirths': 'Rebirth {n} times', 'm.bosses': 'Defeat {n} bosses', 'm.golden': 'Catch {n} golden carrots',
+      'm.world': 'Reach World {n}', 'm.upgrades': 'Buy {n} upgrades', 'm.kills': 'Smash {n} veggies', 'm.draws': 'Draw {n} times', 'm.merges': 'Merge {n} times', 'm.raid': 'Clear Raid wave {n}', 'm.tower': 'Beat Boss Tower Lv.{n}', 'm.caves': 'Visit the Crystal Cave {n} times', 'm.rebirths': 'Rebirth ×{n}', 'm.bosses': 'Defeat {n} bosses', 'm.golden': 'Catch {n} golden carrots',
       'daily.title': 'Daily Gift', 'daily.day': 'Day {n}', 'daily.claimed': 'Come back tomorrow!',
       // misc
       'piggy.title': 'Crystal Piggy', 
@@ -1597,7 +1649,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'odds': 'Шанси', 'odds.title': 'Шанси випадіння', 'odds.text': "Кожна спроба дає один предмет. Вищі грейди — лише через об'єднання.",
       'stat.dmg': 'Шкода', 'stat.rate': 'Постр./с', 'stat.money': 'Гроші', 'stat.speed': 'Швидкість', 'stat.power': 'Сила', 'stat.crit': 'Шанс крит.', 'stat.critdmg': 'Крит. шкода',
       'skin.title': 'Костюми', 'skin.tip': 'Бонус костюма діє, навіть коли вдягнений інший.',
-      'skin.u.world': 'Дійди до Світу {w}', 'skin.u.rebirths': 'Переродись {n} раз(и)', 'skin.u.iap': 'У Лавці',
+      'skin.u.world': 'Дійди до Світу {w}', 'skin.u.rebirths': 'Переродись ×{n}', 'skin.u.iap': 'У Лавці',
       'rb.title': 'Переродження', 'rb.avail': 'Отримаєш Місячних каменів', 'rb.do': 'Переродитись', 'rb.super': 'Супер x3', 'rb.need': 'Дійди до Світу 5, щоб переродитись',
       'rb.confirm': 'Почати знову зі Світу 1 і отримати {n} Місячних каменів? Кристали, бластери, улюбленці, метелики й костюми залишаться.',
       'rb.power': 'Посилення сили', 'rb.speed': 'Посилення швидкості', 'rb.money': 'Посилення грошей', 'rb.upgrade': 'Покращити', 'rb.done': 'Переродження! +{n} Місячних каменів',
@@ -1606,7 +1658,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'raid.title': 'Набіг слимаків', 'raid.text': 'Слимаки повзуть по моркву! Зупини кожного.', 'raid.lvl': 'Хвиля {n}', 'raid.tip': 'З {w}-ї хвилі деякі слимаки в жолудевих шапочках: збий їх дотиком!',
       'tower.title': 'Вежа босів', 'tower.text': 'Переможи боса за {s} секунд!', 'tower.lvl': 'Рів.{n}',
       'cave.title': 'Кришталева печера', 'cave.text': 'Добудь якомога більше кристалів за {s} секунд!', 'cave.tip': 'Кожен удар рахується як 1, хоч би який бластер. Натискай на камені, щоб копати швидше!', 'cave.entries': 'Входи', 'cave.best': 'Рекорд: {n}',
-      'mode.noup': 'Покращення за монети й Переродження тут не діють.', 'mode.win': 'Перемога!', 'mode.timeup': 'Час вийшов!', 'mode.lose': 'Поразка', 'mode.left': 'Залишилось {n}', 'mode.time': 'Час',
+      'mode.noup': 'Покращення за монети й Переродження тут не діють.', 'mode.win': 'Перемога!', 'mode.timeup': 'Час вийшов!', 'mode.lose': 'Поразка', 'mode.exit.q': 'Вийти з бою? Це зарахується як поразка.', 'mode.left': 'Залишилось {n}', 'mode.time': 'Час',
       'mode.sweep': 'Швидка зачистка', 'mode.sweep.d': 'Забрати нагороду найкращого рівня ще раз (раз на день)', 'mode.sweep.used': 'Вже сьогодні', 'mode.noticket': 'Сьогодні входів більше немає',
       'cave.more': 'Більше входів', 'cave.passd': 'Щодня 6 входів у Кришталеву печеру',
       'trip.title': 'Подорож', 'trip.text': 'Відправ кролика в подорож — він повернеться зі скарбами.', 'trip.go': 'В путь ({t})', 'trip.away': 'Повернеться за {t}', 'trip.ad': 'Пришвидшити на 1 год', 'trip.ad.none': 'На сьогодні прискорень більше немає', 'trip.back': 'Кролик повернувся!', 'trip.unlock': 'Відкриється у Світі 5',
@@ -1627,7 +1679,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'pity.left': "{g} або краще не пізніше ніж за {n} спроб", 'pity.text': "Лише платні спроби: у x10 завжди є {a} або краще, а не пізніше ніж {n}-та спроба дає {g} або краще.",
       'tut.new': "Нове: {name}!", 'tut.power': "*Витрачай монети тут*, щоб бити сильніше", 'tut.hold': "*Затисни* — купуй рівень за рівнем", 'tut.stage': "*Розбий 10 овочів* — і поле пройдено", 'tut.boss': "Здолай за {s} с!", 'tut.retry': "Прокачайся і спробуй ще", 'tut.gear': "*Відкрий «Зброю»*: там подарунок", 'tut.freedraw': "*Витягни бластер* — задарма!", 'tut.merge': "*Перетягни* на такий самий, щоб об'єднати", 'tut.equip': "*Перетягни сюди*, щоб вдягнути", 'pass.tierup': "Садовий пропуск: рівень {n}!",
       'tut.opens.stage': "Відкриється на етапі {s}",
-      'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "Забирай {n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автооб'єднання, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється щомісяця за {p}, доки не скасуєш. Скасувати можна будь-коли: Google Play > Платежі й підписки.", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск · Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Об'єднай ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Об'єднай ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
+      'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "Забирай {n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автооб'єднання, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється щомісяця за {p}, доки не скасуєш. Скасувати можна будь-коли: Google Play > Платежі й підписки.", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск\u00a0· Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Об'єднай ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Об'єднай ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
       // Вибір насіння перед набігом чи вежею (seeds.js)
       'seed.title': 'Обери насіння', 'seed.sub': 'Одна перевага лише на цей бій',
       'seed.sharp': 'Гостре насіння', 'seed.sharp.d': '+35% шкоди', 'seed.quick': 'Швидке насіння', 'seed.quick.d': '+30% пострілів за секунду',
@@ -1697,7 +1749,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'step.title': 'Крок за кроком!', 'step.text': 'Купуй улюбленців і ставай сильнішим!', 'step.n': 'КРОК {n}', 'step.lock': 'Відкриється після Кроку {n}', 'step.value': 'x{n} вигода', 'step.go': 'До Лавки', 'shop.soon': "Набори й пропуски з'являться, коли пограєш довше.", 'offer.later': "Не зараз", 'offer.gems.first': "Перша покупка цього набору подвоюється (зазвичай {n}).", 'offer.club.d': "+{n} кристалів щодня (забираєш сам), без примусової реклами, час на боса x2, більше входів у печеру, нагороди Набігу і Вежі x2.", 'offer.warp.d': "Стрибок уперед: {n} год доходу одразу, +{c} монет.", 'offer.boost.d': "Переглянь коротку рекламу, і шкода x2 на 30 хвилин. Лише якщо хочеш.",
       'ad.title': 'Реклама', 'ad.test': 'Тестова реклама. У версії з магазину тут буде справжнє відео.', 'ad.skip': 'Пропуск через {n}', 'ad.close': 'Забрати нагороду', 'ad.vip': 'Рекламу пропущено (Без реклами)', 'ad.broken': "Реклама зламалась, але нагорода твоя.", 'ad.credit': "Цю рекламу ти вже переглянув: нагорода без неї.", 'ad.recovered': "Нагорода за рекламу з минулого разу", 'ad.recovered.credit': "Реклама з минулого разу зарахована: наступне витягування чи переродження x3 — без реклами.", 'pass.season': "Цей сезон: {d} днів, до {date} включно", 'pass.season.long': "Цей сезон: до {date} включно", 'pass.premium.season': "Преміум — лише на цей сезон: {d} днів, до {date} включно. Наступний сезон знову починається безкоштовно.", 'pass.premium.season.long': "Преміум — лише на цей сезон, до {date} включно. Наступний сезон знову починається безкоштовно.",
       'mission.title': 'Місія', 'mission.claim': 'Забрати',
-      'm.world': 'Дійди до Світу {n}', 'm.upgrades': 'Купи {n} покращень', 'm.kills': 'Розбий {n} овочів', 'm.draws': 'Витягни {n} разів', 'm.merges': "Об'єднай {n} разів", 'm.raid': 'Пройди хвилю набігу {n}', 'm.tower': 'Переможи вежу Рів.{n}', 'm.caves': 'Зайди в печеру {n} разів', 'm.rebirths': 'Переродись {n} разів', 'm.bosses': 'Переможи {n} босів', 'm.golden': 'Злови {n} золотих морквин',
+      'm.world': 'Дійди до Світу {n}', 'm.upgrades': 'Купи {n} покращень', 'm.kills': 'Розбий {n} овочів', 'm.draws': 'Витягни {n} разів', 'm.merges': "Об'єднай {n} разів", 'm.raid': 'Пройди хвилю набігу {n}', 'm.tower': 'Переможи вежу Рів.{n}', 'm.caves': 'Зайди в печеру {n} разів', 'm.rebirths': 'Переродись ×{n}', 'm.bosses': 'Переможи {n} босів', 'm.golden': 'Злови {n} золотих морквин',
       'daily.title': 'Щоденний подарунок', 'daily.day': 'День {n}', 'daily.claimed': 'Повертайся завтра!',
       'piggy.title': 'Кришталева скарбничка', 
       'offline.title': 'З поверненням!', 'offline.text': 'Кролик трощив овочі ще {t}.', 'offline.x2': 'x2 (реклама)',
@@ -1809,7 +1861,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'raid.title': 'Inwazja ślimaków', 'raid.text': 'Ślimaki idą po marchewki! Zatrzymaj każdego z nich.', 'raid.lvl': 'Fala {n}', 'raid.tip': 'Od fali {w} część ślimaków ma czapki z żołędzi: stuknij, by je strącić!',
       'tower.title': 'Wieża bossów', 'tower.text': 'Pokonaj bossa w {s} sekund!', 'tower.lvl': 'Poz. {n}',
       'cave.title': 'Kryształowa jaskinia', 'cave.text': 'Wykop jak najwięcej kryształów w {s} sekund!', 'cave.tip': 'Każde uderzenie to 1, bez względu na blaster. Stukaj w skały, by kopać szybciej!', 'cave.entries': 'Wejścia', 'cave.best': 'Rekord: {n}',
-      'mode.noup': 'Ulepszenia za monety i Odrodzenie tu nie działają.', 'mode.win': 'Zwycięstwo!', 'mode.timeup': 'Koniec czasu!', 'mode.lose': 'Porażka', 'mode.left': 'Zostało: {n}', 'mode.time': 'Czas',
+      'mode.noup': 'Ulepszenia za monety i Odrodzenie tu nie działają.', 'mode.win': 'Zwycięstwo!', 'mode.timeup': 'Koniec czasu!', 'mode.lose': 'Porażka', 'mode.exit.q': 'Wyjść z walki? To liczy się jako porażka.', 'mode.left': 'Zostało: {n}', 'mode.time': 'Czas',
       'mode.sweep': 'Szybkie przejście', 'mode.sweep.d': 'Odbierz jeszcze raz nagrodę za najlepszy poziom (raz dziennie)', 'mode.sweep.used': 'Użyte dzisiaj', 'mode.noticket': 'Na dziś koniec wejść',
       'cave.more': 'Więcej wejść', 'cave.passd': 'Codziennie 6 wejść do Kryształowej jaskini',
       'trip.title': 'Wyprawa', 'trip.text': 'Wyślij króliczka na wyprawę, a wróci ze skarbami.', 'trip.go': 'W drogę ({t})', 'trip.away': 'Wróci za {t}', 'trip.ad': 'Przyspiesz o 1 h', 'trip.ad.none': 'Na dziś koniec przyspieszeń','trip.back': 'Króliczek wrócił!', 'trip.unlock': 'Odblokujesz w Świecie 5',
@@ -1830,7 +1882,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'pity.left': '{g} lub lepszy w ciągu {n} losowań', 'pity.text': 'Tylko płatne losowania: x10 zawsze zawiera {a} lub lepszy, a najpóźniej {n}. losowanie daje {g} lub lepszy.',
       'tut.new': 'Nowość: {name}!', 'tut.power': '*Wydawaj monety tutaj*, by bić mocniej', 'tut.hold': '*Przytrzymaj*, by kupować szybciej', 'tut.stage': '*Rozbij 10 warzyw*, by zaliczyć pole', 'tut.boss': 'Pokonaj w {s} s!', 'tut.retry': 'Ulepsz się i spróbuj znowu', 'tut.gear': '*Otwórz Blastery*: czeka prezent', 'tut.freedraw': '*Wylosuj blaster* za darmo!', 'tut.merge': '*Przeciągnij* na bliźniaka, by połączyć', 'tut.equip': '*Przeciągnij tutaj*, by założyć', 'pass.tierup': 'Przepustka Ogrodowa: poziom {n}!',
       'tut.opens.stage': 'Otworzy się na etapie {s}',
-      'open': 'Otwórz', 'club.title': 'Klub Ogrodowy', 'club.daily': 'Codzienny prezent klubowy', 'club.daily.d': '+{n} kryształów codziennie, póki trwa', 'club.p.gems': 'Odbieraj {n} kryształów codziennie', 'club.p.noads': 'Bez wymuszonych reklam', 'club.p.cave': 'Wejścia do Kryształowej jaskini dziennie', 'club.p.rewards': 'Nagrody z Inwazji i Wieży', 'club.p.conv': 'Auto-łączenie, szybkie przejście, krótkie wyprawy', 'club.price': '{p} / miesiąc', 'club.manage': 'Zarządzaj', 'club.fine.store': 'Odnawia się co miesiąc za {p}, dopóki nie anulujesz. Anulujesz kiedy chcesz w Google Play > Płatności i subskrypcje.','club.fine': 'Tryb testowy: 30 dni. W aplikacji ze sklepu odnawia się co miesiąc, dopóki nie anulujesz w Google Play / App Store.', 'shop.sprout': 'Tydzień Kiełka', 'shop.sprout.d': '{now} kryształów od razu i po {n} więcej codziennie przez 7 dni.', 'piggy.text2': 'Każdy pokonany boss wrzuca tu 10 kryształów. Rozbij świnkę, gdy uzbiera {n} (maks. {max}).', 'warp.title': 'Skok w czasie', 'warp.d': 'Zgarnij od razu dochód z kilku godzin. Teraz 1 godzina = {c} monet.', 'warp.h': '{n} h', 'warp.confirm': 'Skoczyć {n} h do przodu za {c} monet?', 'pass.title': 'Przepustka Ogrodowa · Sezon {n}', 'pass.short': 'Przepustka', 'pass.tier': 'Poziom {n}/{max}', 'pass.ends': 'koniec za {t}', 'pass.premium': 'Premium', 'pass.plus': 'Premium+', 'pass.premium.d': 'Odblokuj złotą ścieżkę: 30 nagród więcej, pupil SS i motyl SS. Premium+ od razu przeskakuje 10 poziomów i daje +20% XP.', 'pass.buytier': '+1 poziom', 'pass.claimall': 'Odbierz wszystko ({n})', 'pass.free': 'Za darmo', 'pass.xp.hint': 'XP: zadanie dzienne {d}, tygodniowe {w}, boss {b} (pierwszych 10 dziennie).', 'egg.tap': 'Stuknij, by pominąć', 'egg.close': 'Stuknij, by zamknąć', 'quests.title': 'Zadania', 'quests.daily': 'Dzienne', 'quests.weekly': 'Tygodniowe', 'quests.hint': 'Zadania dają XP do Przepustki Ogrodowej. Nowe codziennie i w każdy poniedziałek.', 'q.kills': 'Rozbij warzywa ×{n}', 'q.bosses': 'Pokonaj bossów ×{n}', 'q.upgrades': 'Kup ulepszenia ×{n}', 'q.draws': 'Losuj ×{n}', 'q.merges': 'Połącz ×{n}', 'q.golden': 'Złap złote marchewki ×{n}', 'q.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'q.caves': 'Kop w Kryształowej jaskini ×{n}', 'q.towers': 'Wygraj walki w Wieży ×{n}', 'q.rebirths': 'Odródź się ×{n}', 'goals.title': 'Cele', 'goals.hint': 'Cele jednorazowe. Każdy daje kryształy tylko raz.', 'goal.kills': 'Rozbij warzywa ×{n}', 'goal.bosses': 'Pokonaj bossów ×{n}', 'goal.maxWorld': 'Dotrzyj do Świata {n}', 'goal.rebirths': 'Odródź się ×{n}', 'goal.merges': 'Połącz ×{n}', 'goal.draws': 'Losuj ×{n}', 'goal.golden': 'Złap złote marchewki ×{n}', 'goal.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'goal.towers': 'Wygraj walki w Wieży ×{n}', 'goal.caves': 'Odwiedź Kryształową jaskinię ×{n}', 'daily.pause': '28 dni prezentów. Ominął cię dzień? Kalendarz po prostu poczeka.',
+      'open': 'Otwórz', 'club.title': 'Klub Ogrodowy', 'club.daily': 'Codzienny prezent klubowy', 'club.daily.d': '+{n} kryształów codziennie, póki trwa', 'club.p.gems': 'Odbieraj {n} kryształów codziennie', 'club.p.noads': 'Bez wymuszonych reklam', 'club.p.cave': 'Wejścia do Kryształowej jaskini dziennie', 'club.p.rewards': 'Nagrody z Inwazji i Wieży', 'club.p.conv': 'Auto-łączenie, szybkie przejście, krótkie wyprawy', 'club.price': '{p} / miesiąc', 'club.manage': 'Zarządzaj', 'club.fine.store': 'Odnawia się co miesiąc za {p}, dopóki nie anulujesz. Anulujesz kiedy chcesz w Google Play > Płatności i subskrypcje.','club.fine': 'Tryb testowy: 30 dni. W aplikacji ze sklepu odnawia się co miesiąc, dopóki nie anulujesz w Google Play / App Store.', 'shop.sprout': 'Tydzień Kiełka', 'shop.sprout.d': '{now} kryształów od razu i po {n} więcej codziennie przez 7 dni.', 'piggy.text2': 'Każdy pokonany boss wrzuca tu 10 kryształów. Rozbij świnkę, gdy uzbiera {n} (maks. {max}).', 'warp.title': 'Skok w czasie', 'warp.d': 'Zgarnij od razu dochód z kilku godzin. Teraz 1 godzina = {c} monet.', 'warp.h': '{n} h', 'warp.confirm': 'Skoczyć {n} h do przodu za {c} monet?', 'pass.title': 'Przepustka Ogrodowa\u00a0· Sezon {n}', 'pass.short': 'Przepustka', 'pass.tier': 'Poziom {n}/{max}', 'pass.ends': 'koniec za {t}', 'pass.premium': 'Premium', 'pass.plus': 'Premium+', 'pass.premium.d': 'Odblokuj złotą ścieżkę: 30 nagród więcej, pupil SS i motyl SS. Premium+ od razu przeskakuje 10 poziomów i daje +20% XP.', 'pass.buytier': '+1 poziom', 'pass.claimall': 'Odbierz wszystko ({n})', 'pass.free': 'Za darmo', 'pass.xp.hint': 'XP: zadanie dzienne {d}, tygodniowe {w}, boss {b} (pierwszych 10 dziennie).', 'egg.tap': 'Stuknij, by pominąć', 'egg.close': 'Stuknij, by zamknąć', 'quests.title': 'Zadania', 'quests.daily': 'Dzienne', 'quests.weekly': 'Tygodniowe', 'quests.hint': 'Zadania dają XP do Przepustki Ogrodowej. Nowe codziennie i w każdy poniedziałek.', 'q.kills': 'Rozbij warzywa ×{n}', 'q.bosses': 'Pokonaj bossów ×{n}', 'q.upgrades': 'Kup ulepszenia ×{n}', 'q.draws': 'Losuj ×{n}', 'q.merges': 'Połącz ×{n}', 'q.golden': 'Złap złote marchewki ×{n}', 'q.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'q.caves': 'Kop w Kryształowej jaskini ×{n}', 'q.towers': 'Wygraj walki w Wieży ×{n}', 'q.rebirths': 'Odródź się ×{n}', 'goals.title': 'Cele', 'goals.hint': 'Cele jednorazowe. Każdy daje kryształy tylko raz.', 'goal.kills': 'Rozbij warzywa ×{n}', 'goal.bosses': 'Pokonaj bossów ×{n}', 'goal.maxWorld': 'Dotrzyj do Świata {n}', 'goal.rebirths': 'Odródź się ×{n}', 'goal.merges': 'Połącz ×{n}', 'goal.draws': 'Losuj ×{n}', 'goal.golden': 'Złap złote marchewki ×{n}', 'goal.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'goal.towers': 'Wygraj walki w Wieży ×{n}', 'goal.caves': 'Odwiedź Kryształową jaskinię ×{n}', 'daily.pause': '28 dni prezentów. Ominął cię dzień? Kalendarz po prostu poczeka.',
       // Seed pick before a Raid or Tower run (seeds.js)
       'seed.title': 'Wybierz nasionko', 'seed.sub': 'Jeden bonus tylko na tę rundę',
       'seed.sharp': 'Ostre nasionka', 'seed.sharp.d': '+35% obrażeń', 'seed.quick': 'Szybkie nasionka', 'seed.quick.d': '+30% strzałów na sekundę',
@@ -6419,11 +6471,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     hooks.onStage();
   }
   function startMain() {
+    const back = mode !== 'main';
     mode = 'main'; modeCfg = null; targets = []; bullets = []; golden = null;
     const s = save();
     if (s.stage.world > eco.C.MAX_WORLD) { s.stage.world = eco.C.MAX_WORLD; s.stage.sub = 5; s.stage.farming = true; }
     phase = 'fight';
     refreshStats(true);
+    if (back) relayout();
     if (eco.isBoss(s.stage.sub) && !s.stage.farming) startBoss();
     else tryLeap();
     hooks.onStage();
@@ -6449,7 +6503,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 
   // ---------- side modes ----------
   function startMode(kind, level, seed) {
-    mode = kind; targets = []; bullets = []; golden = null; floats = [];
+    mode = kind; targets = []; bullets = []; golden = null; floats = []; hopOff = 0;
     // Carrot Rain stays on the main field (a press still waiting keeps its charge).
     drops2 = []; rainT = 0; rainPhase = 0; rainQueued = false;
     const s = save();
@@ -6458,19 +6512,18 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       modeCfg.total = eco.raidWaveSize(level);
       modeCfg.hp = eco.raidHp(level);
       modeT = 60 + (logic.vipOn(s, 'time', now()) ? logic.VIP.raidBonusSec : 0);
-    } else if (kind === 'tower') {
-      const hp = eco.bossTowerHp(level);
-      const p = bossSpot();
-      targets.push(T({ type: 'boss', name: 'boss_' + BIOMES[level % BIOMES.length].boss, x: p.x, y: p.y, r: 20, w: 42, hp, maxHp: hp }));
-      modeT = logic.towerTime(s, now());
-    } else if (kind === 'cave') {
-      modeT = logic.caveTime(s, now());
-      for (let i = 0; i < 4; i++) spawnRock();
-    }
+    } else if (kind === 'tower') modeT = logic.towerTime(s, now());
+    else if (kind === 'cave') modeT = logic.caveTime(s, now());
     if (seed) modeT += BB.seeds.time(seed);
     modeCfg.timeTotal = modeT;
     phase = 'fight';
     refreshStats(true);
+    relayout();
+    if (kind === 'tower') {
+      const hp = eco.bossTowerHp(level);
+      const p = bossSpot();
+      targets.push(T({ type: 'boss', name: 'boss_' + BIOMES[level % BIOMES.length].boss, x: p.x, y: p.y, r: 20, w: 42, hp, maxHp: hp }));
+    } else if (kind === 'cave') for (let i = 0; i < 4; i++) spawnRock();
   }
   function spawnRock() {
     const pick = eco.roll(eco.CAVE.rocks.map((r) => r.w / 100));
@@ -6479,6 +6532,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     targets.push(T({ type: 'rock', name: 'rock_' + R.kind, x: pos.x, y: pos.y, r: [8, 10, 11][pick], w: [18, 22, 24][pick], hp: R.hits, maxHp: R.hits, gems: R.gems }));
   }
   const RAID_CAP = { wave: 6, take: 0.2 };
+  // A slug takes as long to reach the squad on every screen: its pace (and a tap's knock-back) follows how deep the
+  // field is. RAID_DEPTH art px from the top of the field to the squad is the depth the 7.5-10.5 px/s pace was set for.
+  const RAID_DEPTH = 96;
+  const depthK = () => Math.max(0.3, (bunnyY - fieldTop) / RAID_DEPTH);
   function spawnSlug() {
     const side = rnd();
     const x = side < 0.5 ? 12 + rnd() * (W - 24) : side < 0.75 ? 6 : W - 6;
@@ -6488,7 +6545,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const gold = rnd() < 0.001;
     // From wave 6 every third slug wears an acorn cap: blasters barely scratch it until a tap knocks it off.
     const cap = !gold && modeCfg.level >= RAID_CAP.wave && modeCfg.spawned % 3 === 2;
-    targets.push(T({ type: 'slug', name: 'slug_' + k, x, y, r: 9, w: 25, hp: modeCfg.hp * (gold ? 3 : 1), maxHp: modeCfg.hp * (gold ? 3 : 1), speed: (7.5 + rnd() * 3) * (gold ? 0.6 : 1) * (modeCfg.seed ? BB.seeds.slow(modeCfg.seed) : 1), gold, cap }));
+    targets.push(T({ type: 'slug', name: 'slug_' + k, x, y, r: 9, w: 25, hp: modeCfg.hp * (gold ? 3 : 1), maxHp: modeCfg.hp * (gold ? 3 : 1), speed: (7.5 + rnd() * 3) * (gold ? 0.6 : 1) * (modeCfg.seed ? BB.seeds.slow(modeCfg.seed) : 1) * depthK(), gold, cap }));
     modeCfg.spawned++;
   }
   function endMode(win) {
@@ -6851,6 +6908,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     lctx.imageSmoothingEnabled = false;
     lctx.fillStyle = '#6f9a4c'; lctx.fillRect(0, 0, W, H);
     const tile = mode === 'cave' ? 'cave' : BIOMES[mode === 'main' ? biomeOf(s.stage.world) : 2].tile;
+    ground(tile);
     const bg = background(tile);
     const off = Math.round(hopOff % H);
     lctx.drawImage(bg, 0, off);
@@ -7246,6 +7304,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     } catch (e) { console.error(e); }
   }
 
+  // The field lies between what covers its top and what covers its bottom. On the main screen that is the HUD and
+  // the upgrades with the hotbar. A mode hides both: its own HUD is the top, nothing covers the bottom, and the squad
+  // stands MODE_GAP art px above the line the hotbar ends on (clear of the home bar), with its foes coming down
+  // from right under the mode's HUD.
+  const MODE_GAP = 6;
   function resize() {
     lo.style.width = ''; lo.style.height = ''; lo.style.transform = ''; shakeX = shakeY = 0;
     const r = lo.getBoundingClientRect();
@@ -7257,12 +7320,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     // where #world clips it) and the text layer is exactly devW device pixels wide, so nothing resamples on fractional densities.
     lo.width = W; lo.height = H;
     lo.style.width = (W * K) / dpr + 'px'; lo.style.height = (H * K) / dpr + 'px';
-    inked = []; titleShown = false;
+    inked = []; titleShown = false; fieldX = Math.round(r.left);
     const toArt = (cssY) => (cssY * dpr) / K;
-    const top = document.getElementById('hud');
+    const mh = mode !== 'main' ? document.getElementById('mode-hud') : null;
+    const inMode = !!mh && mh.getBoundingClientRect().height > 0;
+    const top = inMode ? mh : document.getElementById('hud');
     const bottom = document.getElementById('bottom-ui');
     fieldTop = Math.round(top ? toArt(top.getBoundingClientRect().bottom - r.top) + 4 : 40);
-    fieldBottom = Math.round(bottom ? toArt(bottom.getBoundingClientRect().top - r.top) : H - 70);
+    // In a mode the bottom panel is hidden but still laid out: its bottom padding is the gap above the home bar.
+    if (inMode && bottom) fieldBottom = Math.round(toArt(bottom.getBoundingClientRect().bottom - parseFloat(getComputedStyle(bottom).paddingBottom) - r.top)) - MODE_GAP;
+    else fieldBottom = Math.round(bottom ? toArt(bottom.getBoundingClientRect().top - r.top) : H - 70);
     // The numbers layer ends where the bottom panel starts: no number goes lower, and where the canvas isn't on
     // the GPU each redraw copies the whole layer (a third of the screen or more less to copy).
     const hiH = Math.min(devH, Math.ceil((fieldBottom + 8) * K));
@@ -7273,6 +7340,44 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const cp = document.getElementById('res-coins');
     if (cp) { const pr = cp.getBoundingClientRect(); coinTarget = { x: toArt(pr.left - r.left + 12), y: toArt(pr.top - r.top + pr.height / 2) }; }
     bgCache.clear(); labels.clear();
+  }
+  // Entering or leaving a mode: the HUD is brought up to date first (ui.updateHud shows the mode's HUD or the main
+  // one), then the field is laid out for it, before anything is placed on it.
+  function relayout() { if (hooks.onFrame) hooks.onFrame(0); resize(); }
+
+  // Whatever the page box doesn't cover shows the same ground, not a flat band of the page colour: iOS Safari leaves
+  // the strip under its toolbar to the page's background, and a home-screen web app can come up a bar short. The
+  // root element's background is a 3x3 block of the field's tiles with its tufts and flowers, at the screen's own
+  // pixel size, on the field's own grid (made again when the tile, the scale or the field's left edge changes; never
+  // visible where the page fills the screen).
+  let groundTile = '', groundK = 0, groundDpr = 0, groundX = 0, groundUrl = '', fieldX = 0;
+  function ground(tile) {
+    if (tile === groundTile && K === groundK && dpr === groundDpr && fieldX === groundX) return;
+    const ims = [0, 1, 2].map((i) => art.img(`tile_${tile}_${i}`));
+    if (ims.some((im) => !im) || !document.documentElement) return;
+    groundTile = tile; groundK = K; groundDpr = dpr; groundX = fieldX;
+    const n = 3 * 16, a = document.createElement('canvas'), c = document.createElement('canvas');
+    a.width = a.height = n; c.width = c.height = n * K;
+    const ga = a.getContext('2d'), g = c.getContext('2d');
+    for (let i = 0; i < 9; i++) ga.drawImage(ims[(i * 5 + (i >> 1)) % 3], (i % 3) * 16, Math.floor(i / 3) * 16);
+    // As thick as on the field (a tuft per 260 art px, a flower per 1400), wrapped round the edges so it tiles.
+    let seed = 11;
+    const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 11; i++) {
+      const im = art.img(`deco_${tile}_${i < 9 ? 'tuft' : 'flower' + (i % 2)}`), x = Math.round(r() * n), y = Math.round(r() * n);
+      if (im) for (const [dx, dy] of [[0, 0], [-n, 0], [0, -n], [-n, -n]]) ga.drawImage(im, x + dx, y + dy);
+    }
+    g.imageSmoothingEnabled = false;
+    g.drawImage(a, 0, 0, n * K, n * K);
+    const size = (n * K) / dpr + 'px', at = fieldX + 'px 0';
+    const set = (url) => {
+      const s = document.documentElement.style;
+      s.backgroundImage = `url(${url})`; s.backgroundSize = size; s.backgroundPosition = at;
+      if (groundUrl.startsWith('blob:')) URL.revokeObjectURL(groundUrl);
+      groundUrl = url;
+    };
+    if (c.toBlob) c.toBlob((b) => { if (b && groundTile === tile && groundK === K && groundX === fieldX) set(URL.createObjectURL(b)); });
+    else set(c.toDataURL());
   }
 
   // A tap on a target is one extra shot from the best blaster (a rock: one more hit); a slug gets knocked back.
@@ -7312,7 +7417,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     // In the cave a tap is a tenth of a second of the squad's swings, shown on the rock ("+3").
     const rockHits = Math.max(1, Math.round(st.guns.reduce((a, g) => a + g.rate, 0) * 0.1));
     const dmg = best.type === 'rock' ? rockHits : gun.dmg * (1 + Math.min(1, (combo - 1) * 0.05));
-    if (best.type === 'slug') { const dx = best.x - bunnyX, dy = best.y - bunnyY, d = Math.hypot(dx, dy) || 1; best.x += (dx / d) * 6; best.y += (dy / d) * 6; }
+    if (best.type === 'slug') { const dx = best.x - bunnyX, dy = best.y - bunnyY, d = Math.hypot(dx, dy) || 1, k = 6 * depthK(); best.x += (dx / d) * k; best.y += (dy / d) * k; }
     if (best.cap) { best.cap = false; burst(best.x, best.y - 6, '#a8784e', fx(8), 80); burst(best.x, best.y - 6, '#5c3d2a', fx(4), 60); kick(0.1); }
     if (best.type === 'rock') addFloat(best.x + (rnd() - 0.5) * 6, best.y - best.r - 4, '+' + rockHits, '#ffffff', 8, 'hit');
     hit({ t: best, dmg, crit: false, g: gun.g, tap: true });
@@ -8144,7 +8249,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     im.style.width = ''; im.style.height = '';
     // Layout size, not the on-screen box: an element mid-animation (scaled) must not shrink for good.
     const r = { width: im.offsetWidth, height: im.offsetHeight };
-    if (!r.width || !r.height) return;
+    // Laid out while hidden (a tab, a bubble or a HUD row not reached yet, the side-mode HUD): it has no size yet, so
+    // it is snapped the moment it gets one (else it showed at 4.59x on a 2.625x phone: uneven pixels).
+    // (Panels and dialogs are drawn again each time they open, so only what lives on the main screen waits.)
+    if (!r.width || !r.height) { if (sizeWatch && !im.closest('#sheets, #dialogs')) sizeWatch.observe(im); return; }
     const d = dpr(), nw = im.naturalWidth, nh = im.naturalHeight;
     const n = Math.max(1, Math.floor(Math.min((r.width * d) / nw, (r.height * d) / nh)));
     im.style.width = (n * nw) / d + 'px'; im.style.height = (n * nh) / d + 'px';
@@ -8152,19 +8260,25 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   let snapQueue = null;
   const pending = new Set();
+  // Hidden images wait here for a size; they are snapped on the next frame (never inside the observer's callback).
+  const sizeWatch = root.ResizeObserver ? new ResizeObserver((list) => {
+    for (const e of list) if (e.contentRect.width) { sizeWatch.unobserve(e.target); pending.add(e.target); }
+    if (!snapQueue && pending.size) snapQueue = requestAnimationFrame(flushSnaps);
+  }) : null;
   function snapAll(root = document) {
     root.querySelectorAll('img.px').forEach((im) => { if (im.complete) snapImg(im); else im.addEventListener('load', () => snapImg(im), { once: true }); });
+  }
+  function flushSnaps() {
+    snapQueue = null;
+    const list = [...pending]; pending.clear();
+    for (const n of list) if (n.isConnected) { if (n.matches('img.px')) snapImg(n); else snapAll(n); }
   }
   // Only new elements are measured, once, a frame after they appear (never inside the game loop).
   function watchPixels() {
     new MutationObserver((recs) => {
       for (const r of recs) for (const n of r.addedNodes) if (n.nodeType === 1) pending.add(n);
       if (snapQueue || !pending.size) return;
-      snapQueue = requestAnimationFrame(() => {
-        snapQueue = null;
-        const list = [...pending]; pending.clear();
-        for (const n of list) if (n.isConnected) { if (n.matches('img.px')) snapImg(n); else snapAll(n); }
-      });
+      snapQueue = requestAnimationFrame(flushSnaps);
     }).observe(document.body, { childList: true, subtree: true });
     window.addEventListener('resize', () => { document.querySelectorAll('img.px').forEach((im) => { delete im.dataset.snap; }); snapAll(); });
   }
@@ -8217,10 +8331,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     snapAll();
     // The first frame already shows only what the player has reached (no flash of every tab and bubble).
     updateNotes();
-    // The field lives between the HUD and the upgrades: when a tab, a row or a HUD tool appears, it is re-measured.
+    // The field lives between the HUD and the upgrades (in a mode: under the mode's HUD): when a tab, a row or a HUD
+    // tool appears, it is re-measured.
     if (window.ResizeObserver) {
       const ro = new ResizeObserver(() => { if (document.getElementById('stage-hi')) BB.engine.resize(); });
-      ro.observe($('#hud')); ro.observe($('#bottom-ui'));
+      ro.observe($('#hud')); ro.observe($('#bottom-ui')); ro.observe($('#mode-hud'));
     }
   }
   function openTab(tab) {
@@ -8347,6 +8462,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const inMode = info.mode !== 'main';
     setHidden('#mode-hud', !inMode);
     setClass('#app', 'in-mode', inMode);
+    // Its icon can only be snapped to whole pixels once it shows (the field below it is laid out right after).
+    if (hudCache.inMode !== inMode) { hudCache.inMode = inMode; if (inMode) snapAll($('#mode-hud')); }
     if (inMode) { updateModeHud(info); return; }
     updateUpgrades(st);
     const rain = BB.engine.rain();
@@ -8458,7 +8575,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     }
   }
   async function exitModeConfirm() {
-    if (await confirmDlg(t('exit'), t('mode.lose') + '?')) BB.engine.exitMode();
+    // Leaving loses the run: a red Exit key (docs/DESIGN_SYSTEM.md 5.1) and a question that says so (it read "Defeat?").
+    if (await confirmDlg(t('exit'), t('mode.exit.q'), { cls: 'red', label: t('exit') })) BB.engine.exitMode();
   }
   // Android Back (native.js): closes the top thing on screen. → false when nothing was open.
   function back() {
@@ -8489,7 +8607,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   const countCost = (icon, n) => `<span class="cost">${ico(icon, 'ico sm')}<b data-count-to="${Math.round(n)}" data-fmt="num">${fmt.num(n)}</b></span>`;
   // Days in the player's language: "3d 04:00:00", "3 дн. 04:00:00".
   const days = (n) => t('time.d', { n });
-  const timeLeft = (ms) => fmt.time(Math.max(0, ms) / 1000, days);
+  // One unbreakable value: a line never ends on "30" with "d 12:41:08" under it (Polish and Ukrainian write the day
+  // unit after a space).
+  const timeLeft = (ms) => fmt.time(Math.max(0, ms) / 1000, days).replace(/ /g, '\u00a0');
 
   // ---------- shop ----------
   // Free things first, then the best value, then everything else. Nothing here has a fake timer.
@@ -8524,7 +8644,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           ${row({ media: ico('crystal', 'ico lg'), title: t('shop.freec'), sub: t('shop.freec.d', { n: logic.FREE_CRYSTALS, left: free }), act: `<button class="btn sky" data-act="free" ${free ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}+${logic.FREE_CRYSTALS}</button>` })}
           ${row({ media: ico('calendar', 'ico lg'), title: t('shop.daily'), sub: t('shop.daily.d'), act: `<button class="btn" data-act="daily">${t('open')}</button>` })}
           ${club || sprout ? row({ cls: 'gold', media: ico('club', 'ico lg'), title: t('club.daily'), sub: t('club.daily.d', { n: logic.perkGems(s, T) }), act: `<button class="btn green" data-act="perks" ${perk ? '' : 'disabled'}>${perk ? '+' + logic.perkGems(s, T) : ico('check', 'ico xs')}</button>` }) : ''}
-          ${row({ tag: 'button', attrs: 'data-act="pass"', cls: 'lilac pass-card', media: ico('pass', 'ico lg'), title: t('pass.title', { n: pv.season }), sub: `${t('pass.tier', { n: pv.tier, max: BB.pass.TIERS })} · ${timer(T + pv.endsIn, 'pass.ends')}`, act: pv.premium ? ico('check', 'ico sm') : paid('pass') ? `<span class="btn green sm">${price('pass')}</span>` : `<span class="btn sm">${t('open')}</span>` })}
+          ${row({ tag: 'button', attrs: 'data-act="pass"', cls: 'lilac pass-card', media: ico('pass', 'ico lg'), title: t('pass.title', { n: pv.season }), sub: `${t('pass.tier', { n: pv.tier, max: BB.pass.TIERS })}\u00a0· ${timer(T + pv.endsIn, 'pass.ends')}`, act: pv.premium ? ico('check', 'ico sm') : paid('pass') ? `<span class="btn green sm">${price('pass')}</span>` : `<span class="btn sm">${t('open')}</span>` })}
           ${s.iap.starter || !paid('starter') ? '' : row({ cls: 'gold', media: spr('pet_3', 'ico lg'), title: t('shop.starter'), sub: t('shop.starter.d'), act: buyBtn('starter') })}
           ${!paid('club') && !club ? '' : `${sec(t('club.title'), club ? timer(s.club.until, 'vip.active') : '', 'sec-club')}
           <div class="card plum">
@@ -8606,13 +8726,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const s = S(), T = now();
     const body = {
       starter: () => `${spr('pet_3', 'ico huge')}<p class="inline">${gradeBadge(3)} <b>${esc(i18n.name('pet', 3))}</b></p><p>${t('shop.starter.d')}</p>`,
-      piggy: () => `${ico('piggy', 'ico huge')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt} / ${logic.PIGGY_MAX}`, 'gold')}`,
-      gems: () => `${ico('crystal', 'ico huge')}<p class="reward-line">${cost('crystal', o.value.crystals)}</p>${o.ref ? `<p>${t('offer.gems.first', { n: fmt.num(o.ref.crystals) })}</p>` : ''}`,
-      noads: () => `${ico('skip', 'ico huge')}<p>${t('shop.noads.d')}</p>`,
-      club: () => `${ico('club', 'ico huge')}<p>${t('offer.club.d', { n: logic.CLUB_GEMS })}</p><small class="fine">${t('club.fine')}</small>`,
-      pass: () => `${ico('pass', 'ico huge')}<p>${t('pass.premium.d')}</p><p>${seasonLine('pass.premium.season', T)}</p>`,
-      warp: () => `${ico('warp', 'ico huge')}<p>${t('offer.warp.d', { n: o.hours, c: fmt.num(eco.incomePerSec(s, T) * o.hours * 3600) })}</p>`,
-      boost: () => `${ico('power', 'ico huge')}<p>${t('offer.boost.d')}</p>`,
+      piggy: () => `${ico('piggy', 'ico xl')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt} / ${logic.PIGGY_MAX}`, 'gold')}`,
+      gems: () => `${ico('crystal', 'ico xl')}<p class="reward-line">${cost('crystal', o.value.crystals)}</p>${o.ref ? `<p>${t('offer.gems.first', { n: fmt.num(o.ref.crystals) })}</p>` : ''}`,
+      noads: () => `${ico('skip', 'ico xl')}<p>${t('shop.noads.d')}</p>`,
+      club: () => `${ico('club', 'ico xl')}<p>${t('offer.club.d', { n: logic.CLUB_GEMS })}</p><small class="fine">${t('club.fine')}</small>`,
+      pass: () => `${ico('pass', 'ico xl')}<p>${t('pass.premium.d')}</p><p>${seasonLine('pass.premium.season', T)}</p>`,
+      warp: () => `${ico('warp', 'ico xl')}<p>${t('offer.warp.d', { n: o.hours, c: fmt.num(eco.incomePerSec(s, T) * o.hours * 3600) })}</p>`,
+      boost: () => `${ico('power', 'ico xl')}<p>${t('offer.boost.d')}</p>`,
     }[o.id]();
     // A time limit is shown only when it is real and the same for everyone (a pass season, a configured window).
     const ends = o.ends ? `<p class="muted">${t('pass.ends', { t: timeLeft(o.ends - T) })}</p>` : '';
@@ -8622,7 +8742,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   async function showOffer(o, surface) {
     const c = offerCard(o), t0 = Date.now();
     if (surface === 'popup') BB.track('offer_shown', { id: o.id, product: o.product || '', surface, why: o.why.join(',') });
-    const yes = await dialog({ title: c.title, html: c.html, cls: 'offer', buttons: [{ label: t('offer.later'), value: false }, { label: c.btn, value: true, cls: 'green' }] });
+    // The key's colour says what it costs (docs/DESIGN_SYSTEM.md 5.1): green real money, yellow crystals, blue an ad.
+    const role = o.kind === 'iap' ? 'green' : o.kind === 'crystals' ? 'yellow' : 'sky';
+    const yes = await dialog({ title: c.title, html: c.html, cls: 'offer', buttons: [{ label: t('offer.later'), value: false }, { label: c.btn, value: true, cls: role }] });
     const sec = Math.round((Date.now() - t0) / 1000);
     if (!yes) { BB.track('offer_dismiss', { id: o.id, surface, sec }); return; }
     BB.track('offer_click', { id: o.id, surface, sec });
@@ -8687,7 +8809,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           ? drawBtn('yellow', 'crystal:1', t('draw'), 'crystal', 100) + drawBtn('yellow', 'crystal:10', t('draw10'), 'crystal', 900) + freeBtn
           : kind === 'pet'
             ? drawBtn('yellow', 'clover:1', t('draw'), 'clover', 100) + drawBtn('yellow', 'crystal:1', t('draw'), 'crystal', 100) + freeBtn
-            : freeBtn + drawBtn('plum', 'crystal:1', t('draw.epic'), 'crystal', 200);
+            : freeBtn + drawBtn('yellow', 'crystal:1', t('draw.epic'), 'crystal', 200);   // crystals: yellow, like every crystal draw (purple is moonstones)
         // Merge all / Equip best open the body: always in view, and the bag below keeps its room. The money is in the
         // window's head; the draws and their odds stay under the thumb in the footer.
         el.innerHTML = `<div class="bag-tools"><button class="btn sm" data-act="mergeall">${t('mergeall')}</button>${kind !== 'fly' ? `<button class="btn sm" data-act="best">${t('equipbest')}</button>` : ''}</div>
@@ -8779,7 +8901,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const table = kind === 'fly' ? eco.ODDS.fly : eco.ODDS[kind];
     const free = kind === 'fly' ? eco.ODDS.flyFree : null;
     const pct = eco.oddsPct(table), freePct = free && eco.oddsPct(free);
-    const rows = table.map((p, g) => `<tr><td>${gradeBadge(g)}</td><td>${pct[g].toFixed(1)}%</td>${free ? `<td>${free[g] != null ? freePct[g].toFixed(1) + '%' : '-'}</td>` : ''}</tr>`).join('');
+    // The same numbers as the odds line under the draw keys ("62%", not "62.0%" there and here).
+    const rows = table.map((p, g) => `<tr><td>${gradeBadge(g)}</td><td>${pct[g]}%</td>${free ? `<td>${free[g] != null ? freePct[g] + '%' : '-'}</td>` : ''}</tr>`).join('');
     dialog({ title: t('odds.title'), dismiss: true, html: `<table class="odds"><tr><th></th><th>${kind === 'fly' ? t('draw.epic') : t('draw')}</th>${free ? `<th>${t('draw.ad')}</th>` : ''}</tr>${rows}</table><p class="muted small">${t('odds.text')}</p><p class="muted small">${t('pity.text', { n: eco.PITY.ssAt, g: eco.C.GRADES[eco.PITY.ssGrade], a: eco.C.GRADES[eco.PITY.tenFloor] })}</p>` });
   }
 
@@ -8901,7 +9024,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           const done = s.iap.stepUp >= n, open = s.iap.stepUp === n - 1;
           const media = `<div class="tile g${p.pet}" style="--gc:${art.GRADE_COLORS[p.pet]};width:56px">${gradeBadge(p.pet)}${itemArt('pet', p.pet, 'tile-art')}</div>`;
           const act = done ? ico('check', 'ico sm') : open ? `<button class="btn green" data-act="buy" data-arg="step_${n}">${BB.iap.price('step_' + n)}</button>` : `<button class="btn" disabled>${ico('lock', 'ico xs')}</button>`;
-          return row({ cls: done ? 'done' : open ? 'gold' : 'dim', media, title: `${t('step.n', { n })} · ${esc(i18n.name('pet', p.pet))}`, sub: p.clovers ? '+ ' + clovers(p.clovers) : '', extra: `<span class="pmeta step-stats"><span>${ico('money', 'ico xs')}+${fmt.num(eco.PET[p.pet].money)}%</span><span>${ico('speed', 'ico xs')}+${eco.PET[p.pet].speed}%</span></span>`, act });
+          return row({ cls: done ? 'done' : open ? 'gold' : 'dim', media, title: `${t('step.n', { n })}\u00a0· ${esc(i18n.name('pet', p.pet))}`, sub: p.clovers ? '+ ' + clovers(p.clovers) : '', extra: `<span class="pmeta step-stats"><span>${ico('money', 'ico xs')}+${fmt.num(eco.PET[p.pet].money)}%</span><span>${ico('speed', 'ico xs')}+${eco.PET[p.pet].speed}%</span></span>`, act });
         }).join('');
         bind(el, { buy: async (id, b) => { await buy(id, b); G().statsChanged(); rerender(); } });
       },
@@ -9108,10 +9231,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const rows = [];
     for (let tier = 1; tier <= P.TIERS; tier++) rows.push(`<div class="prow ${tier <= v.tier ? 'reached' : ''}"><span class="pnum">${tier}</span>${cell('free', tier)}${cell('prem', tier)}</div>`);
     const ready = P.claimable(s, T);
-    el.innerHTML = `${row({ cls: 'lilac', media: ico('pass', 'ico lg'), title: t('pass.title', { n: v.season }), sub: `${seasonLine('pass.season', T)} · ${timer(T + v.endsIn, 'pass.ends')}`, extra: `${pbar(v.tier >= P.TIERS ? 1 : v.inTier / P.XP_TIER, '', 'plum')}<span class="pmeta"><span>${t('pass.tier', { n: v.tier, max: P.TIERS })}</span><span>${v.tier >= P.TIERS ? 'MAX' : v.inTier + ' / ' + P.XP_TIER + ' XP'}</span></span>` })}
+    el.innerHTML = `${row({ cls: 'lilac', media: ico('pass', 'ico lg'), title: t('pass.title', { n: v.season }), sub: `${seasonLine('pass.season', T)}\u00a0· ${timer(T + v.endsIn, 'pass.ends')}`, extra: `${pbar(v.tier >= P.TIERS ? 1 : v.inTier / P.XP_TIER, '', 'plum')}<span class="pmeta"><span>${t('pass.tier', { n: v.tier, max: P.TIERS })}</span><span>${v.tier >= P.TIERS ? 'MAX' : v.inTier + ' / ' + P.XP_TIER + ' XP'}</span></span>` })}
       <div class="btn-row" style="margin-bottom:12px">
         <button class="btn tall sky" data-act="adxp" ${P.adXpLeft(s, T) ? '' : 'disabled'}><span class="lbl">+${P.XP.ad} XP</span><span class="cost">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${P.adXpLeft(s, T)}/${P.XP.adPerDay}</span></button>
-        <button class="btn tall" data-act="tier" ${v.tier < P.TIERS ? '' : 'disabled'}><span class="lbl">${t('pass.buytier')}</span>${cost('crystal', P.TIER_COST)}</button>
+        <button class="btn tall yellow ${s.crystals < P.TIER_COST ? 'poor' : ''}" data-act="tier" ${v.tier < P.TIERS ? '' : 'disabled'}><span class="lbl">${t('pass.buytier')}</span>${cost('crystal', P.TIER_COST)}</button>
       </div>
       ${v.premium || !paid('pass') ? '' : `<div class="card gold"><p class="row-sub" style="text-align:center;margin-bottom:8px">${t('pass.premium.d')} ${seasonLine('pass.premium.season', T)}</p><div class="btn-row"><button class="btn tall green" data-act="buy" data-arg="pass"><span class="lbl">${t('pass.premium')}</span>${BB.iap.price('pass')}</button><button class="btn tall green" data-act="buy" data-arg="pass_plus"><span class="lbl">${t('pass.plus')}</span>${BB.iap.price('pass_plus')}</button></div></div>`}
       <div class="ptrack"><div class="prow head"><span></span><b>${t('pass.free')}</b><b>${t('pass.premium')}</b></div>${rows.join('')}</div>
@@ -9213,7 +9336,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       ${pages.filter((p) => group[1].includes(p.id)).map((p) => `
         ${sec(t('album.p.' + p.id), p.claimed ? `+${Math.round(eco.ALBUM_PAGE_BONUS * 100)}% ${ico('coin', 'ico xs')}` : `${p.found}/${p.total}`)}
         ${p.done && !p.claimed ? row({ cls: 'gold', media: ico('star', 'ico lg'), title: t('album.page.done'), sub: t('album.page.reward', { g: p.gems, p: Math.round(eco.ALBUM_PAGE_BONUS * 100) }), act: `<button class="btn green" data-act="claim" data-arg="${p.id}">${t('claim')}</button>` }) : ''}
-        <div class="album-grid">${p.entries.map((e) => `<button class="atile ${e.seen ? '' : 'unseen'} ${e.shiny ? 'shiny' : ''}" data-act="entry" data-arg="${e.id}" aria-label="${e.seen ? esc(entryName(e.id)) : '?'}">${spr(e.art, 'atile-art')}${albumFresh.has(e.id) ? `<i class="badge tl green">${t('album.newtag')}</i>` : ''}</button>`).join('')}</div>`).join('')}`;
+        <div class="album-grid">${p.entries.map((e) => `<button class="atile ${e.seen ? '' : 'unseen'} ${e.shiny ? 'shiny' : ''}" data-act="entry" data-arg="${e.id}" aria-label="${e.seen ? esc(entryName(e.id)) : '?'}">${spr(e.art, 'atile-art')}${albumFresh.has(e.id) ? `<i class="newtag">${t('album.newtag')}</i>` : ''}</button>`).join('')}</div>`).join('')}`;
     bind(el, {
       group: (g) => { albumGroup = g; BB.sound.play('tap'); rerender(); el.scrollTop = 0; },
       entry: (id) => { const e = pages.flatMap((p) => p.entries).find((x) => x.id === id); if (e) albumEntry(e); },
@@ -9288,7 +9411,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const s = S();
     if (s.settings.notify || s.tut.seen.remind || !canRemind()) return;
     s.tut.seen.remind = 1; G().changed();
-    const yes = await dialog({ title: t('settings.notify'), html: `<div class="center">${ico('trip', 'ico huge')}<p>${t('notif.ask')}</p></div>`, buttons: [{ label: t('notif.no'), value: false }, { label: t('notif.yes'), value: true, cls: 'green' }] });
+    const yes = await dialog({ title: t('settings.notify'), html: `<div class="center">${ico('trip', 'ico xl')}<p>${t('notif.ask')}</p></div>`, buttons: [{ label: t('notif.no'), value: false }, { label: t('notif.yes'), value: true, cls: 'green' }] });
     if (yes && (await BB.extras.askNotify(true))) { toast(t('notif.on')); G().changed(); }
   }
 
@@ -9317,7 +9440,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           hero = spr('rock_geode', 'mode-art');
           const left = logic.caveLeft(s, T);
           lines = [meta(`${ico('ticket', 'ico xs')}${t('cave.entries')}: ${left}/${logic.cavePass(s, T) ? eco.CAVE.ticketsPass : eco.CAVE.tickets}`), `<p>${t('cave.text', { s: logic.caveTime(s, T) })}</p>`, `<p class="muted">${t('cave.tip')} ${t('cave.best', { n: s.modes.caveBest })}</p>`];
-          reward = `${ico('crystal', 'ico md')}<b>?</b>`;
+          // The same 20-px icon as the Raid and Tower rewards (a 40-px crystal here made the three cards differ).
+          reward = `<span class="cost">${ico('crystal', 'ico sm')}?</span>`;
           if (!logic.cavePass(s, T) && paid('club')) extra = row({ cls: 'sky', media: ico('ticket', 'ico lg'), title: t('cave.more'), sub: t('cave.passd'), act: `<button class="btn green" data-act="pass">${t('club.title')}</button>` });
         }
         const sweepable = kind !== 'cave' && (kind === 'raid' ? s.modes.raid : s.modes.boss) > 0;
@@ -9384,11 +9508,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   // ---------- settings ----------
-  const saveLine = (sv) => t('save.pick.line', { w: sv.stats.maxWorld || 1, r: sv.rb.count || 0, h: fmt.time(sv.stats.playSec || 0, days) });
+  const saveLine = (sv) => t('save.pick.line', { w: sv.stats.maxWorld || 1, r: sv.rb.count || 0, h: timeLeft((sv.stats.playSec || 0) * 1000) });
   function backupRows() {
     const list = BB.store.backups();
     if (!list.length) return `<small class="muted">${t('settings.backup.none')}</small>`;
-    return list.map((b) => `<div class="backup"><small>${esc(new Date(b.save.savedAt || 0).toLocaleString())}<br>${esc(saveLine(b.save))}</small><button class="btn sm" data-act="backup" data-arg="${b.key}">${t('settings.backup.load')}</button></div>`).join('');
+    return list.map((b) => `<div class="backup"><small>${esc(new Date(b.save.savedAt || 0).toLocaleString(i18n.getLang()))}<br>${esc(saveLine(b.save))}</small><button class="btn sm" data-act="backup" data-arg="${b.key}">${t('settings.backup.load')}</button></div>`).join('');
   }
   const pickSave = (local, remote) => dialog({
     title: t('save.pick.title'),
@@ -9521,7 +9645,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function offlinePopup(o) {
     return dialog({
       title: t('offline.title'),
-      html: `<div class="center offline">${spr(art.has('bunny_' + S().skins.eq + '_sleep') ? 'bunny_' + S().skins.eq + '_sleep' : 'bunny_' + S().skins.eq, 'ico huge')}<i class="zz" data-out>z</i><p>${t('offline.text', { t: fmt.time(o.sec) })}</p><p class="reward-line">${countCost('coin', o.coins)}</p></div>`,
+      html: `<div class="center offline">${spr(art.has('bunny_' + S().skins.eq + '_sleep') ? 'bunny_' + S().skins.eq + '_sleep' : 'bunny_' + S().skins.eq, 'ico huge')}<i class="zz" data-out>z</i><p>${t('offline.text', { t: timeLeft(o.sec * 1000) })}</p><p class="reward-line">${countCost('coin', o.coins)}</p></div>`,
       // Claim is the green "get"; the doubling is an ad, so it is blue and led by the ad icon, and it never loops.
       // Claim stays first: Android Back (back: 1) and test/robust.e2e.js answer with it.
       buttons: [{ label: t('claim'), value: 1, cls: 'green' }, { label: (S().iap.noAds ? '' : ico('ad', 'ico sm')) + t('offline.x2'), value: 2, cls: 'sky' }],
@@ -10438,8 +10562,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function fit(ov) {
     const d = Math.min(3, root.devicePixelRatio || 1);
     const p = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--p')) || 2;
-    const w = Math.min(innerWidth - 24 - 12 * p, 456), h = Math.min(innerHeight - 330, innerHeight * 0.5);
-    const n = Math.max(1, Math.floor(Math.min((w * d) / W, (h * d) / H)));
+    // A window under 480 px tall (a phone held sideways in a browser) has no 330 px to spare for the words: the picture
+    // takes a third of the height, and never less than one CSS pixel per art pixel (it shrank to 40 px wide and the
+    // words stood one per line).
+    const short = innerHeight < 480;
+    const w = Math.min(innerWidth - 24 - 12 * p, 456), h = short ? innerHeight * 0.34 : Math.min(innerHeight - 330, innerHeight * 0.5);
+    const n = Math.max(Math.ceil(d), Math.floor(Math.min((w * d) / W, (h * d) / H)));
     ov.style.setProperty('--story-w', (n * W) / d + 'px');
     ov.style.setProperty('--story-h', (n * H) / d + 'px');
   }
@@ -10630,7 +10758,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     if (!MILESTONES.includes(world) || (S().eggs.shared || []).includes(world)) return;
     S().eggs.shared = [...(S().eggs.shared || []), world];
     setTimeout(() => BB.ui.dialog({
-      title: t('share.record'), html: `<div class="center">${art.tag('icon_trophy', 'ico huge')}<p>${t('share.world', { n: world })}</p></div>`,
+      title: t('share.record'), html: `<div class="center">${art.tag('icon_trophy', 'ico xl')}<p>${t('share.world', { n: world })}</p></div>`,
       buttons: [{ label: t('close'), value: false }, { label: art.icon('share', 'ico sm') + t('share.btn'), value: true, cls: 'green' }],
     }).then((v) => v && share('world')), 1800);
   }
