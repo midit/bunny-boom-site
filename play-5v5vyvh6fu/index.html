@@ -308,6 +308,11 @@ a.btn { text-decoration: none; }
 #boss-btn .ico { width: 20px; height: 20px; }
 #boss-btn.pulse { animation: pulse 1.2s var(--breathe) infinite; }
 @keyframes pulse { 50% { transform: translateX(-50%) translateY(calc(var(--p) * -2)); } }
+/* "Next: Bunny · World 4" (logic.nextReveal): one quiet line in the boss button's place (never both), white words
+   with the name in gold, clear of the bubble columns; nothing to tap. */
+#next-hint { position: absolute; left: 50%; top: calc(100% + var(--s2)); transform: translateX(-50%); box-sizing: border-box; width: max-content; max-width: calc(100% - 2 * (var(--gl) + 56px)); margin: 0; font-size: var(--fs-xs); line-height: 1.2; color: var(--white); text-shadow: var(--sh); text-align: center; text-wrap: balance; pointer-events: none; animation: hintin .4s var(--ease-out); }
+#next-hint b { font-weight: inherit; color: var(--gold-t); }
+@keyframes hintin { from { opacity: 0; } }
 
 /* ---------- side bubbles: icons only (the name is the aria-label), each one there only while it matters ---------- */
 /* Left, under the wallet: buffs, free crystals, auto. Right, under the rail: one offer at a time, never a price tag.
@@ -1000,8 +1005,10 @@ label.set-row { cursor: pointer; }
 .reward-box { margin: var(--s3) auto var(--s2); }
 .reward-box div { gap: var(--s1) var(--s3); }
 .skin .how { text-wrap: balance; }
-/* Rebirth: what you get now (and x3 with an ad), then what each moonstone buys. */
+/* Rebirth: what you get now, what it is worth once spent (and x3 with an ad), then what each moonstone buys. Before
+   World 12: the world it opens at and a moon bar of how far this run is. */
 .rb-gain .big-num { display: block; margin-top: var(--s1); }
+.rb-gain .rb-worth { color: var(--ink); }
 .rb-gain .rb-art { width: 60px; height: 76px; }
 .rb-up > .row-body { flex-basis: calc(var(--fs-m) * 4.5); }     /* keeps the key beside the name on a 360 phone */
 /* Album groups and the rebirth x1/x10/MAX use the one segmented control (.seg, B). */
@@ -1656,8 +1663,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'skin.title': 'Costumes', 'skin.tip': 'A costume\'s bonus counts even when you wear another one.',
       'skin.u.world': 'Reach World {w}', 'skin.u.rebirths': 'Rebirth ×{n}', 'skin.u.iap': 'In the Shop',
       // rebirth
-      'rb.title': 'Rebirth', 'rb.avail': 'Moonstones you get now', 'rb.do': 'Rebirth now', 'rb.ups': 'Moonstone upgrades', 'rb.super': 'Super ×3', 'rb.need': 'Reach World 5 to rebirth',
-      'rb.confirm': 'Back to World 1 with {n}? Only coins and coin upgrades reset.',
+      'rb.title': 'Rebirth', 'rb.avail': 'Moonstones you get now', 'rb.do': 'Rebirth now', 'rb.ups': 'Moonstone upgrades', 'rb.super': 'Super ×3', 'rb.need': 'Reach World\u00a0{w} to rebirth',
+      'rb.confirm': 'Back to World 1 with {n}? Only coins and coin upgrades reset, and worlds you now crush fly by.',
       'rb.power': 'Power boost', 'rb.speed': 'Speed boost', 'rb.money': 'Money boost', 'rb.upgrade': 'Upgrade', 'rb.done': 'Reborn! +{n}',
       // buffs
       'buff.title': 'Buffs', 'buff.all': "Turn on all three and each becomes ×3!", 'buff.power': 'Power buff', 'buff.speed': 'Speed buff', 'buff.money': 'Money buff',
@@ -1751,6 +1758,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'tip.offline': "*Earn while away*: up to {h} hours",
       'tip.rebirth': "Stuck? *Rebirth*: World 1, but stronger",
       'shop.thanks': 'Thank you! Purchase complete.', 'shop.bought': 'Purchased',
+      'iap.revoked.title': 'Purchase cancelled',
+      'iap.revoked': 'The purchase "{item}" was cancelled, so it has been removed.',
+      'iap.revoked.hint': "If that's a mistake, sign in to the account you paid with and tap \"Restore purchases\" in Settings.",
       'shop.failed': "The purchase didn't go through. Please try again.", 'shop.restore.none': "Nothing to restore: this store account has no purchases that are kept for good.",
       'pass.rolled.one': "Season {s} is over. The {n} reward you reached and didn't claim is in your garden now.", 'pass.rolled.few': "Season {s} is over. The {n} rewards you reached and didn't claim are in your garden now.", 'pass.rolled.many': "Season {s} is over. The {n} rewards you reached and didn't claim are in your garden now.", 'pass.rolled.other': "Season {s} is over. The {n} rewards you reached and didn't claim are in your garden now.", 'pass.late': "Premium isn't sold in a season's last week. This one ends in {t}; the next one starts fresh.", 'draw.off': "Crystal draws are paused for now. Free and clover draws still work.", 'update.title': "New version", 'update.text': "A newer Bunny Boom is out. Update it in Google Play to keep everything running smoothly.", 'update.btn': "Open Google Play",
       'shop.pending': 'Payment pending', 'shop.pending.d': "The store hasn't confirmed this payment yet. Your purchase arrives by itself as soon as it does.",
@@ -1778,7 +1788,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'n.clovers.one': '{n} clover', 'n.clovers.few': '{n} clovers', 'n.clovers.many': '{n} clovers', 'n.clovers.other': '{n} clovers', 'n.coins.one': '{n} coin', 'n.coins.few': '{n} coins', 'n.coins.many': '{n} coins', 'n.coins.other': '{n} coins', 'n.rp.one': '{n} moonstone', 'n.rp.few': '{n} moonstones', 'n.rp.many': '{n} moonstones', 'n.rp.other': '{n} moonstones', 'n.rebirths.one': '{n} rebirth', 'n.rebirths.few': '{n} rebirths', 'n.rebirths.many': '{n} rebirths', 'n.rebirths.other': '{n} rebirths', 'n.days.one': '{n} day', 'n.days.few': '{n} days', 'n.days.many': '{n} days', 'n.days.other': '{n} days',
       'time.d': '{n}d',
       'toast.nocoins': 'Not enough coins', 'toast.nocrystals': 'Not enough crystals', 'toast.noclovers': 'Not enough clovers', 'toast.saved': 'Saved',
-      'rb.reborn': 'Reborn!', 'rb.fresh': 'A fresh start in World 1', 'rb.next': 'Next rebirth: +{n}', 'rb.next.x': 'up to ×{x} power',
+      'rb.reborn': 'Reborn!', 'rb.fresh': 'A fresh start in World 1',
+      // The Rebirth tab: locked, where this run is; open, what the stones are worth once spent. Moon Leap's banner.
+      'rb.at': "You're in World {w}", 'rb.worth': 'Up to ×{x} power once spent',
+      'leap.to': 'Leaping to World {w}', 'leap.why': "You've beaten these worlds: they fly by",
+      // "Next:" under the HUD (logic.nextReveal). {what} is the thing's own name (its tab, its window).
+      'next.world': 'Next: {what} · World\u00a0{w}', 'next.min': 'Next: {what} in {m} min', 'next.garden': 'Flowers', 'next.auto': 'Auto upgrade',
       'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min', 'auto.notrial': "Today's two free trials are used. Auto upgrade is in the Shop.",
       // the garden's tricksters (foes.js): first-time tips, event banners, little words over the field
       'tip.foe_runner': "*Pop the radish* before it runs off",
@@ -1867,8 +1882,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'stat.dmg': 'Шкода', 'stat.rate': 'Постр./с', 'stat.money': 'Гроші', 'stat.speed': 'Швидкість', 'stat.power': 'Сила', 'stat.crit': 'Шанс крит.', 'stat.critdmg': 'Крит. шкода',
       'skin.title': 'Костюми', 'skin.tip': 'Бонус костюма діє, навіть коли вдягнений інший.',
       'skin.u.world': 'Дійди до Світу {w}', 'skin.u.rebirths': 'Переродись ×{n}', 'skin.u.iap': 'У Лавці',
-      'rb.title': 'Переродження', 'rb.avail': 'Отримаєш місячних каменів', 'rb.do': 'Переродитись', 'rb.ups': 'Покращення за місячні камені', 'rb.super': 'Супер ×3', 'rb.need': 'Дійди до Світу 5, щоб переродитись',
-      'rb.confirm': 'Почати зі Світу 1 і отримати {n}? Скинуться лише монети та їхні покращення.',
+      'rb.title': 'Переродження', 'rb.avail': 'Отримаєш місячних каменів', 'rb.do': 'Переродитись', 'rb.ups': 'Покращення за місячні камені', 'rb.super': 'Супер ×3', 'rb.need': 'Дійди до Світу\u00a0{w}, щоб переродитись',
+      'rb.confirm': 'Почати зі Світу 1 і отримати {n}? Скинуться лише монети та їхні покращення, а легкі світи пролетиш.',
       'rb.power': 'Посилення сили', 'rb.speed': 'Посилення швидкості', 'rb.money': 'Посилення грошей', 'rb.upgrade': 'Покращити', 'rb.done': 'Переродження! +{n}',
       'buff.title': 'Бафи', 'buff.all': "Увімкни всі три — і кожен стане ×3!", 'buff.power': 'Баф сили', 'buff.speed': 'Баф швидкості', 'buff.money': 'Баф грошей',
       'buff.power.d': "Шкода ×{x}", 'buff.speed.d': "Швидкість ×{x}", 'buff.money.d': "Гроші ×{x}", 'buff.add': "+30 хв", 'buff.max': "До 4 годин кожен",
@@ -1958,6 +1973,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'tip.offline': "*Заробляєш і без гри*: до {h} годин",
       'tip.rebirth': "Стіна? *Переродись*: Світ 1, але сильніше",
       'shop.thanks': 'Дякуємо! Покупку завершено.', 'shop.bought': 'Куплено',
+      'iap.revoked.title': 'Покупку скасовано',
+      'iap.revoked': 'Покупку «{item}» скасовано, тому її прибрано.',
+      'iap.revoked.hint': 'Якщо це помилка, увійди в акаунт, з якого оплачено покупку, і натисни «Відновити покупки» в Налаштуваннях.',
       'shop.failed': 'Покупка не вдалася. Спробуй ще раз.', 'shop.restore.none': 'Нічого відновлювати: на цьому акаунті магазину немає покупок назавжди.',
       'pass.rolled.one': "Сезон {s} завершився: {n} незабрана нагорода вже у твоєму саду.", 'pass.rolled.few': "Сезон {s} завершився: {n} незабрані нагороди вже у твоєму саду.", 'pass.rolled.many': "Сезон {s} завершився: {n} незабраних нагород уже у твоєму саду.", 'pass.rolled.other': "Сезон {s} завершився: незабрані нагороди ({n}) вже у твоєму саду.", 'pass.late': "В останній тиждень сезону Преміум не продається. Цей сезон закінчиться через {t}, наступний почнеться з нуля.", 'draw.off': "Витягування за кристали зараз на паузі. Безкоштовні й за конюшину працюють.", 'update.title': "Нова версія", 'update.text': "Вийшла новіша версія Bunny Boom. Онови її в Google Play, щоб усе працювало як слід.", 'update.btn': "Відкрити Google Play",
       'shop.pending': 'Оплата очікується', 'shop.pending.d': 'Магазин ще не підтвердив оплату. Покупка прийде сама, щойно він це зробить.',
@@ -1981,7 +1999,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'n.clovers.one': '{n} конюшина', 'n.clovers.few': '{n} конюшини', 'n.clovers.many': '{n} конюшин', 'n.clovers.other': '{n} конюшини', 'n.coins.one': '{n} монета', 'n.coins.few': '{n} монети', 'n.coins.many': '{n} монет', 'n.coins.other': '{n} монети', 'n.rp.one': '{n} місячний камінь', 'n.rp.few': '{n} місячні камені', 'n.rp.many': '{n} місячних каменів', 'n.rp.other': '{n} місячного каменя', 'n.rebirths.one': '{n} переродження', 'n.rebirths.few': '{n} переродження', 'n.rebirths.many': '{n} перероджень', 'n.rebirths.other': '{n} переродження', 'n.days.one': '{n} день', 'n.days.few': '{n} дні', 'n.days.many': '{n} днів', 'n.days.other': '{n} дня',
       'time.d': '{n} дн.',
       'toast.nocoins': 'Замало монет', 'toast.nocrystals': 'Замало кристалів', 'toast.noclovers': 'Замало конюшини', 'toast.saved': 'Збережено',
-      'rb.reborn': 'Переродження!', 'rb.fresh': 'Новий початок у Світі 1', 'rb.next': 'Наступне переродження: +{n}', 'rb.next.x': 'до ×{x} сили',
+      'rb.reborn': 'Переродження!', 'rb.fresh': 'Новий початок у Світі 1',
+      'rb.at': 'Ти у Світі {w}', 'rb.worth': 'До ×{x} сили після покращень',
+      'leap.to': 'Стрибаємо до Світу {w}', 'leap.why': 'Ці світи вже твої: пролітаємо їх',
+      'next.world': 'Далі: {what} · Світ\u00a0{w}', 'next.min': 'Далі: {what} за {m} хв', 'next.garden': 'Квіти', 'next.auto': 'Автопрокачка',
       'auto.on': 'Автопокращення увімкнено', 'auto.off': 'Автопокращення вимкнено', 'auto.locked': 'Автопокращення є в Лавці. Спробувати 10 хв за рекламу?', 'auto.trial': 'Спробувати 10 хв', 'auto.notrial': 'Дві безкоштовні спроби на сьогодні вже використано. Автопокращення є в Лавці.',
       // хитрі овочі (foes.js): підказки першого разу, банери подій, слівця над полем
       'tip.foe_runner': "*Розбий редиску*, поки не втекла",
@@ -2072,10 +2093,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'stat.dmg': 'Obrażenia', 'stat.rate': 'Strzały/s', 'stat.money': 'Zysk', 'stat.speed': 'Szybkość', 'stat.power': 'Siła', 'stat.crit': 'Szansa kryt.', 'stat.critdmg': 'Obr. kryt.',
       'skin.title': 'Stroje', 'skin.tip': 'Bonus ze stroju działa, nawet gdy nosisz inny.',
       'skin.u.world': 'Dotrzyj do Świata {w}', 'skin.u.rebirths': 'Odródź się ×{n}', 'skin.u.iap': 'W Sklepie',
-      'rb.title': 'Odrodzenie', 'rb.avail': 'Kamieni do zdobycia', 'rb.do': 'Odródź się', 'rb.ups': 'Ulepszenia za kamienie', 'rb.super': 'Super ×3', 'rb.need': 'Dotrzyj do Świata 5, żeby się odrodzić',
-      'rb.confirm': 'Wrócić do Świata 1 i zdobyć {n}? Znikną tylko monety i ich ulepszenia.',
+      'rb.title': 'Odrodzenie', 'rb.avail': 'Kamieni do zdobycia', 'rb.do': 'Odródź się', 'rb.ups': 'Ulepszenia za kamienie', 'rb.super': 'Super ×3', 'rb.need': 'Dotrzyj do Świata\u00a0{w}, żeby się odrodzić',
+      'rb.confirm': 'Wrócić do Świata 1 i zdobyć {n}? Znikną tylko monety i ich ulepszenia, a łatwe światy przelecisz.',
       'rb.power': 'Wzmocnienie siły', 'rb.speed': 'Wzmocnienie szybkości', 'rb.money': 'Wzmocnienie zysku', 'rb.upgrade': 'Ulepsz', 'rb.done': 'Odrodzenie! +{n}',
-      'rb.reborn': 'Odrodzenie!', 'rb.fresh': 'Nowy start w Świecie 1', 'rb.next': 'Następne odrodzenie: +{n}', 'rb.next.x': 'do ×{x} siły',
+      'rb.reborn': 'Odrodzenie!', 'rb.fresh': 'Nowy start w Świecie 1',
+      'rb.at': 'Jesteś w Świecie {w}', 'rb.worth': 'Do ×{x} siły po ulepszeniach',
+      'leap.to': 'Skok do Świata {w}', 'leap.why': 'Te światy już pokonałeś: przelatujemy je',
+      'next.world': 'Dalej: {what} · Świat\u00a0{w}', 'next.min': 'Dalej: {what} za {m} min', 'next.garden': 'Kwiaty', 'next.auto': 'Auto-ulepszanie',
       'buff.title': 'Buffy', 'buff.all': 'Włącz wszystkie trzy, a każdy da ×3!', 'buff.power': 'Buff siły', 'buff.speed': 'Buff szybkości', 'buff.money': 'Buff zysku',
       'buff.power.d': 'Obrażenia ×{x}', 'buff.speed.d': 'Szybkość ×{x}', 'buff.money.d': 'Zysk ×{x}', 'buff.add': '+30 min', 'buff.max': 'Każdy do 4 godzin',
       'raid.title': 'Inwazja ślimaków', 'raid.text': 'Ślimaki idą po marchewki! Zatrzymaj każdego z nich.', 'raid.lvl': 'Fala {n}', 'raid.tip': 'Od fali {w} część ślimaków ma czapki z żołędzi: stuknij, by je strącić!',
@@ -2186,6 +2210,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'boss.line.cabbage': 'Ręce precz od liści!', 'boss.line.pumpkin': 'Moja grządka, moje zasady!', 'boss.line.tomato': 'Zaraz się zagotuję!', 'boss.line.mushroom': 'Wyrosnę wszędzie!',
       'boss.line.corn': 'Zaraz wystrzelę!', 'boss.line.turnip': 'Mocno zakorzeniony!', 'boss.line.eggplant': 'Sługi, do mnie!', 'boss.line.onion': 'Obierz mnie, jeśli umiesz!',
       'shop.thanks': 'Dziękujemy! Zakup zakończony.', 'shop.bought': 'Kupione',
+      'iap.revoked.title': 'Zakup anulowany',
+      'iap.revoked': 'Zakup „{item}” anulowano, więc został usunięty.',
+      'iap.revoked.hint': 'Jeśli to pomyłka, zaloguj się na konto, z którego zapłacono, i stuknij „Przywróć zakupy” w Ustawieniach.',
       'shop.failed': 'Zakup się nie udał. Spróbuj jeszcze raz.', 'shop.restore.none': 'Nie ma czego przywrócić: na tym koncie sklepu nie ma zakupów na zawsze.',
       'pass.rolled.one': "Sezon {s} się skończył: {n} nieodebrana nagroda trafiła do twojego ogrodu.", 'pass.rolled.few': "Sezon {s} się skończył: {n} nieodebrane nagrody trafiły do twojego ogrodu.", 'pass.rolled.many': "Sezon {s} się skończył: {n} nieodebranych nagród trafiło do twojego ogrodu.", 'pass.rolled.other': "Sezon {s} się skończył: nieodebrane nagrody ({n}) trafiły do twojego ogrodu.", 'pass.late': "W ostatnim tygodniu sezonu Premium nie jest sprzedawane. Ten sezon kończy się za {t}, następny zacznie się od nowa.", 'draw.off': "Losowania za kryształy są teraz wstrzymane. Darmowe i za koniczynę działają.", 'update.title': "Nowa wersja", 'update.text': "Jest nowsza wersja Bunny Boom. Zaktualizuj ją w Google Play, żeby wszystko działało jak należy.", 'update.btn': "Otwórz Google Play",
       'shop.pending': 'Płatność w toku', 'shop.pending.d': 'Sklep jeszcze nie potwierdził tej płatności. Zakup dotrze sam, gdy tylko to zrobi.',
@@ -2762,6 +2789,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     while (n < cap) { const c = REBIRTH.cost(L + n); if (total + c > cash) break; total += c; n++; }
     return { n, total };
   }
+  // What `pts` new moonstones are worth to an upgrade at level L with `rp` unspent: the levels they buy on top of
+  // what rp already buys, and that multiplier (878 stones at level 0 buy 19 levels: ×16.8).
+  function rbWorth(L, rp, pts) {
+    const k0 = rbMaxAffordable(L, rp).n, k1 = rbMaxAffordable(L, rp + pts).n;
+    return { n: k1 - k0, x: REBIRTH.mult(L + k1) / REBIRTH.mult(L + k0) };
+  }
 
   const stageN = (world, sub) => (world - 1) * C.SUBS + (sub - 1);
   const fromN = (n) => ({ world: Math.floor(n / C.SUBS) + 1, sub: (n % C.SUBS) + 1 });
@@ -2791,6 +2824,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
   // Moon Leap: after a rebirth, the worlds the bunny now crushes fly by in seconds instead of minutes.
   const canLeap = (s, dps) => s.stage.sub === 1 && s.stage.world < (s.stats.maxWorld || 1) && dps >= C.LEAP_X * bossHp(stageN(s.stage.world, C.SUBS));
+  // Where a run of leaps from World `world` lands: the first world it can't cross (the banner says it up front).
+  function leapTo(world, maxWorld, dps) {
+    let w = world;
+    while (w < maxWorld && dps >= C.LEAP_X * bossHp(stageN(w, C.SUBS))) w++;
+    return w;
+  }
   function leapCoins(world, money) {
     let total = 0;
     for (let sub = 1; sub < C.SUBS; sub++) total += coins(stageN(world, sub)) * stageKills(stageN(world, sub));
@@ -2923,8 +2962,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   }
 
   return {
-    C, UP, WEAPON, PET, FLY, ODDS, oddsPct, DRAW_COST, PITY, REBIRTH, rbCostN, rbMaxAffordable, CAVE, BIOMES, BIOME_WORLDS, biomeOf, loopOf, ALBUM_PAGE_BONUS, albumBonus,
-    stageN, fromN, isBoss, stageKills, hp, coins, bossHp, bossCoins, canLeap, leapCoins,
+    C, UP, WEAPON, PET, FLY, ODDS, oddsPct, DRAW_COST, PITY, REBIRTH, rbCostN, rbMaxAffordable, rbWorth, CAVE, BIOMES, BIOME_WORLDS, biomeOf, loopOf, ALBUM_PAGE_BONUS, albumBonus,
+    stageN, fromN, isBoss, stageKills, hp, coins, bossHp, bossCoins, canLeap, leapTo, leapCoins,
     upMult, upCost, upCostN, upMaxAffordable,
     START, bossTime, maxAlive, spawnGap, growTime,
     stats, buffState, setSkins, skinBonus, incomePerSec, offlineEarnings,
@@ -3069,12 +3108,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
   // ---------- first run: one new thing at a time ----------
   // Everything that opens in the first ~1.5 hours, in order. A row opens once the player has reached its world
-  // ("1.4" = World 1, stage 3) AND played its minutes, so a quick player waits on the clock and a slow one on the
-  // garden; one new system every 6-8 minutes. What came with it shares the row (crystals buy blasters, clovers
-  // buy pets, the cave is an adventure...). Speed, Money, rain and Blasters are tutorial steps and open on their
-  // stage. Rebirth opens with its points (eco.REBIRTH.MIN_N, World 12). The Shop tab and the piggy are where offers
-  // live, left as they were: offers.js decides when a paid offer shows. Once shown a thing stays (tut.seen); a save
-  // from before the tutorial has it all. Minutes are of play (stats.playSec), so time away never skips one.
+  // ("1.4" = World 1, stage 3) AND played its minutes (or ~5 minutes after the row before: REVEAL below), so a slow
+  // player waits on the garden; one new system every 5-8 minutes. What came with it shares the row (crystals buy
+  // blasters, clovers buy pets, the cave is an adventure...). Speed, Money, rain and Blasters are tutorial steps and
+  // open on their stage. Rebirth opens with its points (eco.REBIRTH.MIN_N, World 12). The Shop tab and the piggy are
+  // where offers live, left as they were: offers.js decides when a paid offer shows. Once shown a thing stays
+  // (tut.seen); a save from before the tutorial has it all. Minutes are of play (stats.playSec), so time away never
+  // skips one. own: a row outside the one-at-a-time line, on its world (and minutes) alone.
   const REVEALS = [
     { world: 1.4, min: 0, keys: ['speed', 'money'] },
     { world: 1.6, min: 0, keys: ['rain'] },
@@ -3088,17 +3128,85 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     { world: 6, min: 48, keys: ['buffs'] },
     { world: 6, min: 56, keys: ['free'] },
     { world: 7, min: 64, keys: ['auto'] },
-    { world: 12, min: 0, keys: ['rebirth'] },
-    { world: 2, min: 0, keys: ['shop'] },
-    { world: 3, min: 0, keys: ['piggy'] },
+    { world: 12, min: 0, keys: ['rebirth'], own: true },
+    { world: 2, min: 0, keys: ['shop'], own: true },
+    { world: 3, min: 0, keys: ['piggy'], own: true },
   ];
   // The same as two lookups by key: UNLOCK[k] (world) and UNLOCK_MIN[k] (minutes played).
   const UNLOCK = {}, UNLOCK_MIN = {};
   for (const r of REVEALS) for (const k of r.keys) { UNLOCK[k] = r.world; UNLOCK_MIN[k] = r.min; }
   // In World 1 each stage reached counts 0.2 (stage 3 = 1.4); later worlds count whole.
   const unlockProgress = (s) => { const w = maxWorld(s); return w > 1 ? w : 1 + Math.min(4, s.stage.maxN) * 0.2; };
-  const unlocked = (s, k) => !UNLOCK[k] || s.tut.step >= 99 || !!s.tut.seen[k]
-    || (unlockProgress(s) >= UNLOCK[k] && (s.stats.playSec || 0) >= UNLOCK_MIN[k] * 60);
+
+  // A player ahead of the schedule (taps, buffs, an evening of offline coins) reached World 9 before minute 26 with
+  // nothing new since World 3, then got Bunny, Pets and Adventure at once. So the rows open in order, and a clock row
+  // whose world is reached waits for its minute OR for REVEAL.gap after the row before it opened, whichever comes
+  // first, and at least REVEAL.step after it (two never open in the same breath): one new thing every ~5 minutes
+  // for a player ahead, the old schedule for one who reaches the worlds late. The play-second each row opened is kept
+  // in tut.seen['at:<its first key>'] (tut.seen is a free-form map, like gardenAt: no save change); a save from before
+  // this has none and counts its last row as opened on that row's own minute.
+  const REVEAL = { gap: 300, step: 60 };
+  const LINE = REVEALS.filter((r) => !r.own);
+  const LINE_ROW = {};
+  LINE.forEach((r, i) => r.keys.forEach((k) => { LINE_ROW[k] = i; }));
+  // The play-second from which a row may open, the row before it having opened at play-second prevAt (its world aside).
+  const revealSec = (row, prevAt) => (row.min ? Math.max(prevAt + REVEAL.step, Math.min(row.min * 60, prevAt + REVEAL.gap)) : 0);
+  // Where the line stands: `open` rows are open (a row is open once one of its keys is seen, and every row before an
+  // open one is open too, so an older save loses nothing), the last one opened at play-second `at`, and `next` is the
+  // row after them (null at the end), which may open from play-second `from` once its world is reached.
+  function revealPlan(s) {
+    if (s.tut.step >= 99) return { open: LINE.length, at: 0, next: null, from: Infinity };
+    const seen = s.tut.seen || {};
+    let open = 0;
+    LINE.forEach((r, i) => { if (r.keys.some((k) => seen[k])) open = i + 1; });
+    const last = LINE[open - 1], stamp = last && seen['at:' + last.keys[0]];
+    const at = !last ? 0 : typeof stamp === 'number' && isFinite(stamp) ? stamp : last.min * 60;
+    const next = LINE[open] || null;
+    return { open, at, next, from: next ? revealSec(next, at) : Infinity };
+  }
+  // How many rows are open right now: the ones written down, then the ones due now, in order: the tutorial's steps
+  // (no minutes: Speed, Carrot Rain, Blasters) all at once on their stage, and one clock row at most.
+  function openRows(s, p = revealPlan(s)) {
+    const sec = s.stats.playSec || 0, prog = unlockProgress(s);
+    let open = p.open, at = p.at;
+    while (open < LINE.length) {
+      const row = LINE[open];
+      if (prog < row.world || sec < revealSec(row, at)) break;
+      open++; at = sec;
+      if (row.min) break;
+    }
+    return open;
+  }
+  function unlocked(s, k) {
+    if (!UNLOCK[k] || s.tut.step >= 99 || s.tut.seen[k]) return true;
+    if (!(k in LINE_ROW)) return unlockProgress(s) >= UNLOCK[k] && (s.stats.playSec || 0) >= UNLOCK_MIN[k] * 60;
+    return LINE_ROW[k] < openRows(s);
+  }
+  // Opens what is due: marks the keys seen, writes down the play-second of each row and returns the keys ([] when
+  // nothing opened). The tutorial calls it every second (tutorial.applyGates), the sims every step.
+  function reveal(s) {
+    const p = revealPlan(s), n = openRows(s, p), keys = [];
+    for (const row of LINE.slice(p.open, n)) {
+      for (const k of row.keys) { s.tut.seen[k] = 1; keys.push(k); }
+      s.tut.seen['at:' + row.keys[0]] = s.stats.playSec || 0;
+    }
+    return keys;
+  }
+  // What opens next, for the HUD's "Next: ..." line: { key, world } while its world is still ahead, { key, sec } with
+  // the play-seconds left once only the clock is missing. Rebirth comes last (until the first one). null when nothing
+  // is ahead, or while the next row is a tutorial step (Speed, Carrot Rain, Blasters: their coach marks say them) or is
+  // opening right now.
+  function nextReveal(s) {
+    const p = revealPlan(s);
+    if (p.next) {
+      if (!p.next.min || openRows(s, p) > p.open) return null;
+      const key = p.next.keys[0];
+      if (unlockProgress(s) < p.next.world) return { key, world: p.next.world };
+      return { key, sec: p.from - (s.stats.playSec || 0) };
+    }
+    if (s.rb.count || unlockProgress(s) >= UNLOCK.rebirth) return null;
+    return { key: 'rebirth', world: UNLOCK.rebirth };
+  }
 
   // ---------- upgrades ----------
   function buyUpgrade(s, k, mult) {
@@ -3247,6 +3355,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       s.rp -= c; s.rb[k]++; bought++;
     }
     return bought ? { ok: true, n: bought } : { ok: false };
+  }
+  // What the Rebirth tab says. Locked (no moonstones yet this run): the world it opens at and the world reached.
+  // Open: the moonstones now (the first rebirth pays double) and what they are worth once spent: as many Power levels
+  // as they buy on top of what the unspent ones already can (`levels`), and that power multiplier (`x`), because
+  // "878" next to billions of coins reads small while it is ×16 power.
+  function rebirthInfo(s) {
+    const pts = eco.REBIRTH.pts(s.stage.maxN) * (s.rb.count === 0 ? 2 : 1);
+    const need = eco.fromN(eco.REBIRTH.MIN_N).world, at = eco.fromN(s.stage.maxN).world;
+    const worth = eco.rbWorth(s.rb.power, s.rp, pts);
+    return { pts, open: pts > 0, need, at, k: Math.min(1, s.stage.maxN / eco.REBIRTH.MIN_N), levels: worth.n, x: worth.x };
   }
 
   // ---------- buffs ----------
@@ -3539,7 +3657,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     const n = eco.stageN(s.stage.world, s.stage.sub);
     return eco.isBoss(s.stage.sub) ? eco.bossHp(n) / dps <= bossTime(s, now) * 0.95 : eco.hp(n) / dps <= STUCK.retryKillSec;
   }
-  const rebirthHint = (s, stuckSec) => maxWorld(s) >= 5 && stuckSec >= STUCK.rebirthSec && eco.REBIRTH.pts(s.stage.maxN) > Math.max(5, s.rb.total * 0.5);
+  // (No moonstones before eco.REBIRTH.MIN_N, World 12, so no hint before it either.)
+  const rebirthHint = (s, stuckSec) => stuckSec >= STUCK.rebirthSec && eco.REBIRTH.pts(s.stage.maxN) > Math.max(5, s.rb.total * 0.5);
 
   // ---------- trip ----------
   const tripHours = (s, now) => TRIP_H - (vipOn(s, 'conv', now) ? VIP.tripCutH : 0);
@@ -3606,6 +3725,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   }
 
   // ---------- purchases ----------
+  // What the Starter Egg and Auto Upgrade give besides their perk (a refund takes back what is left of it: revoke).
+  const STARTER = { crystals: 300, pet: 3 }, AUTOUP_GEMS = 300;
   // Other modules (the Garden Pass) add their own product rules here.
   const productRules = [];
   const addProductRule = (rule) => productRules.push(rule);
@@ -3630,13 +3751,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     s.iap.bought[id] = (s.iap.bought[id] || 0) + 1;
     s.iap.lastBuy = now;
     if (id === 'starter') {
-      s.iap.starter = true; s.crystals += 300;
-      if (addItem(s, 'pet', 3) < 0) s.pets.inv[0] = 3;
+      s.iap.starter = true; s.crystals += STARTER.crystals;
+      if (addItem(s, 'pet', STARTER.pet) < 0) s.pets.inv[0] = STARTER.pet;
       ['power', 'speed', 'money'].forEach((k) => addBuff(s, k, now, 2 * HOUR));
     }
     if (id === 'noforced') s.iap.noForced = true;
     if (id === 'noads') { s.iap.noAds = true; s.iap.noForced = true; }
-    if (id === 'autoup') { s.iap.autoUp = true; s.settings.autoUp = true; s.crystals += 300; }
+    if (id === 'autoup') { s.iap.autoUp = true; s.settings.autoUp = true; s.crystals += AUTOUP_GEMS; }
     if (p.club) s.club.until = Math.max(now, s.club.until || 0) + CLUB_DAYS * DAY;
     if (p.sprout) { s.sprout.until = Math.max(now, s.sprout.until || 0) + SPROUT_DAYS * DAY; s.crystals += SPROUT_NOW; }
     if (p.piggy) { s.crystals += s.piggy.amt; s.piggy.amt = 0; }
@@ -3649,6 +3770,180 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       if (addItem(s, 'pet', p.pet) < 0) s.clovers += 500;
     }
     return { ok: true };
+  }
+
+  // ---------- refunds without a server (docs/MONETIZATION.md "Refunds") ----------
+  // Nothing tells the game about a refund except the store's own list: Play drops a refunded purchase from
+  // getPurchases() (iOS marks it revoked). native.js hands that list here after every check the store answered (a
+  // check that failed never gets here). What is watched lives in a record on the device, next to the purchase ledger
+  // and never in the save (services.js `bunnyboom.owned`), so an import or a cloud restore never brings another
+  // device's purchases into it:
+  //   g    { token: { id, a } }              kept by the store, granted by this device from that store transaction;
+  //                                          a: which Google account it belongs to (a number this device gives each)
+  //   miss { token: { at, boot } }           first seen missing: when (game time) and in which launch of the app
+  //   rv   { token: { id, a, at, took } }    taken back here, and what was taken (given back the same)
+  //   cur, n                                 the account seen last, the highest account number given
+  // A promo code, a gift, a reward, a test purchase or an imported save never writes `g`, so nothing they gave is
+  // ever taken. Consumables (crystals, the piggy, sprout time, a pass) are consumed at once and never listed again:
+  // their refunds can't be seen here at all. The Club follows its subscription (clubSync), not this.
+  const REFUND = { waitMs: 6 * HOUR };
+  // Owned for good (or the Club): listed by the store for as long as it stays paid. A reward (`reward: true`, Play's
+  // pre-registration gift) is free, never refunded, and may not be listed the same way after a reinstall: never watched.
+  const keptByStore = (id) => { const p = PRODUCTS[id]; return !!p && !p.reward && !!(p.sub || p.once || p.skin || p.step); };
+  const revocable = (id) => keptByStore(id) && !PRODUCTS[id].sub;
+  const owns = (s, id) => {
+    const p = PRODUCTS[id], flag = { noads: s.iap.noAds, noforced: s.iap.noForced, autoup: s.iap.autoUp, starter: s.iap.starter }[id];
+    return !!s.iap.bought[id] || flag === true || (!!p.skin && s.skins.owned.includes(p.skin)) || (!!p.step && s.iap.stepUp >= p.step);
+  };
+  // As much as is left of a bundle's currency, never below zero.
+  function takeBack(s, wallet, n) {
+    const k = Math.max(0, Math.min(n, Math.floor(s[wallet] || 0)));
+    s[wallet] -= k;
+    return k;
+  }
+  // One pet of exactly that grade, if one is still there unmerged (from the bag first). An equipped one leaves its slot
+  // to the best pet in the bag; the first slot is never left empty (savefile.sanitize), a grade-0 pet at worst.
+  function takePet(s, g) {
+    const b = s.pets, i = b.inv.lastIndexOf(g);
+    if (i >= 0) { b.inv[i] = null; return g; }
+    const j = b.eq.indexOf(g);
+    if (j < 0) return null;
+    const best = b.inv.reduce((m, x, k) => (x != null && (m < 0 || x > b.inv[m]) ? k : m), -1);
+    b.eq[j] = best >= 0 ? b.inv[best] : j === 0 ? 0 : null;
+    if (best >= 0) b.inv[best] = null;
+    return g;
+  }
+  // A paid costume goes (one that can also be earned stays); worn, the bunny changes back to Classic.
+  function dropSkin(s, id) {
+    const sk = skins.find((x) => x.id === id);
+    if (!sk || !sk.unlock.iap || !s.skins.owned.includes(id)) return null;
+    s.skins.owned = s.skins.owned.filter((x) => x !== id);
+    if (s.skins.eq === id) s.skins.eq = 'classic';
+    return id;
+  }
+  // A refunded purchase: its perk goes, and what is still there of exactly what it gave, in the form it was given
+  // (unspent crystals or clovers up to the bundle, its pet if not merged yet). Never below zero, never anything else,
+  // never what the bundle has become. It can be bought again. → { ok, took } (took: what to give back if the store
+  // lists the purchase again)
+  function revoke(s, id, now) {
+    if (!revocable(id)) return { ok: false };
+    const p = PRODUCTS[id], took = {};
+    if (!owns(s, id)) return { ok: true, took };
+    delete s.iap.bought[id];
+    if (id === 'noads') { s.iap.noAds = false; s.iap.noForced = !!s.iap.bought.noforced; }
+    if (id === 'noforced') s.iap.noForced = !!s.iap.noAds;
+    if (id === 'autoup') {
+      s.iap.autoUp = false;
+      if (!(s.trials.autoUp > now)) s.settings.autoUp = false;
+      took.crystals = takeBack(s, 'crystals', AUTOUP_GEMS);
+    }
+    if (id === 'starter') { s.iap.starter = false; took.crystals = takeBack(s, 'crystals', STARTER.crystals); took.pet = takePet(s, STARTER.pet); }
+    if (p.skin) took.skin = dropSkin(s, p.skin);
+    // A later step still owned keeps the chain where it is (that step can't be bought twice); the last one opens again,
+    // back to the newest step still owned.
+    if (p.step) {
+      took.clovers = takeBack(s, 'clovers', p.clovers); took.pet = takePet(s, p.pet);
+      if (s.iap.stepUp === p.step) do s.iap.stepUp--; while (s.iap.stepUp > 0 && !s.iap.bought['step_' + s.iap.stepUp]);
+    }
+    // Only what was really taken is remembered.
+    for (const k of Object.keys(took)) if (took[k] == null || (k !== 'pet' && !took[k])) delete took[k];
+    return { ok: true, took };
+  }
+  // The store lists a revoked purchase again (another Google account was signed in, or the store was wrong): what was
+  // taken comes back as it was. Bought again since (a new transaction gave it all): nothing more.
+  function unrevoke(s, id, took, now) {
+    if (!revocable(id)) return { ok: false };
+    const can = canBuy(s, id, now);
+    if (!can.ok && can.already) return { ok: true, given: false };
+    const p = PRODUCTS[id], t = took && typeof took === 'object' ? took : {};
+    const n = (v, max) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
+    s.iap.bought[id] = Math.max(1, s.iap.bought[id] || 0);
+    if (id === 'noads') { s.iap.noAds = true; s.iap.noForced = true; }
+    if (id === 'noforced') s.iap.noForced = true;
+    if (id === 'autoup') { s.iap.autoUp = true; s.settings.autoUp = true; s.crystals += n(t.crystals, AUTOUP_GEMS); }
+    if (id === 'starter') { s.iap.starter = true; s.crystals += n(t.crystals, STARTER.crystals); }
+    if (p.skin && !s.skins.owned.includes(p.skin)) s.skins.owned.push(p.skin);
+    if (p.step) { s.iap.stepUp = Math.max(s.iap.stepUp, p.step); s.clovers += n(t.clovers, p.clovers); }
+    const pet = id === 'starter' ? STARTER.pet : p.step ? p.pet : null;
+    if (pet != null && t.pet === pet) grantBundle(s, { pet }, now);   // a full bag: clovers instead, as everywhere
+    return { ok: true, given: true };
+  }
+
+  // The device record, checked and copied: anything malformed is dropped (a broken record watches nothing).
+  function ownedRecord(r) {
+    const o = r && typeof r === 'object' && !Array.isArray(r) ? r : {};
+    const acct = (v) => Number.isInteger(v.a) && v.a > 0;
+    const map = (m, ok) => {
+      const out = {};
+      if (m && typeof m === 'object') for (const [k, v] of Object.entries(m)) if (k && v && typeof v === 'object' && ok(v)) out[k] = { ...v };
+      return out;
+    };
+    const g = map(o.g, (v) => keptByStore(v.id) && acct(v));
+    const rv = map(o.rv, (v) => revocable(v.id) && acct(v));
+    for (const v of Object.values(rv)) v.took = v.took && typeof v.took === 'object' ? { ...v.took } : {};
+    const miss = map(o.miss, (v) => Number.isFinite(v.at));
+    const n = Math.max(1, Number.isInteger(o.n) ? o.n : 1, ...[...Object.values(g), ...Object.values(rv)].map((v) => v.a));
+    const cur = Number.isInteger(o.cur) && o.cur >= 1 && o.cur <= n ? o.cur : 1;
+    return { g, miss, rv, cur, n };
+  }
+  // A purchase just made in the game, granted from its store transaction: watched from now on, as the account seen last.
+  function ownedAdd(r, token, id) {
+    const rec = ownedRecord(r);
+    if (token && keptByStore(id) && !rec.g[token] && !rec.rv[token]) rec.g[token] = { id, a: rec.cur };
+    return rec;
+  }
+
+  // One store check. list: [{ id, token, paid, ack }] as the store listed it (paid: bought and not refunded, a running
+  // subscription; ack: acknowledged), after native.js granted what was new; known(token): this device had granted it
+  // before this check. Changes the save; → { rec (the record to keep), revoked: [id], back: [id], other }.
+  //  - Listed again after it was taken back: it comes back (unrevoke).
+  //  - The account: purchases listed together belong to one account. A list with none of this device's purchases
+  //    but with acknowledged ones it never granted is another Google account on this phone (other: nothing is taken,
+  //    nothing watched; its purchases get an account number of their own, so going back and forth between two accounts
+  //    never takes anything). A list with none of either kind (empty, or only new and pending payments) is the account
+  //    seen last when this device has only ever seen one (a refund of everything looks exactly like this), and
+  //    unknown after two or more (nothing is taken).
+  //  - Missing from the list (and not owned under another token): watched first; taken back when it is still missing at
+  //    a check at least REFUND.waitMs later, in a later launch of the app. A flaky store or account has to fail twice,
+  //    6 hours and a restart apart, before anything goes; listed again in between, the watch ends.
+  function refunds(s, r, list, known, now, boot) {
+    const rec = ownedRecord(r);
+    const isKnown = typeof known === 'function' ? known : () => false;
+    const paid = (Array.isArray(list) ? list : []).filter((t) => t && t.paid && t.token && PRODUCTS[t.id]);
+    const listed = new Set(paid.map((t) => t.token)), still = new Set(paid.map((t) => t.id));
+    const out = { rec, revoked: [], back: [], other: false };
+    for (const [tk, x] of Object.entries(rec.rv)) {
+      if (!listed.has(tk)) continue;
+      delete rec.rv[tk];
+      rec.g[tk] = { id: x.id, a: x.a };
+      if (unrevoke(s, x.id, x.took, now).given) out.back.push(x.id);
+    }
+    const tags = new Set(paid.filter((t) => rec.g[t.token]).map((t) => rec.g[t.token].a));
+    const accounts = new Set([...Object.values(rec.g), ...Object.values(rec.rv)].map((x) => x.a));
+    let cur = rec.cur, sure = true;
+    if (tags.size) {
+      cur = Math.min(...tags);
+      for (const x of [...Object.values(rec.g), ...Object.values(rec.rv)]) if (tags.has(x.a)) x.a = cur;
+    } else if (Object.keys(rec.g).length && paid.some((t) => keptByStore(t.id) && t.ack !== false && !isKnown(t.token))) {
+      cur = ++rec.n;
+      out.other = true;
+    } else sure = accounts.size <= 1;
+    rec.cur = cur;
+    for (const t of paid) if (keptByStore(t.id) && !rec.g[t.token]) rec.g[t.token] = { id: t.id, a: cur };
+    for (const tk of Object.keys(rec.miss)) if (listed.has(tk) || !rec.g[tk]) delete rec.miss[tk];
+    if (out.other || !sure) return out;
+    for (const [tk, x] of Object.entries(rec.g)) {
+      if (x.a !== cur || listed.has(tk) || !revocable(x.id)) continue;
+      if (still.has(x.id)) { delete rec.g[tk]; delete rec.miss[tk]; continue; }
+      const w = rec.miss[tk];
+      if (!w) { rec.miss[tk] = { at: now, boot: String(boot) }; continue; }
+      if (now - w.at < REFUND.waitMs || w.boot === String(boot)) continue;
+      const took = out.revoked.includes(x.id) ? {} : revoke(s, x.id, now).took || {};
+      delete rec.g[tk]; delete rec.miss[tk];
+      rec.rv[tk] = { id: x.id, a: cur, at: now, took };
+      if (!out.revoked.includes(x.id)) out.revoked.push(x.id);
+    }
+    return out;
   }
 
   // ---------- golden carrot ----------
@@ -3724,6 +4019,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     AD, addAdReward, adStart, adEnd, adRecoverLeft, adReward, adRecover, adBroke, useAdCredit,
     FIB, egg, redeemPromo,
     REVEALS, UNLOCK, UNLOCK_MIN, unlockProgress, unlocked, petGift,
+    REVEAL, revealSec, revealPlan, reveal, nextReveal, rebirthInfo,
     LIMITS, freeDrawLeft, useFreeDraw, modeLeft, useMode, canSkipMission, skipMission,
     vipOn, clubOn, cavePass, maxWorld, timeWarp, perkGems, perkReady, claimPerks, clubSync, piggyBoss, piggyReady, buyUpgrade, autoUpgradeTick, autoUpOn,
     box, slots, addItem, move, mergeAll, equipBest, draw, DRAW,
@@ -3734,6 +4030,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     caveLeft, caveTime, bossTime, towerTime, raidReward, towerReward, caveReward, sweepLeft, sweep, refreshCave,
     skinUnlocked, checkSkins, buySkin, canBuy, grant, goldenReward, FOE_REWARDS, foeReward, offline, collectOffline, offlineX2, newDay,
     introDue, seeIntro,
+    REFUND, keptByStore, revocable, revoke, unrevoke, ownedRecord, ownedAdd, refunds,
   };
 });
 
@@ -4887,6 +5184,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   const BAK = [{ key: KEY + '.bak1', every: 10 * 60e3 }, { key: KEY + '.bak2', every: 2 * 3600e3 }, { key: KEY + '.bak3', every: 24 * 3600e3 }];
   // Store transactions already granted; kept apart from the save so an import or restore can't replay them.
   const LEDGER = 'bunnyboom.ledger';
+  // What this device granted from the store and keeps for good, watched for refunds (logic.refunds): next to the ledger
+  // and, like it, never in the save, so an import or a restore never brings another device's purchases into the watch.
+  const OWNED = 'bunnyboom.owned';
   // Cloud backup's keys (cloud.js): the anonymous account's refresh token, this device's recovery code and when it last
   // backed up. Apart from the save like the ledger, so an import or a restore never brings another device's account.
   const CLOUD = 'bunnyboom.cloud';
@@ -4912,6 +5212,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     failed: false,
     bakAt: BAK.map(() => 0),
     ledger: new Set(),
+    owned: null,
     cloudKeys: {},
     // The newest valid copy among the save and its backups → { save, from, edited } | null.
     // A main copy that can't be read is kept aside as `.broken` before the next save writes over it.
@@ -4932,6 +5233,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     init() {
       for (const [i, b] of BAK.entries()) { const r = SF.unpack(ls.get(b.key)); this.bakAt[i] = r.ok ? r.save.savedAt || 0 : 0; }
       try { (JSON.parse(ls.get(LEDGER) || '[]') || []).forEach((id) => this.ledger.add(String(id))); } catch (e) { /* a broken ledger starts empty */ }
+      this.owned = BB.logic.ownedRecord(asKeys(ls.get(OWNED)));
       this.cloudKeys = asKeys(ls.get(CLOUD)) || {};
     },
     writeLocal(s, now = Date.now()) {
@@ -4952,14 +5254,18 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       this.nativeReady = true;
       this.writeLocal(s);
       this.writeLedger();
+      this.setOwned(this.owned, true);
       this.setCloudKeys(this.cloudKeys);
     },
     async readNative() {
       const P = prefs();
       if (!P) return null;
       try {
-        const [save, led, cloud] = await Promise.all([P.get({ key: KEY }), P.get({ key: LEDGER }), P.get({ key: CLOUD })]);
+        const [save, led, cloud, own] = await Promise.all([P.get({ key: KEY }), P.get({ key: LEDGER }), P.get({ key: CLOUD }), P.get({ key: OWNED })]);
         try { (JSON.parse(led.value || '[]') || []).forEach((id) => this.ledger.add(String(id))); } catch (e) { /* ignore */ }
+        // A cleared WebView (or a reinstall) brings the refund watch back from here; otherwise this device's copy stands.
+        const mine = this.getOwned();
+        if (!Object.keys(mine.g).length && !Object.keys(mine.rv).length) this.owned = BB.logic.ownedRecord(asKeys(own && own.value));
         // A reinstall (or a cleared WebView) brings the cloud account back from here.
         const keys = asKeys(cloud && cloud.value);
         if (keys && keys.rt && !this.cloudKeys.rt) this.cloudKeys = keys;
@@ -4976,6 +5282,17 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       const v = JSON.stringify([...this.ledger]);
       ls.set(LEDGER, v);
       if (prefs() && this.nativeReady) prefSet(LEDGER, v);
+    },
+    // A copy of the refund watch (logic.ownedRecord); setOwned keeps a new one, written only when it changed (force:
+    // the Preferences copy is opened).
+    getOwned() { return BB.logic.ownedRecord(this.owned); },
+    setOwned(rec, force = false) {
+      const next = BB.logic.ownedRecord(rec), v = JSON.stringify(next);
+      const same = !!this.owned && JSON.stringify(this.owned) === v;
+      this.owned = next;
+      if (same && !force) return;
+      ls.set(OWNED, v);
+      if (prefs() && this.nativeReady) prefSet(OWNED, v);
     },
     getCloudKeys() { return { ...this.cloudKeys }; },
     setCloudKeys(k) {
@@ -5161,7 +5478,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
         else if (reason !== 'cancelled') BB.ui.toast(BB.i18n.t({ pending: 'shop.pending.d', unavailable: 'shop.unavailable' }[reason] || 'shop.failed'));
         return false;
       }
-      const ok = this.deliver(id, res.transactionId);
+      const ok = this.deliver(id, res.transactionId, { fromStore: res.store === true });
       // After the grant is saved: iap_success means the player has it.
       track('iap_success', { id, price: BB.logic.PRODUCTS[id].price });
       // Only once the grant is saved does the store hear that it was delivered (consume / acknowledge). If that fails,
@@ -5182,11 +5499,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       return true;
     },
     // Grant a paid product once per store transaction and save at once (a crash must not lose it).
-    // quiet: given back from an earlier install, so no thank-you.
-    deliver(id, txId, { quiet = false } = {}) {
+    // quiet: given back from an earlier install, so no thank-you. fromStore: a real store transaction (native.js), so a
+    // product kept for good is watched for refunds from now on; a test purchase, a promo or a gift never is.
+    deliver(id, txId, { quiet = false, fromStore = false } = {}) {
       if (txId && store.hasTx(txId)) return true;
       const r = BB.logic.grant(BB.game.save, id, BB.state.gameNow(BB.game.save));
       if (txId) store.addTx(txId);
+      if (txId && fromStore) store.setOwned(BB.logic.ownedAdd(store.getOwned(), txId, id));
       if (r.ok) { if (!quiet) { BB.ui.toast(BB.i18n.t('shop.thanks')); if (BB.sound && BB.sound.play) BB.sound.play('purchase'); } BB.game.changed(); }
       BB.game.persistNow();
       this.profile();
@@ -5297,7 +5616,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
         productIdentifier: id, productType: isSub(id) ? SUBS : INAPP, quantity: 1,
         planIdentifier: isSub(id) ? CFG.clubPlan : undefined, isConsumable: isConsumable(id), autoAcknowledgePurchases: false,
       }));
-      return { ok: true, transactionId: tokenOf(tx), finish: () => finish(id, tx) };
+      // store: a real store transaction, so services.js watches what is kept for good for refunds (logic.refunds).
+      return { ok: true, transactionId: tokenOf(tx), store: true, finish: () => finish(id, tx) };
     } catch (e) {
       const reason = why(e);
       log('purchase', id, reason, e && e.code, e && e.message);
@@ -5327,7 +5647,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
   // At launch and whenever the game comes back: whatever the store lists as paid and this install hasn't granted
   // yet is granted now (a crash after the payment, a pending payment that went through, a reinstall), then
-  // finished. Pending payments are only remembered for the shop. The Club follows the subscription itself.
+  // finished. Pending payments are only remembered for the shop: one that is declined simply drops off the list, and
+  // the shop stops saying "pending" without a word. The Club follows the subscription itself. What is kept for good
+  // and no longer listed is taken back after a second check (refunds, below).
   // → the store's list, or null when the store couldn't be asked (then nothing changes).
   let checking = null;
   const reconcile = (quiet) => checking || (checking = check(quiet).finally(() => { checking = null; }));
@@ -5336,6 +5658,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     try { ({ purchases: list } = await serial(() => P.getPurchases())); } catch (e) { log('purchases', e && e.message); return null; }
     // In catalogue order, so step-up offers come back 1, 2, 3…
     list = (list || []).filter((t) => PRODUCTS[t.productIdentifier]).sort((a, b) => ORDER.indexOf(a.productIdentifier) - ORDER.indexOf(b.productIdentifier));
+    // What this device had granted before this check: the refund rules tell another Google account by it.
+    const known = new Set(list.map(tokenOf).filter((k) => k && BB.store.hasTx(k)));
     pending.clear();
     let club = false, restored = 0;
     for (const t of list) {
@@ -5351,10 +5675,30 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     }
     const s = BB.game.save;
     if (BB.logic.clubSync(s, club, BB.state.gameNow(s))) { BB.game.changed(); BB.game.persistNow(); }
+    restored += refunds(list, known);
     if (BB.iap.profile) BB.iap.profile();
     if (restored && !quiet && BB.ui) BB.ui.toast(BB.i18n.t('shop.restored'));
     if (BB.ui && BB.ui.rerender) BB.ui.rerender();
     return list;
+  }
+  // Refunds without a server (logic.refunds, docs/MONETIZATION.md "Refunds"): what this device granted from the store
+  // for good and the store no longer lists is taken back once it is still missing at a check 6 h later, in a later
+  // launch; listed again, it comes back. Said once, gently (BB.ui.revoked). → how many came back
+  const BOOT = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function refunds(list, known) {
+    const s = BB.game.save, now = BB.state.gameNow(s);
+    const seen = list.map((t) => ({ id: t.productIdentifier, token: tokenOf(t), paid: paid(t) && !(isSub(t.productIdentifier) && t.isActive === false), ack: t.isAcknowledged !== false }));
+    let r;
+    try { r = BB.logic.refunds(s, BB.store.getOwned(), seen, (k) => known.has(k), now, BOOT); } catch (e) { log('refunds', e && e.message); return 0; }
+    BB.store.setOwned(r.rec);
+    if (r.other) log('the store lists another account: nothing is taken back');
+    if (!r.revoked.length && !r.back.length) return 0;
+    for (const id of r.revoked) BB.track('iap_revoked', { product: id });
+    for (const id of r.back) BB.track('iap_restore_back', { product: id });
+    if (BB.game.statsChanged) BB.game.statsChanged(); else BB.game.changed();
+    BB.game.persistNow();
+    if (r.revoked.length && BB.ui && BB.ui.revoked) BB.ui.revoked(r.revoked);
+    return r.back.length;
   }
   // Products owned for good as the store sees them: the save can be lost, these can't. Never a pending payment.
   async function restore() {
@@ -7507,7 +7851,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     if (mode !== 'main' || s.stage.farming || s.stage.kills || !st || !eco.canLeap(s, st.dps)) return false;
     targets = []; bullets = [];
     phase = 'leap'; phaseT = eco.C.LEAP_SEC; hopOff = 0;
-    if (!leapN++) hooks.onLeap(true);
+    // The first leap of a run says where the run lands.
+    if (!leapN++) hooks.onLeap(true, eco.leapTo(s.stage.world, s.stats.maxWorld || 1, st.dps));
     return true;
   }
   // "Challenge Boss" after a lost boss fight, "Try again" after a wall at a normal stage (logic.stepBack).
@@ -9408,6 +9753,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     $('#btn-daily').innerHTML = ico('gift') + '<i class="dot"></i>';
     // Icons beside words that relabel() rewrites: they live in a sibling span of their own.
     $('#boss-btn .bico').innerHTML = ico('sword', 'ico sm');
+    $('#boss-btn').insertAdjacentHTML('afterend', '<p id="next-hint" hidden></p>');
     $('#mode-hud .bico').innerHTML = ico('close', 'ico sm');
     $('#rain-btn').insertAdjacentHTML('beforeend', ico('carrot') + '<i class="rain-lbl"></i>');
     $('#rain-btn').insertAdjacentHTML('afterend', '<span id="rain-name" data-t="rain.name" hidden></span>');
@@ -9641,6 +9987,25 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     setClass('#tab-bunny', 'glow', rbReady);
     if (rbReady && !hudCache.rbToast) { hudCache.rbToast = 1; toast(`${ico('moon', 'ico sm')} ${t('rebirth.ready')}`, 'gold'); }
     setClass('#tab-adv', 'note', logic.caveLeft(s, T) > 0 || (!!s.trip.until && s.trip.until <= T));
+    nextHint(s);
+  }
+
+  // "Next: Bunny · World 4" under the HUD: the game has more to come, and what it waits for (logic.nextReveal: the
+  // world, else the minutes of play). It gives way to the boss button, which hangs in the same place, and to a boss
+  // fight (the boss bar's tips sit there). The names are the ones the thing itself shows.
+  const NEXT_NAME = { garden: 'next.garden', daily: 'daily.title', mission: 'quests.title', bunny: 'hb.bunny', pets: 'hb.pets', adv: 'hb.adv', buffs: 'buff.title', free: 'shop.freec', auto: 'next.auto', rebirth: 'rb.title' };
+  function nextHint(s) {
+    const n = logic.nextReveal(s), phase = BB.engine.info().phase;
+    let text = '';
+    if (n && !s.stage.farming && phase !== 'boss' && phase !== 'intro') {
+      const what = `<b>${esc(t(NEXT_NAME[n.key]))}</b>`;
+      text = n.world ? t('next.world', { what, w: n.world }) : t('next.min', { what, m: Math.ceil(n.sec / 60) });
+    }
+    if (hudCache.next === text) return;
+    hudCache.next = text;
+    const el = $('#next-hint');
+    el.innerHTML = text;
+    el.hidden = !text;
   }
 
   function updateModeHud(info) {
@@ -10229,7 +10594,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       title: t('tab.bunny'), cls: 'rebirth staged', tab: 'bunny', seg, instant: !!sheet, wallet: ['rp'], foot: true,
       render(el, foot) {
         const s = S(), T = now();
-        const pts = eco.REBIRTH.pts(s.stage.maxN) * (s.rb.count === 0 ? 2 : 1);
+        const rb = logic.rebirthInfo(s), pts = rb.pts;
         const superUsed = !logic.newDay(T, s.rb.superDay);
         // Saving up is not "off": a moonstone key short of stones stays a key (.poor) and its strip shows how close.
         const near = (s2, L) => Math.floor(Math.min(1, s2.rp / eco.REBIRTH.cost(L)) * 10) / 10;
@@ -10239,9 +10604,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
         };
         // The angel bunny is the card's picture (a hero of its own pushed the upgrades below the fold on a 360 phone).
         // On a tall phone it is the window's picture and the card drops its own (stage, .alt-media).
-        el.innerHTML = `${stage(heroArt('bunny_angel'), '', 'opt')}${row({ cls: 'lilac rb-gain alt-media', media: spr('bunny_angel', 'rb-art'), title: t('rb.avail'), sub: pts > 0 ? `${t('rb.super')}: ${fmt.num(pts * 3)}` : '', extra: `<b class="big-num">${fmt.num(pts)}</b>` })}
-          ${BB.fx.rbNext(s, pts)}
-          ${pts > 0 ? '' : `<p class="hint">${t('rb.need')}</p>`}
+        // Locked: the world it opens at and how far along this run is (it said "World 5" and 0 stones at World 10).
+        // Open: the stones, then what they are worth once spent ("878" reads small next to billions of coins).
+        const worth = rb.levels > 0 ? `<small class="row-sub rb-worth">${t('rb.worth', { x: fmt.num(rb.x) })}</small>` : '';
+        const card = rb.open
+          ? { title: t('rb.avail'), extra: `<b class="big-num">${fmt.num(pts)}</b>${worth}<small class="row-sub">${t('rb.super')}: ${fmt.num(pts * 3)}</small>` }
+          : { title: t('rb.need', { w: rb.need }), extra: `${pbar(rb.k, '', 'plum')}<span class="pmeta"><span>${t('rb.at', { w: rb.at })}</span></span>` };
+        el.innerHTML = `${stage(heroArt('bunny_angel'), '', 'opt')}${row({ cls: 'lilac rb-gain alt-media', media: spr('bunny_angel', 'rb-art'), ...card })}
           ${sec(t('rb.ups'), '', 'rb-ups')}
           <div class="rb-bar"><div class="seg sm" role="radiogroup" aria-label="${t('rb.ups')}">${[1, 10, 'max'].map((m) => `<button data-act="rbm" data-arg="${m}" class="${String(m) === String(rbMult) ? 'on' : ''}">${m === 'max' ? t('buy.max') : t('buy.x' + m)}</button>`).join('')}</div></div>
           ${group(RB.map(up), 'rb-list')}`;
@@ -10272,7 +10641,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     });
   }
   async function doRebirth(mult) {
-    const pts = eco.REBIRTH.pts(S().stage.maxN) * mult * (S().rb.count === 0 ? 2 : 1);
+    const pts = logic.rebirthInfo(S()).pts * mult;
     if (!(await confirmDlg(t('rb.title'), t('rb.confirm', { n: stones(pts) }), { cls: 'plum', label: t('rb.do') }))) return;
     const r = logic.rebirth(S(), mult, now());
     if (!r.ok) return;
@@ -10953,6 +11322,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     else toast(`${ico('ad', 'ico sm')} ${t(r.credit ? 'ad.recovered.credit' : 'ad.recovered')}`, 'gold');
     G().statsChanged();
   }
+  // A purchase the store took back (a refund, logic.refunds): said once, gently, with the way back if it was a mistake
+  // (another Google account): Restore purchases.
+  function revoked(ids) {
+    const items = ids.map((id) => `<p>${esc(t('iap.revoked', { item: productName(id) }))}</p>`).join('');
+    return dialog({ title: t('iap.revoked.title'), html: `${items}<p class="muted">${esc(t('iap.revoked.hint'))}</p>` });
+  }
   // Coins and crystals pop up where the carrot was and fly to their counter; a boost says what it is.
   function goldenPopup(r, from) {
     BB.fx.reward(r, `${ico('goldcarrot', 'ico sm')} ${t('golden.title')}`, from, r.buff ? esc(t('golden.buff', { b: t('buff.' + r.buff) })) : '');
@@ -10967,7 +11342,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   BB.ui = {
     pickSave, cloudChanged, cloudCompare, cloudRestored,
     buildStatic, relabel, updateHud, toast, banner, openSheet, closeSheet, rerender, dialog, confirmDlg, testAd, testPurchase,
-    modeResult, pickSeed, offlinePopup, goldenPopup, adRecovered, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml,
+    modeResult, pickSeed, offlinePopup, goldenPopup, adRecovered, revoked, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml,
     openTab, openBunny, openGacha, openAdventure, openQuests, openDaily, openSettings, openStepUp, openShop, showOffer, itemCard, skinCard, albumFound,
     openAlbum: (g) => { if (g) albumGroup = g; openQuests('album'); },
     isOpen: () => !!sheet || !!document.querySelector('#dialogs .overlay'),
@@ -10980,7 +11355,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 // celebration. Timing and calm handling live in motion.css; numbers count with BB.motion.countUp.
 (function (root) {
   const BB = root.BB;
-  const { art, i18n, eco } = BB;
+  const { art, i18n } = BB;
   const t = (k, v) => i18n.t(k, v);
   // '120 moonstones' / '120 місячних каменів' (i18n.tn picks the form).
   const stones = (n) => i18n.tn('n.rp', n, BB.fmt.num(n));
@@ -11185,17 +11560,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       ], { duration: 950 + Math.random() * 300 }).onfinish = () => im.remove();
     }
   }
-  // The Rebirth panel's preview: what the next rebirth gives, and what those Moonstones would do for power if they all
-  // went there (on top of what the unspent ones can already buy).
-  function rbNext(s, pts) {
-    if (!(pts > 0)) return '';
-    const R = eco.REBIRTH, L = s.rb.power;
-    const k0 = eco.rbMaxAffordable(L, s.rp).n, k1 = eco.rbMaxAffordable(L, s.rp + pts).n;
-    const x = k1 > k0 ? ' · ' + t('rb.next.x', { x: BB.fmt.num(R.mult(L + k1) / R.mult(L + k0)) }) : '';
-    return `<p class="hint rb-next">${t('rb.next', { n: stones(pts) })}${x}</p>`;
-  }
-
-  BB.fx = { reward, pop, fly, eggReveal, tierOf, rebirth, rbNext };
+  BB.fx = { reward, pop, fly, eggReveal, tierOf, rebirth };
 })(typeof self !== 'undefined' ? self : this);
 
 // ---- motion.js
@@ -11612,15 +11977,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   // ---------- reveals ----------
   function applyGates() {
     const s = S();
+    // The next row of the one-at-a-time line opens here when it is due (logic.reveal writes down when).
+    const opened = logic.reveal(s);
     for (const [sel, k] of GATED) {
       const el = $(sel);
       if (!el) continue;
       const on = unlocked(s, k);
       el.classList.toggle('gated', !on);
-      if (on && !s.tut.seen[k] && s.tut.step < 99 && progress(s) > 1.6) {
-        s.tut.seen[k] = 1;
-        el.classList.add('fresh');
-      } else if (on) s.tut.seen[k] = 1;
+      if (on && (opened.includes(k) || !s.tut.seen[k]) && s.tut.step < 99 && progress(s) > 1.6) el.classList.add('fresh');
+      if (on) s.tut.seen[k] = 1;
     }
     // The hotbar's board hugs the tabs reached (a fresh save's one slot sat alone in a full-width board).
     const hb = $('#hotbar');
@@ -12355,7 +12720,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     onBunnyTap: () => BB.extras.bunnyTap(),
     onGoldSlug: () => { const r = logic.egg(game.save, 'goldslug', state.gameNow(game.save)); BB.fx.reward(r, i18n.t('egg.goldslug')); },
     sleepy: () => BB.extras.sleepyHour(),
-    onLeap: (on) => { if (on) { ui.banner(i18n.t('leap.title'), 'moon'); sound.play('leap'); } },
+    // Moon Leap after a rebirth: the banner says why the bunny flies past worlds, and where it lands.
+    onLeap: (on, to) => { if (on) { ui.banner(i18n.t('leap.title'), 'moon', [i18n.t('leap.to', { w: to }), i18n.t('leap.why')]); sound.play('leap'); } },
     // A boss drops in under its own name (each garden's boss has one, foes.js gives it a trick).
     bossTitle: () => { const k = BB.eco.BIOMES[BB.eco.biomeOf(game.save.stage.world)].boss; return i18n.name('boss', k) || i18n.t('boss.intro'); },
     say: (k) => i18n.t(k),
