@@ -409,6 +409,9 @@ a.btn { text-decoration: none; }
 .banner.gold { box-shadow: 0 calc(var(--p) * 2) 0 var(--plum), 0 calc(var(--p) * -2) 0 var(--plum); }
 .banner.rain { color: #ffe07a; box-shadow: 0 calc(var(--p) * 2) 0 #f28a2e, 0 calc(var(--p) * -2) 0 #f28a2e; }
 .banner.red { box-shadow: 0 calc(var(--p) * 2) 0 var(--red), 0 calc(var(--p) * -2) 0 var(--red); font-size: var(--fs-l); }
+/* The Moon Jump's summary: moon purple, and a tap hides it (ui.banner). */
+.banner.moon { background: rgba(38, 26, 70, .8); box-shadow: 0 calc(var(--p) * 2) 0 var(--plum), 0 calc(var(--p) * -2) 0 var(--plum); }
+.banner.tap.show { pointer-events: auto; cursor: pointer; }
 #toasts { position: absolute; z-index: 30; left: var(--gl); right: var(--gr); bottom: calc(var(--hotbar-h) + 8px + var(--sb)); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
 .in-sheet #toasts { bottom: auto; top: 6px; }
 .toast { border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; color: var(--white); text-shadow: var(--sh1); padding: 2px var(--s2); font-size: var(--fs-m); max-width: 100%; text-align: center; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; line-height: 1.3; animation: tin .38s var(--spring); }
@@ -1012,11 +1015,20 @@ label.set-row { cursor: pointer; }
 .reward-box { margin: var(--s3) auto var(--s2); }
 .reward-box div { gap: var(--s1) var(--s3); }
 .skin .how { text-wrap: balance; }
-/* Rebirth: what you get now, what it is worth once spent (and x3 with an ad), then what each moonstone buys. Before
-   World 12: the world it opens at and a moon bar of how far this run is. */
+/* Rebirth: what it gives (logic.rebirthPreview): the power big, the stones small, where the Moon Jump lands, what it
+   unlocks, Super x3's numbers; then what each moonstone buys. Before World 10: the world it opens at and a moon bar
+   of how far this run is. On the moon (right after one): spend, then the big key in the footer jumps down. */
 .rb-gain .big-num { display: block; margin-top: var(--s1); }
-.rb-gain .rb-worth { color: var(--ink); }
+.rb-gain .rb-x { color: var(--plum-d); }
+.rb-gain .rb-start, .rb-gain .rb-new { color: var(--ink); }
 .rb-gain .rb-art { width: 60px; height: 76px; }
+.rb-reset { margin: 0 var(--s1) var(--s2); text-align: center; }
+/* A 320-px phone gives the preview's five lines the card's whole width (the angel steps aside). */
+@media (max-width: 359px) { .rb-gain.rb-open > .row-media { display: none; } }
+.rb-dlg .rb-lines { display: flex; flex-direction: column; gap: var(--s1); margin: var(--s2) 0 0; text-align: center; }
+.rb-dlg .rb-x { font-size: var(--fs-xl); line-height: 1; color: var(--plum-d); }
+.rb-dlg .rb-super { text-align: center; }
+.rb-jump .rb-jw { min-width: 0; }
 .rb-up > .row-body { flex-basis: calc(var(--fs-m) * 4.5); }     /* keeps the key beside the name on a 360 phone */
 /* Album groups and the rebirth x1/x10/MAX use the one segmented control (.seg, B). */
 .album-groups.seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s1); }
@@ -1170,6 +1182,8 @@ label.set-row { cursor: pointer; }
 /* ---------- rebirth upgrades: x1 / x10 / MAX, held to keep buying ---------- */
 .rb-bar { display: flex; align-items: center; justify-content: flex-end; gap: var(--s2); margin: 0 0 var(--s2); }
 .rb-bar .seg button { height: 36px; }
+/* "Split evenly": every moonstone over the three at once (logic.rbSpread), at the left of the bar. */
+.rb-bar .rb-even { margin-right: auto; height: 36px; min-height: 36px; padding: 0 var(--s3); font-size: var(--fs-s); }
 .rb-n { font-style: normal; }
 .rb-buy { touch-action: none; }
 .rb-up.nope { animation: nope .28s var(--ease-out) 1; }
@@ -1480,7 +1494,10 @@ label.set-row { cursor: pointer; }
 .rb-cel-title { margin: 0; font-size: var(--fs-xxl); line-height: 1; color: var(--gold-t, #ffe07a); opacity: 0; }
 .rb-cel.lit .rb-cel-title { opacity: 1; animation: stamp 360ms var(--spring); }
 @keyframes stamp { from { opacity: 0; transform: scale(calc(1 + var(--m) * .6)); } }
-.rb-cel-gain { margin: 0; display: flex; align-items: center; gap: var(--s2); font-size: var(--fs-xxl); line-height: 1; opacity: 0; }
+.rb-cel-gain { margin: 0; display: flex; align-items: center; gap: var(--s2); font-size: var(--fs-xl); line-height: 1; opacity: 0; }
+/* What the stones are worth stamps down after them, bigger than the count: the power is the reward, not the number. */
+.rb-cel-x { margin: 0; font-size: var(--fs-xxl); line-height: 1; color: var(--gold-t, #ffe07a); opacity: 0; }
+.rb-cel.stamp .rb-cel-x { opacity: 1; animation: stamp 360ms var(--spring); }
 .rb-cel-gain .px { width: 32px; height: 32px; image-rendering: pixelated; }
 /* Each line is visible by its class; the animation only brings it in (with animations off it simply appears). */
 .rb-cel.count .rb-cel-gain, .rb-cel.fresh .rb-cel-fresh { opacity: 1; animation: rise var(--dur-slow) var(--ease-out); }
@@ -1675,8 +1692,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'gift.text': "You joined us before the garden opened. A gift for our first guests:",
       'gift.buffs': "All three buffs",
       // rebirth
-      'rb.title': 'Rebirth', 'rb.avail': 'Moonstones you get now', 'rb.do': 'Rebirth now', 'rb.ups': 'Moonstone upgrades', 'rb.super': 'Super ×3', 'rb.need': 'Reach World\u00a0{w} to rebirth',
-      'rb.confirm': 'Back to World 1 with {n}? Only coins and coin upgrades reset, and worlds you now crush fly by.',
+      'rb.title': 'Rebirth', 'rb.do': 'Rebirth now', 'rb.ups': 'Moonstone upgrades', 'rb.need': 'Reach World\u00a0{w} to rebirth',
+      'rb.confirm': 'Rebirth for {n}? Only coins and coin upgrades reset.',
       'rb.power': 'Power boost', 'rb.speed': 'Speed boost', 'rb.money': 'Money boost', 'rb.upgrade': 'Upgrade', 'rb.done': 'Reborn! +{n}',
       // buffs
       'buff.title': 'Buffs', 'buff.all': "Turn on all three and each becomes ×3!", 'buff.power': 'Power buff', 'buff.speed': 'Speed buff', 'buff.money': 'Money buff',
@@ -1807,9 +1824,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'time.d': '{n}d',
       'toast.nocoins': 'Not enough coins', 'toast.nocrystals': 'Not enough crystals', 'toast.noclovers': 'Not enough clovers', 'toast.saved': 'Saved',
       'rb.reborn': 'Reborn!', 'rb.fresh': 'A fresh start in World 1',
-      // The Rebirth tab: locked, where this run is; open, what the stones are worth once spent. Moon Leap's banner.
-      'rb.at': "You're in World {w}", 'rb.worth': 'Up to ×{x} power once spent',
-      'leap.to': 'Leaping to World {w}', 'leap.why': "You've beaten these worlds: they fly by",
+      // What a rebirth gives (logic.rebirthPreview): the tab, the confirm, the celebration. The moon after it, and the
+      // Moon Jump's banner (Moon Leap is its name), {c} "+1.2K coins".
+      'rb.after': 'After rebirth', 'rb.powerx': 'Power\u00a0×{x}', 'rb.start': 'Start at World\u00a0{w} · record\u00a0{r}', 'rb.unlocks': 'Unlocks: {what}', 'rb.skin': '{name} ({b})',
+      'rb.b.power': '+{p}% power', 'rb.b.speed': '+{p}% speed', 'rb.b.money': '+{p}% coins', 'rb.super3': 'Super\u00a0×3: Power\u00a0×{x} · World\u00a0{w}',
+      'rb.resets': 'Coins and coin upgrades reset. Everything else stays.', 'rb.jumpto': 'Jump to World\u00a0{w}', 'rb.even': 'Split evenly',
+      'rb.moon': 'Waiting on the moon', 'rb.moon.sub': 'Spend your moonstones, then jump down: worlds you now crush fly by.', 'rb.jump': 'Jump down · World\u00a0{w}',
+      'jump.worlds': 'Worlds {a}–{b} behind', 'jump.world': 'World {w} behind', 'jump.got': '{c} · Power Lv.{n}', 'jump.record': 'Record! New gardens from here',
+      // The Rebirth tab while locked: where this run is.
+      'rb.at': "You're in World {w}",
       // "Next:" under the HUD (logic.nextReveal). {what} is the thing's own name (its tab, its window).
       'next.world': 'Next: {what} · World\u00a0{w}', 'next.min': 'Next: {what} in {m} min', 'next.garden': 'Flowers', 'next.auto': 'Auto upgrade',
       'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min', 'auto.notrial': "Today's two free trials are used. Auto upgrade is in the Shop.",
@@ -1907,8 +1930,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'gift.title': "Дякуємо, що чекали на нас!",
       'gift.text': "Ти з нами ще до відкриття саду. Подарунок для наших перших гостей:",
       'gift.buffs': "Усі три бафи",
-      'rb.title': 'Переродження', 'rb.avail': 'Отримаєш місячних каменів', 'rb.do': 'Переродитись', 'rb.ups': 'Покращення за місячні камені', 'rb.super': 'Супер ×3', 'rb.need': 'Дійди до Світу\u00a0{w}, щоб переродитись',
-      'rb.confirm': 'Почати зі Світу 1 і отримати {n}? Скинуться лише монети та їхні покращення, а легкі світи пролетиш.',
+      'rb.title': 'Переродження', 'rb.do': 'Переродитись', 'rb.ups': 'Покращення за місячні камені', 'rb.need': 'Дійди до Світу\u00a0{w}, щоб переродитись',
+      'rb.confirm': 'Переродитись і отримати {n}? Скинуться лише монети та їхні покращення.',
       'rb.power': 'Посилення сили', 'rb.speed': 'Посилення швидкості', 'rb.money': 'Посилення грошей', 'rb.upgrade': 'Покращити', 'rb.done': 'Переродження! +{n}',
       'buff.title': 'Бафи', 'buff.all': "Увімкни всі три — і кожен стане ×3!", 'buff.power': 'Баф сили', 'buff.speed': 'Баф швидкості', 'buff.money': 'Баф грошей',
       'buff.power.d': "Шкода ×{x}", 'buff.speed.d': "Швидкість ×{x}", 'buff.money.d': "Гроші ×{x}", 'buff.add': "+30 хв", 'buff.max': "До 4 годин кожен",
@@ -2031,8 +2054,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'time.d': '{n} дн.',
       'toast.nocoins': 'Замало монет', 'toast.nocrystals': 'Замало кристалів', 'toast.noclovers': 'Замало конюшини', 'toast.saved': 'Збережено',
       'rb.reborn': 'Переродження!', 'rb.fresh': 'Новий початок у Світі 1',
-      'rb.at': 'Ти у Світі {w}', 'rb.worth': 'До ×{x} сили після покращень',
-      'leap.to': 'Стрибаємо до Світу {w}', 'leap.why': 'Ці світи вже твої: пролітаємо їх',
+      'rb.after': 'Після переродження', 'rb.powerx': 'Сила\u00a0×{x}', 'rb.start': 'Старт зі Світу\u00a0{w} · рекорд\u00a0{r}', 'rb.unlocks': 'Відкриється: {what}', 'rb.skin': '{name} ({b})',
+      'rb.b.power': '+{p}% сили', 'rb.b.speed': '+{p}% швидкості', 'rb.b.money': '+{p}% монет', 'rb.super3': 'Супер\u00a0×3: Сила\u00a0×{x} · Світ\u00a0{w}',
+      'rb.resets': 'Скинуться монети й покращення за монети. Усе інше лишається.', 'rb.jumpto': 'Стрибок до Світу\u00a0{w}', 'rb.even': 'Порівну',
+      'rb.moon': 'Чекаємо на місяці', 'rb.moon.sub': 'Витрать місячні камені й стрибай униз: світи, які тепер легкі, пролетиш.', 'rb.jump': 'Стрибнути вниз · Світ\u00a0{w}',
+      'jump.worlds': 'Світи {a}–{b} позаду', 'jump.world': 'Світ {w} позаду', 'jump.got': '{c} · Сила рів.{n}', 'jump.record': 'Рекорд! Далі — нові сади',
+      'rb.at': 'Ти у Світі {w}',
       'next.world': 'Далі: {what} · Світ\u00a0{w}', 'next.min': 'Далі: {what} за {m} хв', 'next.garden': 'Квіти', 'next.auto': 'Автопрокачка',
       'auto.on': 'Автопокращення увімкнено', 'auto.off': 'Автопокращення вимкнено', 'auto.locked': 'Автопокращення є в Лавці. Спробувати 10 хв за рекламу?', 'auto.trial': 'Спробувати 10 хв', 'auto.notrial': 'Дві безкоштовні спроби на сьогодні вже використано. Автопокращення є в Лавці.',
       // хитрі овочі (foes.js): підказки першого разу, банери подій, слівця над полем
@@ -2131,12 +2158,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       'gift.title': "Dziękujemy, że na nas czekaliście!",
       'gift.text': "Jesteś z nami jeszcze przed otwarciem ogrodu. Prezent dla naszych pierwszych gości:",
       'gift.buffs': "Wszystkie trzy buffy",
-      'rb.title': 'Odrodzenie', 'rb.avail': 'Kamieni do zdobycia', 'rb.do': 'Odródź się', 'rb.ups': 'Ulepszenia za kamienie', 'rb.super': 'Super ×3', 'rb.need': 'Dotrzyj do Świata\u00a0{w}, żeby się odrodzić',
-      'rb.confirm': 'Wrócić do Świata 1 i zdobyć {n}? Znikną tylko monety i ich ulepszenia, a łatwe światy przelecisz.',
+      'rb.title': 'Odrodzenie', 'rb.do': 'Odródź się', 'rb.ups': 'Ulepszenia za kamienie', 'rb.need': 'Dotrzyj do Świata\u00a0{w}, żeby się odrodzić',
+      'rb.confirm': 'Odrodzić się i zdobyć {n}? Znikną tylko monety i ich ulepszenia.',
       'rb.power': 'Wzmocnienie siły', 'rb.speed': 'Wzmocnienie szybkości', 'rb.money': 'Wzmocnienie zysku', 'rb.upgrade': 'Ulepsz', 'rb.done': 'Odrodzenie! +{n}',
       'rb.reborn': 'Odrodzenie!', 'rb.fresh': 'Nowy start w Świecie 1',
-      'rb.at': 'Jesteś w Świecie {w}', 'rb.worth': 'Do ×{x} siły po ulepszeniach',
-      'leap.to': 'Skok do Świata {w}', 'leap.why': 'Te światy już pokonałeś: przelatujemy je',
+      'rb.after': 'Po odrodzeniu', 'rb.powerx': 'Siła\u00a0×{x}', 'rb.start': 'Start w Świecie\u00a0{w} · rekord\u00a0{r}', 'rb.unlocks': 'Odblokujesz: {what}', 'rb.skin': '{name} ({b})',
+      'rb.b.power': '+{p}% siły', 'rb.b.speed': '+{p}% szybkości', 'rb.b.money': '+{p}% monet', 'rb.super3': 'Super\u00a0×3: Siła\u00a0×{x} · Świat\u00a0{w}',
+      'rb.resets': 'Monety i ulepszenia za monety znikną. Reszta zostaje.', 'rb.jumpto': 'Skok do Świata\u00a0{w}', 'rb.even': 'Po równo',
+      'rb.moon': 'Czekamy na księżycu', 'rb.moon.sub': 'Wydaj kamienie i skacz w dół: światy, które są teraz łatwe, przelecisz.', 'rb.jump': 'Skocz w dół · Świat\u00a0{w}',
+      'jump.worlds': 'Światy {a}–{b} za tobą', 'jump.world': 'Świat {w} za tobą', 'jump.got': '{c} · Siła poz. {n}', 'jump.record': 'Rekord! Dalej nowe ogrody',
+      'rb.at': 'Jesteś w Świecie {w}',
       'next.world': 'Dalej: {what} · Świat\u00a0{w}', 'next.min': 'Dalej: {what} za {m} min', 'next.garden': 'Kwiaty', 'next.auto': 'Auto-ulepszanie',
       'buff.title': 'Buffy', 'buff.all': 'Włącz wszystkie trzy, a każdy da ×3!', 'buff.power': 'Buff siły', 'buff.speed': 'Buff szybkości', 'buff.money': 'Buff zysku',
       'buff.power.d': 'Obrażenia ×{x}', 'buff.speed.d': 'Szybkość ×{x}', 'buff.money.d': 'Zysk ×{x}', 'buff.add': '+30 min', 'buff.max': 'Każdy do 4 godzin',
@@ -2792,8 +2823,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     OFFLINE_CAP_H: 8,
     OFFLINE_RATE: 0.5,  // share of live income earned while away
     MAX_WORLD: 300,     // numbers stay below 1e300 up to here
-    LEAP_X: 50,         // Moon Leap: a world already beaten once is skipped when dps is 50x its boss
-    LEAP_SEC: 2,
+    LEAP_X: 10,         // Moon Jump: a world beaten in an earlier run is jumped over while dps is 10x its boss (a 0.1 s boss)
+    LEAP_SEC: 3,        // one jump, however many worlds it crosses (logic.moonJump)
     GRADES: ['C', 'B', 'A', 'S', 'SS', 'SSS', 'X', 'XX', 'XXX', 'Z'],
   };
 
@@ -2833,7 +2864,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   const PITY = { tenFloor: 2, ssGrade: 4, ssAt: 80 };
 
   const REBIRTH = {
-    MIN_N: 55,                         // world 12-1: rebirth opens after the first ~1.5 hours
+    MIN_N: 45,                         // world 10-1: the first rebirth ~1:05 with taps, ~1:36 without (owner, 30.10)
     pts: (maxN) => (maxN < REBIRTH.MIN_N ? 0 : Math.floor(5 * Math.pow(1.75, maxN / 5 - 4))),
     cost: (L) => Math.ceil(Math.pow(1.35, L)),
     mult: (L) => Math.pow(1.12, L) * (1 + 0.05 * L),
@@ -2879,14 +2910,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   const spawnGap = (n) => early(n, 'gap', 0);
   const growTime = (n) => early(n, 'grow', 0);
 
-  // Moon Leap: after a rebirth, the worlds the bunny now crushes fly by in seconds instead of minutes.
-  const canLeap = (s, dps) => s.stage.sub === 1 && s.stage.world < (s.stats.maxWorld || 1) && dps >= C.LEAP_X * bossHp(stageN(s.stage.world, C.SUBS));
-  // Where a run of leaps from World `world` lands: the first world it can't cross (the banner says it up front).
-  function leapTo(world, maxWorld, dps) {
-    let w = world;
-    while (w < maxWorld && dps >= C.LEAP_X * bossHp(stageN(w, C.SUBS))) w++;
-    return w;
-  }
+  // Moon Jump (logic.moonJump): after a rebirth the worlds the bunny now crushes go by in one jump. A world can be
+  // jumped over from a normal stage (not a boss fight, not farming) below the record, while dps is LEAP_X times its boss.
+  const canLeap = (s, dps, x = C.LEAP_X) => !s.stage.farming && !isBoss(s.stage.sub) && s.stage.world < (s.stats.maxWorld || 1)
+    && dps >= x * bossHp(stageN(s.stage.world, C.SUBS));
   function leapCoins(world, money) {
     let total = 0;
     for (let sub = 1; sub < C.SUBS; sub++) total += coins(stageN(world, sub)) * stageKills(stageN(world, sub));
@@ -3020,7 +3047,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
   return {
     C, UP, WEAPON, PET, FLY, ODDS, oddsPct, DRAW_COST, PITY, REBIRTH, rbCostN, rbMaxAffordable, rbWorth, CAVE, BIOMES, BIOME_WORLDS, biomeOf, loopOf, ALBUM_PAGE_BONUS, albumBonus,
-    stageN, fromN, isBoss, stageKills, hp, coins, bossHp, bossCoins, canLeap, leapTo, leapCoins,
+    stageN, fromN, isBoss, stageKills, hp, coins, bossHp, bossCoins, canLeap, leapCoins,
     upMult, upCost, upCostN, upMaxAffordable,
     START, bossTime, maxAlive, spawnGap, growTime,
     stats, buffState, setSkins, skinBonus, incomePerSec, offlineEarnings,
@@ -3178,7 +3205,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   // ("1.4" = World 1, stage 3) AND played its minutes (or ~5 minutes after the row before: REVEAL below), so a slow
   // player waits on the garden; one new system every 5-8 minutes. What came with it shares the row (crystals buy
   // blasters, clovers buy pets, the cave is an adventure...). Speed, Money, rain and Blasters are tutorial steps and
-  // open on their stage. Rebirth opens with its points (eco.REBIRTH.MIN_N, World 12). The Shop tab and the piggy are
+  // open on their stage. Rebirth opens with its points (eco.REBIRTH.MIN_N, World 10). The Shop tab and the piggy are
   // where offers live, left as they were: offers.js decides when a paid offer shows. Once shown a thing stays
   // (tut.seen); a save from before the tutorial has it all. Minutes are of play (stats.playSec), so time away never
   // skips one. own: a row outside the one-at-a-time line, on its world (and minutes) alone.
@@ -3195,7 +3222,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     { world: 6, min: 48, keys: ['buffs'] },
     { world: 6, min: 56, keys: ['free'] },
     { world: 7, min: 64, keys: ['auto'] },
-    { world: 12, min: 0, keys: ['rebirth'], own: true },
+    { world: eco.fromN(eco.REBIRTH.MIN_N).world, min: 0, keys: ['rebirth'], own: true },
     { world: 2, min: 0, keys: ['shop'], own: true },
     { world: 3, min: 0, keys: ['piggy'], own: true },
   ];
@@ -3285,14 +3312,21 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     s.coins -= cost; s.up[k] += n; s.stats.upgrades += n;
     return { ok: true, n, cost };
   }
-  function autoUpgradeTick(s) {
-    let bought = 0;
-    for (let i = 0; i < 50; i++) {
+  // The cheapest coin upgrade, again and again while the coins last (up to `max` levels). → levels bought.
+  function buyCheapest(s, max) {
+    let n = 0;
+    for (; n < max; n++) {
       let best = null, bc = Infinity;
       for (const k of ['power', 'speed', 'money']) { const c = eco.upCost(k, s.up[k]); if (c < bc) { bc = c; best = k; } }
       if (bc > s.coins) break;
-      s.coins -= bc; s.up[best]++; s.stats.upgrades++; bought++;
+      s.coins -= bc; s.up[best]++;
     }
+    return n;
+  }
+  // Auto Upgrade (bought, or its trial): once a second, what the coins pay for.
+  function autoUpgradeTick(s) {
+    const bought = buyCheapest(s, 50);
+    s.stats.upgrades += bought;
     return bought;
   }
   const autoUpOn = (s, now) => s.iap.autoUp || (s.trials && s.trials.autoUp > now);
@@ -3423,6 +3457,68 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     }
     return bought ? { ok: true, n: bought } : { ok: false };
   }
+  const RB_KEYS = ['power', 'speed', 'money'];
+  // MAX for all three at once: the moonstones go to the lowest of Power, Speed and Money, one level at a time, until the
+  // next level costs more than is left (the even split the preview counts on). → { ok, n }.
+  function rbSpread(s) {
+    let n = 0;
+    for (let guard = 0; guard < 100000; guard++) {
+      const k = RB_KEYS.reduce((a, b) => (s.rb[b] < s.rb[a] ? b : a));
+      const c = eco.REBIRTH.cost(s.rb[k]);
+      if (c > s.rp) break;
+      s.rp -= c; s.rb[k]++; n++;
+    }
+    return n ? { ok: true, n } : { ok: false };
+  }
+
+  // ---------- Moon Jump ----------
+  // After a rebirth the bunny doesn't replay what it has beaten: one jump (eco.C.LEAP_SEC) crosses every world it now
+  // crushes. World by world it takes that world's coins (eco.leapCoins, every veggie and the boss) and spends them on
+  // coin upgrades, cheapest first like Auto Upgrade, so it lands with the levels it would have bought on the way; it
+  // goes on while its dps is eco.C.LEAP_X times the world's boss (a 0.1 s boss) and the world is below the record
+  // (eco.canLeap). The re-buy is part of the jump and free for everyone; the paid Auto Upgrade still buys all game. It
+  // does not count towards "buy N upgrades". Later in the run the engine tries again at each new stage, same rule.
+  // stats(s) → { dps, money } for the save as it is at that moment (the engine: eco.stats with the live buffs).
+  // → { from, to, coins, levels, up }; to === from: nothing changed.
+  function moonJump(s, stats, x = eco.C.LEAP_X) {
+    const from = s.stage.world;
+    let coins = 0, levels = 0;
+    for (let guard = 0; guard < eco.C.MAX_WORLD; guard++) {
+      const st = stats(s);
+      if (!eco.canLeap(s, st.dps, x)) break;
+      const c = eco.leapCoins(s.stage.world, st.money);
+      s.coins += c; coins += c;
+      s.stage.world++; s.stage.sub = 1; s.stage.kills = 0;
+      levels += buyCheapest(s, 1e5);
+    }
+    if (s.stage.world > from) s.stage.maxN = Math.max(s.stage.maxN, eco.stageN(s.stage.world, 1));
+    return { from, to: s.stage.world, coins, levels, up: { ...s.up } };
+  }
+  // The same jump on a copy of the run: where it would land right now (the Rebirth panel's "Jump down · World 8").
+  const runCopy = (s) => ({ ...s, up: { ...s.up }, rb: { ...s.rb }, stage: { ...s.stage }, stats: { ...s.stats }, skins: { ...s.skins, owned: [...s.skins.owned] } });
+  const jumpPlan = (s, stats, x) => moonJump(runCopy(s), stats, x);
+
+  // What a rebirth gives, before it is taken (the Rebirth tab, the confirm, the celebration), for `mult` (3: Super ×3).
+  // pts: the moonstones (the first rebirth pays double). powerX: what they are worth all in Power (the levels they buy
+  // on top of what the unspent ones already can, eco.rbWorth). dpsX: spread evenly over the three (rbSpread), Power ×
+  // Speed. to: the world the Moon Jump lands on after that even split (coin upgrades bought on the way), never past
+  // `record`. unlocks: the costumes this rebirth brings (Ninja for the 1st, Samurai the 3rd, Wizard the 6th).
+  // Nothing in the save changes.
+  function rebirthPreview(s, mult = 1, now = Date.now()) {
+    const pts = eco.REBIRTH.pts(s.stage.maxN) * mult * (s.rb.count === 0 ? 2 : 1);
+    const record = maxWorld(s);
+    if (pts <= 0) return { pts: 0, open: false, record };
+    const worth = eco.rbWorth(s.rb.power, s.rp, pts);
+    const dps = (c) => eco.REBIRTH.mult(c.rb.power) * eco.REBIRTH.mult(c.rb.speed);
+    const was = runCopy(s); rbSpread(was);
+    const c = runCopy(s);
+    rebirth(c, mult, now);
+    rbSpread(c);
+    const unlocks = checkSkins(c).map((id) => skins.find((k) => k.id === id)).filter((k) => k.unlock.rebirths).map((k) => ({ id: k.id, bonus: { ...k.bonus } }));
+    const j = moonJump(c, (x) => eco.stats(x, now));
+    return { pts, open: true, record, powerX: worth.x, powerN: worth.n, dpsX: dps(c) / dps(was), to: j.to, unlocks };
+  }
+
   // What the Rebirth tab says. Locked (no moonstones yet this run): the world it opens at and the world reached.
   // Open: the moonstones now (the first rebirth pays double) and what they are worth once spent: as many Power levels
   // as they buy on top of what the unspent ones already can (`levels`), and that power multiplier (`x`), because
@@ -4281,7 +4377,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     AD, addAdReward, adStart, adEnd, adRecoverLeft, adReward, adRecover, adBroke, useAdCredit,
     FIB, egg, redeemPromo,
     REVEALS, UNLOCK, UNLOCK_MIN, unlockProgress, unlocked, petGift,
-    REVEAL, revealSec, revealPlan, reveal, nextReveal, rebirthInfo,
+    REVEAL, revealSec, revealPlan, reveal, nextReveal, rebirthInfo, rebirthPreview, moonJump, jumpPlan, rbSpread,
     LIMITS, freeDrawLeft, useFreeDraw, modeLeft, useMode, canSkipMission, skipMission,
     vipOn, clubOn, cavePass, maxWorld, timeWarp, perkGems, perkReady, claimPerks, clubSync, piggyBoss, piggyReady, buyUpgrade, autoUpgradeTick, autoUpOn,
     box, slots, addItem, move, mergeAll, equipBest, draw, DRAW,
@@ -7847,8 +7943,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   function announce(kind) { E.hook('onFoeEvent', kind); tip('ev_' + kind); E.sfx(kind === 'mini' ? 'boss' : 'leap'); }
   function runEvent(c, dt) {
     if (c.kind !== 'rush') { if (!c.t || c.t.dead || !E.targets.includes(c.t)) ev.cur = null; return; }
-    // A rush that a boss or a hop swept off the field just ends.
-    if (E.phase === 'intro' || E.phase === 'boss' || E.phase === 'hop' || E.phase === 'leap') { ev.cur = null; return; }
+    // A rush that a boss, a hop or the Moon Jump swept off the field just ends.
+    if (E.phase === 'intro' || E.phase === 'boss' || E.phase === 'hop' || E.phase === 'leap' || E.phase === 'moon') { ev.cur = null; return; }
     const R = F.EVENTS.rush;
     let live = 0;
     for (const o of E.targets) if (!o.dead && F.has(o, 'rush')) live++;
@@ -8075,6 +8171,37 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     lctx.fillRect(Math.round(x - hw), Math.round(y + 1), hw * 2, 2);
     lctx.fillRect(Math.round(x - hw + 2), Math.round(y + 3), hw * 2 - 4, 1);
   }
+  // The crescent the squad sits on after a rebirth (drawn here, in art pixels): a pale moon lying on its back, wide
+  // enough for three bunnies, under a night wash with a few twinkling stars. k (0..1) sinks it away once the jump starts.
+  const MOON_RX = 50, MOON_RY = 11;
+  let moonCv = null;
+  function moonSprite() {
+    if (moonCv) return moonCv;
+    const c = document.createElement('canvas'), R = MOON_RX + 1, RY = MOON_RY + 1;
+    c.width = R * 2 + 1; c.height = RY * 2 + 1;
+    const g = c.getContext('2d');
+    for (let y = -RY; y <= RY; y++) {
+      for (let x = -R; x <= R; x++) {
+        if ((x / R) ** 2 + (y / RY) ** 2 > 1 || (x / (MOON_RX - 6)) ** 2 + ((y + 7) / MOON_RY) ** 2 <= 1) continue;
+        const body = (x / MOON_RX) ** 2 + (y / MOON_RY) ** 2 <= 1 && (x / (MOON_RX - 5)) ** 2 + ((y + 6) / MOON_RY) ** 2 > 1;
+        g.fillStyle = !body ? INK : y > MOON_RY - 4 ? '#e9b84a' : y > 2 ? '#ffe08a' : '#fff3c4';
+        g.fillRect(x + R, y + RY, 1, 1);
+      }
+    }
+    return (moonCv = c);
+  }
+  function drawMoonSky(a, k) {
+    lctx.globalAlpha = 0.5 * a;
+    lctx.fillStyle = '#1d1846'; lctx.fillRect(0, 0, W, H);
+    lctx.globalAlpha = a;
+    for (let i = 0; i < 14; i++) {
+      const x = (i * 53 + 17) % W, y = fieldTop + ((i * 37) % Math.max(20, bunnyY - fieldTop));
+      if (Math.sin(tick * 2 + i * 1.7) > -0.2) { lctx.fillStyle = i % 3 ? '#fff6d0' : '#d8e8ff'; lctx.fillRect(x, y, 1, 1); }
+    }
+    const m = moonSprite();
+    lctx.drawImage(m, bunnyX - (m.width - 1) / 2, Math.round(bunnyY - moonUp() + 14 - k * 40) - (m.height - 1) / 2);
+    lctx.globalAlpha = 1;
+  }
   function bar(x, y, w, k, col) {
     x = Math.round(x - w / 2); y = Math.round(y);
     lctx.fillStyle = INK; lctx.fillRect(x - 1, y - 1, w + 2, 4);
@@ -8110,12 +8237,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
   // ---------- world state ----------
   let mode = 'main';      // main | raid | tower | cave
-  let phase = 'fight';    // fight | intro | boss | bossdie | clear | hop | leap | over
+  let phase = 'fight';    // fight | intro | boss | bossdie | clear | hop | moon | leap | over
   let targets = [], bullets = [], floats = [], parts = [], golden = null, flyCoins = [], post = null;
   let coinTarget = { x: 20, y: 10 }, gunFlash = [0, 0, 0], gunTimers = [0, 0, 0];
   let st = null, stT = 0;
   let phaseT = 0, bossT = 0, bossTotal = 30, modeCfg = null, modeT = 0;
-  let hopOff = 0, shake = 0, nextGolden = 60 + rnd() * 60, tick = 0, introT = 0, crown = null, leapN = 0;
+  let hopOff = 0, shake = 0, nextGolden = 60 + rnd() * 60, tick = 0, introT = 0, crown = null;
+  // The Moon Jump being shown (logic.moonJump's result, plus how it is drawn), whether the squad waits on the moon
+  // (a rebirth's panel is open: jumpDown lets it go), and the record this run jumped towards (passing it says so).
+  let jump = null, moonHold = false, jumpRec = 0;
+  const DROP = 1.2;       // seconds of the fall from the moon when there is nothing to jump over
   const INTRO = 0.7, LAND = 0.45, DIE = 0.6;
   const fx = (n) => Math.ceil(n * (calm ? 0.5 : 1) * Q.fx);
   const kick = (k) => { if (!calm) shake = Math.max(shake, k); };
@@ -8242,28 +8373,65 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     if (hooks.onBossIntro) hooks.onBossIntro();
     hooks.onStage();
   }
-  function startMain() {
+  // opts.moon: right after a rebirth. The squad waits on the moon (nothing grows on the field) while the moonstones
+  // are spent in the Rebirth panel, and jumps down when the panel closes (jumpDown).
+  function startMain(opts) {
     const back = mode !== 'main';
-    mode = 'main'; modeCfg = null; targets = []; bullets = []; golden = null;
+    mode = 'main'; modeCfg = null; targets = []; bullets = []; golden = null; jump = null; hopOff = 0;
     if (post && !post.held) post = null;
     const s = save();
     if (s.stage.world > eco.C.MAX_WORLD) { s.stage.world = eco.C.MAX_WORLD; s.stage.sub = 5; s.stage.farming = true; }
     phase = 'fight';
     refreshStats(true);
     if (back) relayout();
-    if (eco.isBoss(s.stage.sub) && !s.stage.farming) startBoss();
-    else tryLeap();
+    if (opts && opts.moon) { phase = 'moon'; moonHold = true; jumpRec = 0; }
+    else if (eco.isBoss(s.stage.sub) && !s.stage.farming) startBoss();
+    else tryJump(false);
     hooks.onStage();
   }
-  // Moon Leap: a world beaten in an earlier run that the bunny now crushes is crossed in a hop.
-  function tryLeap() {
+  // Moon Jump (logic.moonJump): the worlds the squad now crushes go by in ONE jump of eco.C.LEAP_SEC, its coins taken
+  // and coin upgrades bought on the way. The save changes at once; the jump is the show of it (like a boss's death).
+  // Tried when the squad comes down from the moon, when a run starts and at each new stage (a stage cleared, a new
+  // world), never in a boss fight or while farming; kills don't matter (logic.moonJump). From the moon it always
+  // comes down, a short drop when there is nothing to jump over.
+  function tryJump(fromMoon) {
     const s = save();
-    if (mode !== 'main' || s.stage.farming || s.stage.kills || !st || !eco.canLeap(s, st.dps)) return false;
-    targets = []; bullets = [];
-    phase = 'leap'; phaseT = eco.C.LEAP_SEC; hopOff = 0;
-    // The first leap of a run says where the run lands.
-    if (!leapN++) hooks.onLeap(true, eco.leapTo(s.stage.world, s.stats.maxWorld || 1, st.dps));
+    if (mode !== 'main') return false;
+    const rec = s.stats.maxWorld || 1;
+    const j = logic.moonJump(s, (x) => eco.stats(x, now()));
+    const far = j.to > j.from;
+    if (!far && !fromMoon) return false;
+    if (!jumpRec) jumpRec = rec;
+    targets = []; bullets = []; golden = null;
+    jump = { ...j, moon: !!fromMoon, T: far ? eco.C.LEAP_SEC : DROP };
+    phase = 'leap'; phaseT = jump.T; hopOff = 0;
+    refreshStats(true);
+    // The banner comes with the landing (hooks.onJump below): it rests where the squad lands.
+    hooks.onStage();
     return true;
+  }
+  // The Rebirth panel closed: down from the moon.
+  function jumpDown() { moonHold = false; }
+  // How far into the jump (0..1), and the world whose garden is under the squad right now: the gardens go by.
+  const jumpK = () => (jump ? Math.max(0, Math.min(1, 1 - phaseT / jump.T)) : 0);
+  const ease = (k) => k * k * (3 - 2 * k);
+  function jumpWorld() {
+    if (phase !== 'leap' || !jump || jump.to <= jump.from) return null;
+    const k = Math.max(0, Math.min(1, (jumpK() - 0.12) / 0.7));
+    return Math.min(jump.to, jump.from + Math.floor((jump.to - jump.from) * ease(k)));
+  }
+  const shownWorld = (s) => jumpWorld() || s.stage.world;
+  // The squad's height in the jump: crouch on the moon (or the plot), spring up, float while the gardens rush by,
+  // then drop onto the plot. From the moon it starts moonUp() art px up (the moon hangs near the top of the field).
+  const moonUp = () => Math.max(30, bunnyY - fieldTop - 34);
+  function jumpLift() {
+    // The highest it springs keeps the ears clear of the HUD (from the moon, near the top already, a little hop).
+    const k = jumpK(), y0 = jump && jump.moon ? -moonUp() : 0, roof = fieldTop + 24 - bunnyY;
+    const top = Math.max(roof, Math.min(y0 - 26, -34)), mid = Math.max(roof, -40);
+    if (k < 0.1) return y0 + (k > 0.04 ? 2 : 0);
+    if (k < 0.22) return y0 + (top - y0) * (1 - (1 - (k - 0.1) / 0.12) ** 2);
+    if (k < 0.8) return top + (mid - top) * ((k - 0.22) / 0.58) + Math.round(Math.sin(tick * 7) * 1.5);
+    return mid * (1 - ((k - 0.8) / 0.2) ** 2);
   }
   // "Challenge Boss" after a lost boss fight, "Try again" after a wall at a normal stage (logic.stepBack).
   function challengeBoss() {
@@ -8520,6 +8688,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
         s.stage.world++; s.stage.sub = 1; s.stage.kills = 0;
         s.stage.maxN = Math.max(s.stage.maxN, curN());
         s.stats.maxWorld = Math.max(s.stats.maxWorld || 1, s.stage.world);
+        // Past the record this run jumped towards: from here on the gardens are new (said once).
+        if (jumpRec && s.stage.world > jumpRec) { jumpRec = 0; if (hooks.onRecord) hooks.onRecord(s.stage.world); }
         t.dead = false; t.dying = 0;
         for (const m of targets) if (m.minion && !m.dead) { m.dead = true; m.fade = 0; chunks(m, 6); coinFountain(m.x, m.y, 2); }
         freeze(0.3); kick(0.6); buzz('heavy');
@@ -8670,30 +8840,35 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
           targets = []; bullets = [];
           phase = 'hop'; phaseT = 1.6; hopOff = 0;
         }
+      } else if (phase === 'moon') {
+        if (!moonHold) tryJump(true);
       } else if (phase === 'leap') {
         phaseT -= dt;
-        hopOff += dt * 260;
+        const k = jumpK();
+        // The gardens rush by, fastest mid-jump (a drop from the moon with nothing to cross stays put).
+        if (jump.to > jump.from) hopOff += dt * (60 + 560 * Math.sin(Math.min(1, Math.max(0, (k - 0.12) / 0.76)) * Math.PI));
+        if (k > 0.1 && !jump.sprung) { jump.sprung = true; if (jump.moon) burst(bunnyX, bunnyY - moonUp() + 18, '#fff3c4', fx(8), 50); hooks.sfx('leap'); }
         if (phaseT <= 0) {
-          s.coins += eco.leapCoins(s.stage.world, st.money);
-          coinFountain(bunnyX, bunnyY - 30, 6, 120);
-          s.stage.world++; s.stage.sub = 1; s.stage.kills = 0;
-          s.stage.maxN = Math.max(s.stage.maxN, curN());
-          hopOff = 0; phase = 'fight';
+          // Down on the plot: a puff of soil, a thump, and the coins of the worlds behind pour into the counter.
+          burst(bunnyX - 10, bunnyY + 16, '#d8c3a0', fx(8), 55); burst(bunnyX + 10, bunnyY + 16, '#d8c3a0', fx(8), 55);
+          kick(0.35); buzz('medium'); hooks.sfx('plop');
+          if (jump.coins > 0) coinFountain(bunnyX, bunnyY - 20, 10, 140);
+          if (jump.to > jump.from) hooks.onJump(jump);
+          hopOff = 0; phase = 'fight'; jump = null;
           refreshStats(true);
           hooks.onStage();
-          if (!tryLeap()) { leapN = 0; hooks.onLeap(false); }
         }
       } else if (phase === 'clear') {
         phaseT -= dt;
         if (phaseT <= 0) {
           targets = targets.filter((t) => !t.dead);
           if (eco.isBoss(s.stage.sub)) startBoss();
-          else { phase = 'fight'; hooks.onStage(); }
+          else { phase = 'fight'; hooks.onStage(); tryJump(false); }
         }
       } else if (phase === 'hop') {
         phaseT -= dt;
         hopOff = (1.6 - phaseT) * 170;
-        if (phaseT <= 0) { hopOff = 0; targets = []; phase = 'fight'; hooks.onStage(); tryLeap(); }
+        if (phaseT <= 0) { hopOff = 0; targets = []; phase = 'fight'; hooks.onStage(); tryJump(false); }
       }
       if (golden) {
         golden.t += dt; golden.x += 32 * dt;
@@ -8717,7 +8892,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     }
 
     weather(dt, s);
-    if (phase !== 'intro' && phase !== 'bossdie' && phase !== 'leap') fire(dt);
+    if (phase !== 'intro' && phase !== 'bossdie' && phase !== 'leap' && phase !== 'moon') fire(dt);
     for (let i = 0; i < 3; i++) gunFlash[i] = Math.max(0, gunFlash[i] - dt);
     updateRain(dt);
     brawl.frame(dt);
@@ -8747,7 +8922,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     lctx.setTransform(1, 0, 0, 1, 0, 0);
     lctx.imageSmoothingEnabled = false;
     lctx.fillStyle = '#6f9a4c'; lctx.fillRect(0, 0, W, H);
-    const tile = mode === 'cave' ? 'cave' : BIOMES[mode === 'main' ? biomeOf(s.stage.world) : 2].tile;
+    const tile = mode === 'cave' ? 'cave' : BIOMES[mode === 'main' ? biomeOf(shownWorld(s)) : 2].tile;
     ground(tile);
     const bg = background(tile);
     const off = Math.round(hopOff % H);
@@ -8813,10 +8988,14 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     });
     // Each bunny bobs on its own beat; they hop one after another (a little wave), cheer in turn after a
     // boss, and now and then one does a tiny hop of joy mid-fight.
-    const leapY = -Math.round(Math.sin(Math.min(1, 1 - phaseT / eco.C.LEAP_SEC) * Math.PI) * 26);
+    const leapY = phase === 'leap' && jump ? Math.round(jumpLift()) : phase === 'moon' ? -moonUp() : 0;
+    // On the moon: the night comes over the garden and the squad sits on a crescent up in the sky; it sinks away
+    // as the jump starts.
+    const moonA = phase === 'moon' ? 1 : phase === 'leap' && jump && jump.moon ? Math.max(0, 1 - jumpK() / 0.3) : 0;
+    if (moonA > 0) drawMoonSky(moonA, phase === 'moon' ? 0 : jumpK());
     const lift = (i) => {
       if (phase === 'hop') return -Math.round(Math.abs(Math.sin((tick - i * 0.07) * 9)) * 7);
-      if (phase === 'leap') return leapY;
+      if (phase === 'leap' || phase === 'moon') return leapY;
       if (phase === 'bossdie' || phase === 'clear') return -Math.round(Math.abs(Math.sin((tick - i * 0.12) * 10)) * 4);
       const j = (tick + i * 3.7) % (8 + i * 1.3);
       return j < 0.34 && !calm ? -Math.round(Math.sin((j / 0.34) * Math.PI) * 3) : 0;
@@ -8838,11 +9017,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     for (let i = 1; i < squad; i++) {
       const [dx, dy] = SQUAD[i], bx = bunnyX + dx, by = bunnyY + dy + lift(i) + bob(i) + yawnLift(i);
       const face = nap ? '_sleep' : cheering ? '_cheer' : yawnFace(i) || ((tick + i * 1.7) % 4.3 < 0.12 ? '_blink' : '');
-      shadow(bx, bunnyY + dy + 17, phase === 'leap' ? 16 : 24);
+      if (phase !== 'moon') shadow(bx, bunnyY + dy + 17, phase === 'leap' ? 16 : 24);
       spr(pick('buddy_' + (i - 1) + face, 'buddy_' + (i - 1)), bx, by, { flip: i === 1 });
       perches.push({ x: bx, y: by });
     }
-    shadow(bunnyX, bunnyY + 17, phase === 'leap' ? 18 : 26);
+    if (phase !== 'moon') shadow(bunnyX, bunnyY + 17, phase === 'leap' ? 18 : 26);
     const skin = BB.skinsData.find((x) => x.id === s.skins.eq) || BB.skinsData[0];
     const base = 'bunny_' + skin.id;
     const face = bunnyPet > 0 ? '_cheer' : nap ? '_sleep' : cheering ? '_cheer' : yawnFace(0) || (blinkT < 0 ? '_blink' : '');
@@ -8869,8 +9048,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     }
 
     s.pets.eq.filter((g) => g != null).forEach((g, i) => {
-      const px = bunnyX + [-22, 22, -56][i], py = bunnyY + 15 - (Math.sin(tick * 4 + i * 2) > 0.3 ? 2 : 0) + (cheering ? lift(i + 3) : 0);
-      shadow(px, py + 10, 16);
+      const px = bunnyX + [-22, 22, -56][i], py = bunnyY + 15 - (Math.sin(tick * 4 + i * 2) > 0.3 ? 2 : 0) + (cheering || phase === 'moon' ? lift(i + 3) : 0);
+      if (phase !== 'moon') shadow(px, py + 10, 16);
       spr('pet_' + g, px, py, { flip: i === 1 });
     });
 
@@ -9759,11 +9938,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   }
 
   BB.engine = {
-    init, resize, startMain, startMode, exitMode, challengeBoss, refreshStats: () => refreshStats(true),
+    init, resize, startMain, startMode, exitMode, challengeBoss, jumpDown, refreshStats: () => refreshStats(true),
     setEco: (v) => { ecoMode = v; }, setPaused: (v) => { paused = v; if (!v) aq = aqNew({ wait: aq.wait }); },
     weather: () => weatherOf(save()),
     info: () => ({
-      mode, phase, bossT, bossTotal, modeT, modeCfg, alive: targets.filter((t) => !t.dead).length, st,
+      mode, phase, bossT, bossTotal, modeT, modeCfg, alive: targets.filter((t) => !t.dead).length, st, jump: jump && { from: jump.from, to: jump.to, moon: jump.moon },
+      // Mid-jump, the world whose garden goes by (the HUD counts them up); null otherwise.
+      world: jumpWorld(),
       bossHp: phase === 'intro' ? Math.min(1, Math.max(0, (introT - LAND) / 0.25)) : targets[0] && targets[0].type === 'boss' ? Math.max(0, targets[0].hp / targets[0].maxHp) : 0,
     }),
     setCalm: (v) => { calm = !!v; },
@@ -9891,6 +10072,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   // their lane (bannerInLane) and follow it.
   function banner(text, cls = '', sub = null) {
     const el = $('#banner');
+    // A banner marked .tap (the Moon Jump's summary) goes at a tap; the others let taps through to the field.
+    if (!el.onpointerdown) el.onpointerdown = () => { if (!el.classList.contains('tap') || !el.classList.contains('show')) return; clearTimeout(banner.t); el.classList.remove('show'); toast.flush(); };
     // A banner that replaces one still on screen unfolds again (swapped in place, its words, height and colour jumped,
     // and a garden banner jumped to its own place above the upgrades).
     if (el.classList.contains('show')) { el.style.transition = 'none'; el.className = 'banner'; void el.offsetWidth; el.style.transition = ''; }
@@ -9974,6 +10157,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       if (s.onClose) s.onClose();
       if (instant) s.ov.remove();
       else { s.ov.classList.add('out'); s.ov.style.pointerEvents = 'none'; setTimeout(() => s.ov.remove(), BB.motion.ms('base')); }
+      // Closed for good (not swapped for another panel) while the squad waits on the moon after a rebirth: it jumps.
+      if (!keepTab && BB.engine.info().phase === 'moon') BB.engine.jumpDown();
     }
     if (!keepTab) { setTab('up'); $('#app').classList.remove('in-sheet'); BB.sound.duck(false); }
   }
@@ -10435,7 +10620,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     // Farming shows the stage the coins come from: the one before the stage that stopped the bunny.
     const farm = s.stage.farming ? eco.fromN(Math.max(0, eco.stageN(s.stage.world, s.stage.sub) - 1)) : null;
     const sub = farm ? (farm.world === s.stage.world ? farm.sub : 0) : Math.min(s.stage.sub, 5);
-    setText('#stage-label', farm ? t('farming', { w: farm.world, s: farm.sub }) : t('world', { w: s.stage.world, s: sub }));
+    setText('#stage-label', farm ? t('farming', { w: farm.world, s: farm.sub }) : t('world', { w: info.world || s.stage.world, s: sub }));
     const pct = boss ? Math.round(info.bossHp * 100) : s.stage.farming ? 100 : Math.round((s.stage.kills / eco.C.KILLS) * 100);
     // The bar says how far on its own; words only for the boss clock.
     setText('#progress-label', boss ? fmt.time(Math.ceil(info.bossT)) : '');
@@ -11095,6 +11280,14 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     const L = s.rb[k], n = rbMult === 'max' ? Math.max(1, eco.rbMaxAffordable(L, s.rp).n) : rbMult;
     return { L, n, c: eco.rbCostN(L, n), can: eco.REBIRTH.cost(L) <= s.rp, from: '×' + fmt.num(eco.REBIRTH.mult(L)), to: '×' + fmt.num(eco.REBIRTH.mult(L + n)) };
   }
+  // What a rebirth gives, said the same way on the tab, in the confirm and in the celebration (logic.rebirthPreview):
+  // the power first (big), then where the Moon Jump lands against the record, then what it unlocks.
+  const unlockText = (list) => list.map((u) => t('rb.skin', { name: i18n.name('skin', u.id), b: Object.entries(u.bonus).map(([k, v]) => t('rb.b.' + k, { p: v })).join(', ') })).join(', ');
+  const rbStart = (p) => t('rb.start', { w: p.to, r: p.record });
+  const rbSuper = (p) => t('rb.super3', { x: fmt.num(p.powerX), w: p.to });
+  // The live Moon Jump from where the squad stands now (the moonstones spent so far, the buffs on).
+  const jumpTo = (s, T) => logic.jumpPlan(s, (x) => eco.stats(x, T)).to;
+  const rbEvenOk = (s) => RB.some((k) => eco.REBIRTH.cost(s.rb[k]) <= s.rp);
   function openRebirth(seg) {
     openSheet({
       title: t('tab.bunny'), cls: 'rebirth staged', tab: 'bunny', seg, instant: !!sheet, wallet: ['rp'], foot: true,
@@ -11102,6 +11295,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
         const s = S(), T = now();
         const rb = logic.rebirthInfo(s), pts = rb.pts;
         const superUsed = !logic.newDay(T, s.rb.superDay);
+        // Right after a rebirth the squad waits on the moon (engine) until this panel closes: spend, then jump.
+        const moon = BB.engine.info().phase === 'moon';
         // Saving up is not "off": a moonstone key short of stones stays a key (.poor) and its strip shows how close.
         const near = (s2, L) => Math.floor(Math.min(1, s2.rp / eco.REBIRTH.cost(L)) * 10) / 10;
         const up = (k) => {
@@ -11111,18 +11306,32 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
         // The angel bunny is the card's picture (a hero of its own pushed the upgrades below the fold on a 360 phone).
         // On a tall phone it is the window's picture and the card drops its own (stage, .alt-media).
         // Locked: the world it opens at and how far along this run is (it said "World 5" and 0 stones at World 10).
-        // Open: the stones, then what they are worth once spent ("878" reads small next to billions of coins).
-        const worth = rb.levels > 0 ? `<small class="row-sub rb-worth">${t('rb.worth', { x: fmt.num(rb.x) })}</small>` : '';
-        const card = rb.open
-          ? { title: t('rb.avail'), extra: `<b class="big-num">${fmt.num(pts)}</b>${worth}<small class="row-sub">${t('rb.super')}: ${fmt.num(pts * 3)}</small>` }
-          : { title: t('rb.need', { w: rb.need }), extra: `${pbar(rb.k, '', 'plum')}<span class="pmeta"><span>${t('rb.at', { w: rb.at })}</span></span>` };
-        el.innerHTML = `${stage(heroArt('bunny_angel'), '', 'opt')}${row({ cls: 'lilac rb-gain alt-media', media: spr('bunny_angel', 'rb-art'), ...card })}
+        // Open: what the rebirth gives, power first ("878" stones read small next to billions of coins; "Power ×16.8"
+        // doesn't), where the jump lands against the record, what it unlocks, and Super ×3's numbers while today's is
+        // unused. On the moon: spend, then jump.
+        let card;
+        if (moon) card = { title: t('rb.moon'), extra: `<small class="row-sub rb-moon">${t('rb.moon.sub')}</small>` };
+        else if (rb.open) {
+          const p = logic.rebirthPreview(s, 1, T), p3 = superUsed ? null : logic.rebirthPreview(s, 3, T);
+          card = { title: t('rb.after'), extra: `<b class="big-num rb-x">${t('rb.powerx', { x: fmt.num(p.powerX) })}</b>`
+            + `<small class="row-sub rb-pts">+${stones(p.pts)}</small><small class="row-sub rb-start">${rbStart(p)}</small>`
+            + (p.unlocks.length ? `<small class="row-sub rb-new">${t('rb.unlocks', { what: unlockText(p.unlocks) })}</small>` : '')
+            + (p3 ? `<small class="row-sub rb-super">${rbSuper(p3)}</small>` : '') };
+        } else card = { title: t('rb.need', { w: rb.need }), extra: `${pbar(rb.k, '', 'plum')}<span class="pmeta"><span>${t('rb.at', { w: rb.at })}</span></span>` };
+        el.innerHTML = `${stage(heroArt('bunny_angel'), '', 'opt')}${row({ cls: `lilac rb-gain alt-media${rb.open && !moon ? ' rb-open' : ''}`, media: spr('bunny_angel', 'rb-art'), ...card })}
+          ${moon ? '' : `<small class="fine rb-reset">${t('rb.resets')}</small>`}
           ${sec(t('rb.ups'), '', 'rb-ups')}
-          <div class="rb-bar"><div class="seg sm" role="radiogroup" aria-label="${t('rb.ups')}">${[1, 10, 'max'].map((m) => `<button data-act="rbm" data-arg="${m}" class="${String(m) === String(rbMult) ? 'on' : ''}">${m === 'max' ? t('buy.max') : t('buy.x' + m)}</button>`).join('')}</div></div>
+          <div class="rb-bar"><button class="btn plum rb-even" data-act="rbeven" ${rbEvenOk(s) ? '' : 'disabled'}>${t('rb.even')}</button><div class="seg sm" role="radiogroup" aria-label="${t('rb.ups')}">${[1, 10, 'max'].map((m) => `<button data-act="rbm" data-arg="${m}" class="${String(m) === String(rbMult) ? 'on' : ''}">${m === 'max' ? t('buy.max') : t('buy.x' + m)}</button>`).join('')}</div></div>
           ${group(RB.map(up), 'rb-list')}`;
-        // The footer: ×3 for an ad (blue) beside the purple Rebirth key.
-        foot.innerHTML = `<div class="foot-row"><button class="btn sky fit" data-act="super" ${pts > 0 && !superUsed ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}×3 · ${superUsed ? '0/1' : '1/1'}</button><button class="btn plum big" data-act="rb" ${pts > 0 ? '' : 'disabled'}>${t('rb.do')}</button></div>`;
-        bind(foot, { rb: () => doRebirth(1), super: async () => { if (await BB.ads.rewarded('super_rebirth')) doRebirth(3); } });
+        // The footer: ×3 for an ad (blue) beside the purple Rebirth key. On the moon one big key down to the garden that
+        // says where the jump lands (it moves as the moonstones are spent; closing the panel does the same).
+        if (moon) {
+          foot.innerHTML = `<div class="foot-row"><button class="btn plum big rb-jump" data-act="jump">${ico('moon', 'ico sm')}<span class="rb-jw">${t('rb.jump', { w: jumpTo(s, T) })}</span></button></div>`;
+          bind(foot, { jump: () => { BB.sound.play('tap'); closeSheet(); } });
+        } else {
+          foot.innerHTML = `<div class="foot-row"><button class="btn sky fit" data-act="super" ${pts > 0 && !superUsed ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}×3 · ${superUsed ? '0/1' : '1/1'}</button><button class="btn plum big" data-act="rb" ${pts > 0 ? '' : 'disabled'}>${t('rb.do')}</button></div>`;
+          bind(foot, { rb: () => doRebirth(1), super: async () => { if (await BB.ads.rewarded('super_rebirth')) doRebirth(3); } });
+        }
         // Buying repaints the rows in place: a rebuild would let go of a button that is being held.
         const paint = () => {
           const s2 = S();
@@ -11132,13 +11341,24 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
             $('.rb-lv', r).textContent = t('tower.lvl', { n: p.L }); $('.rb-from', r).textContent = p.from; $('.rb-to', r).textContent = p.to; $('.rb-n', r).textContent = p.n > 1 ? ' +' + p.n : '';
             $('.rb-c', r).textContent = fmt.num(p.c); b.classList.toggle('poor', !p.can); b.style.setProperty('--k', near(s2, p.L));
           }
+          $('.rb-even', el).disabled = !rbEvenOk(s2);
+          const jw = $('.rb-jw', foot);
+          if (jw) jw.textContent = t('rb.jump', { w: jumpTo(s2, now()) });
         };
         el.querySelectorAll('.rb-up').forEach((r) => holdRepeat($('.rb-buy', r), () => {
           const res = logic.rbUpgrade(S(), r.dataset.k, rbMult === 'max' ? Infinity : rbMult);
           if (res.ok) { BB.sound.play('up', holdN); if (holdN % 3 === 0) BB.haptics.play('select'); G().statsChanged(); paint(); kick(r, 'bump', 300); }
           else if (!holdN) { BB.sound.play('bonk'); kick(r, 'nope', 280); }
         }));
-        bind(el, { rbm: (m) => { rbMult = m === 'max' ? 'max' : Number(m); BB.sound.play('tap'); rerender(); } });
+        bind(el, {
+          rbm: (m) => { rbMult = m === 'max' ? 'max' : Number(m); BB.sound.play('tap'); rerender(); },
+          // Every moonstone at once, spread over the three (the split the preview counts on).
+          rbeven: () => {
+            if (!logic.rbSpread(S()).ok) { BB.sound.play('bonk'); return; }
+            BB.sound.play('up'); BB.haptics.play('select'); G().statsChanged(); paint();
+            el.querySelectorAll('.rb-up').forEach((r) => kick(r, 'bump', 300));
+          },
+        });
         if (rbFresh) {
           rbFresh = false;
           requestAnimationFrame(() => { const list = $('.rb-list', el), head = $('#rb-ups', el); if (head) head.scrollIntoView({ block: 'start', behavior: 'smooth' }); if (list) restart(list, 'pulse'); });
@@ -11146,19 +11366,35 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       },
     });
   }
+  // The confirm says what the rebirth gives for this mult (3: after the ad), the same lines as the tab; for ×1 also
+  // what Super ×3 would give while today's is unused. Taken before the rebirth, the preview is what the celebration says.
   async function doRebirth(mult) {
-    const pts = logic.rebirthInfo(S()).pts * mult;
-    if (!(await confirmDlg(t('rb.title'), t('rb.confirm', { n: stones(pts) }), { cls: 'plum', label: t('rb.do') }))) return;
+    const s = S(), T = now();
+    const p = logic.rebirthPreview(s, mult, T);
+    if (!p.open) return;
+    const p3 = mult === 1 && logic.newDay(T, s.rb.superDay) ? logic.rebirthPreview(s, 3, T) : null;
+    const lines = [`<b class="rb-x">${esc(t('rb.powerx', { x: fmt.num(p.powerX) }))}</b>`, esc(rbStart(p))];
+    if (p.unlocks.length) lines.push(esc(t('rb.unlocks', { what: unlockText(p.unlocks) })));
+    const html = `<p>${esc(t('rb.confirm', { n: stones(p.pts) }))}</p><div class="rb-lines">${lines.map((l) => `<span>${l}</span>`).join('')}</div>`
+      + (p3 ? `<small class="fine rb-super">${esc(rbSuper(p3))}</small>` : '');
+    if (!(await dialog({ title: t('rb.title'), cls: 'rb-dlg', html, buttons: [{ label: t('cancel'), value: false }, { label: t('rb.do'), value: true, cls: 'plum' }] }))) return;
+    // The panel goes before the squad is sent to the moon: a panel closed while it is up there sends it down.
+    closeSheet();
     const r = logic.rebirth(S(), mult, now());
     if (!r.ok) return;
     BB.track('rebirth', { n: S().rb.count, world: S().stats.maxWorld, stones: r.pts, super: mult > 1 });
     BB.sound.play('rebirth');
     logic.checkSkins(S());
     G().statsChanged();
-    BB.engine.startMain();
-    BB.fx.rebirth(r.pts);
+    BB.engine.startMain({ moon: true });
+    BB.fx.rebirth(r.pts, { x: p.powerX, to: p.to });
     rbFresh = true;
-    rerender();
+  }
+  // The Moon Jump's summary (engine.tryJump → main.js): the worlds left behind, the coins they paid and the Power level
+  // the jump bought on the way. A tap hides it.
+  function jumpBanner(j) {
+    const span = j.to - j.from > 1 ? t('jump.worlds', { a: j.from, b: j.to - 1 }) : t('jump.world', { w: j.from });
+    banner(t('leap.title'), 'moon tap', [span, t('jump.got', { c: '+' + coins(j.coins), n: j.up.power })]);
   }
 
   // ---------- buffs ----------
@@ -11897,8 +12133,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     BB.fx.reward(r, `${ico('goldcarrot', 'ico sm')} ${t('golden.title')}`, from, r.buff ? esc(t('golden.buff', { b: t('buff.' + r.buff) })) : '');
   }
 
+  let moonIdle = 0;
   function tick() {
     if (sheet && sheet.tick) tickSheet();
+    // On the moon with nothing on screen for 2 s (the Rebirth panel never came up after the celebration): down it jumps.
+    moonIdle = BB.engine.info().phase === 'moon' && !BB.ui.isOpen() ? moonIdle + 1 : 0;
+    if (moonIdle >= 2) { moonIdle = 0; BB.engine.jumpDown(); }
     if (BB.engine.info().mode === 'main') updateNotes();
     if (BB.tutorial) BB.tutorial.tick();
   }
@@ -11906,7 +12146,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   BB.ui = {
     pickSave, cloudChanged, cloudCompare, cloudRestored,
     buildStatic, relabel, updateHud, toast, banner, openSheet, closeSheet, rerender, dialog, confirmDlg, testAd, testPurchase,
-    modeResult, giftCard, pickSeed, offlinePopup, goldenPopup, adRecovered, revoked, unverified, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml,
+    modeResult, giftCard, pickSeed, offlinePopup, goldenPopup, adRecovered, revoked, unverified, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml, jumpBanner,
     openTab, openBunny, openGacha, openAdventure, openQuests, openDaily, openSettings, openStepUp, openShop, showOffer, itemCard, skinCard, albumFound,
     openAlbum: (g) => { if (g) albumGroup = g; openQuests('album'); },
     isOpen: () => !!sheet || !!document.querySelector('#dialogs .overlay'),
@@ -12056,20 +12296,23 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
   // ---------- rebirth ----------
   // The game's biggest moment, so not a toast behind the panel: the panel closes, the angel bunny rises in a moonlit
-  // room, a flash and a burst of stars, "Reborn!" stamps down, the Moonstones count up, then "a fresh start". The
-  // Moonstones fly to the Bunny tab and the Rebirth panel opens on its upgrades (ui.openRebirth scrolls there).
-  // A tap completes it, a second tap (or Back) leaves. Calm: no flash, burst or rise, the number at once, shorter.
-  function rebirth(pts) {
+  // room, a flash and a burst of stars, "Reborn!" stamps down, the Moonstones count up, what they are worth stamps
+  // down ("Power ×12.7", pv.x), then where the Moon Jump will land (pv.to; "a fresh start" when it can't cross a world).
+  // The Moonstones fly to the Bunny tab and the Rebirth panel opens on its upgrades (ui.openRebirth scrolls there),
+  // the squad waiting on the moon behind it. A tap completes it, a second tap (or Back) leaves. Calm: no flash, burst
+  // or rise, the number at once, shorter.
+  function rebirth(pts, pv = null) {
     BB.ui.closeSheet();
     const quiet = calm(), t0 = performance.now();
     const ov = document.createElement('div');
     ov.className = 'overlay rb-cel';
     ov.setAttribute('role', 'dialog');
     ov.setAttribute('aria-label', t('rb.done', { n: stones(pts) }));
+    const power = pv && pv.x > 1 ? `<p class="rb-cel-x">${t('rb.powerx', { x: BB.fmt.num(pv.x) })}</p>` : '';
     ov.innerHTML = `<div class="rb-cel-box"><div class="rb-cel-stage"><div class="rb-cel-rays"></div>${art.tag('bunny_angel', 'rb-cel-art')}</div>
       <h3 class="rb-cel-title">${t('rb.reborn')}</h3>
-      <p class="rb-cel-gain">${art.icon('moon')}<span>+<span class="rb-cel-n">0</span></span></p>
-      <p class="rb-cel-fresh">${t('rb.fresh')}</p></div><i class="rb-cel-flash"></i>`;
+      <p class="rb-cel-gain">${art.icon('moon')}<span>+<span class="rb-cel-n">0</span></span></p>${power}
+      <p class="rb-cel-fresh">${pv && pv.to > 1 ? t('rb.jumpto', { w: pv.to }) : t('rb.fresh')}</p></div><i class="rb-cel-flash"></i>`;
     document.getElementById('dialogs').appendChild(ov);
     requestAnimationFrame(() => ov.classList.add('in'));
     let skipped = false, complete = false, left = false, wake = null;
@@ -12077,7 +12320,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     const finish = () => {
       if (left) return;
       left = true;
-      ov.classList.add('lit', 'count', 'fresh', 'out');
+      ov.classList.add('lit', 'count', 'stamp', 'fresh', 'out');
       ov.style.pointerEvents = 'none';
       const a = app().getBoundingClientRect(), st = ov.querySelector('.rb-cel-stage').getBoundingClientRect();
       fly('rp', 6, { x: st.left - a.left + st.width / 2, y: st.top - a.top + st.height / 2 });
@@ -12097,7 +12340,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
       ov.classList.add('count');
       let tick = 0;
       await BB.motion.countUp(ov.querySelector('.rb-cel-n'), { to: pts, instant: skipped, tick: () => { const T = performance.now(); if (T - tick > 90) { tick = T; BB.sound.play('pickup'); } } });
-      await nap(quiet ? 200 : 380);
+      await nap(quiet ? 120 : 260);
+      if (power) {
+        ov.classList.add('stamp');
+        if (!quiet && !skipped) { BB.sound.play('up'); BB.haptics.play('medium'); }
+        await nap(quiet ? 200 : 520);
+      }
       ov.classList.add('fresh');
       complete = true;
       await new Promise((r) => setTimeout(r, skipped ? 700 : quiet ? 1000 : 1100));
@@ -13306,8 +13554,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     onBunnyTap: () => BB.extras.bunnyTap(),
     onGoldSlug: () => { const r = logic.egg(game.save, 'goldslug', state.gameNow(game.save)); BB.fx.reward(r, i18n.t('egg.goldslug')); },
     sleepy: () => BB.extras.sleepyHour(),
-    // Moon Leap after a rebirth: the banner says why the bunny flies past worlds, and where it lands.
-    onLeap: (on, to) => { if (on) { ui.banner(i18n.t('leap.title'), 'moon', [i18n.t('leap.to', { w: to }), i18n.t('leap.why')]); sound.play('leap'); } },
+    // The Moon Jump after a rebirth (and later ones): a banner says what it left behind and what it bought on the way.
+    onJump: (j) => ui.jumpBanner(j),
+    // Past the record the run jumped towards: new gardens from here.
+    onRecord: () => ui.toast(`${ui.ico('trophy', 'ico sm')} ${i18n.t('jump.record')}`, 'gold'),
     // A boss drops in under its own name (each garden's boss has one, foes.js gives it a trick).
     bossTitle: () => { const k = BB.eco.BIOMES[BB.eco.biomeOf(game.save.stage.world)].boss; return i18n.name('boss', k) || i18n.t('boss.intro'); },
     say: (k) => i18n.t(k),
