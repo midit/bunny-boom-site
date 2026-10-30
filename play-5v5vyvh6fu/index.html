@@ -1194,6 +1194,8 @@ label.set-row { cursor: pointer; }
   .toast { font-size: var(--fs-s); }
   .toast .t-lead { display: none; }
 }
+/* An album batch's crystals keep together on one line: the icon never parts from its number (ui.js albumFound). */
+.toast .t-gems { display: inline-block; white-space: nowrap; }
 
 /* Draw keys with a full bag: grey keys (.poor, ui.js) under the reason; the press shakes both. */
 .draw-why { display: flex; align-items: center; justify-content: center; gap: var(--s1); margin: 0 0 var(--s1); font-size: var(--fs-s); line-height: 1.2; color: var(--red-t); text-align: center; }
@@ -1321,6 +1323,10 @@ label.set-row { cursor: pointer; }
 .toast.out { opacity: 0; transform: translateX(calc(var(--m) * -24px)); transition: opacity var(--dur-base) var(--ease-in), transform var(--dur-base) var(--ease-in); }
 /* Replaced by a newer one: it steps aside quickly and takes no room, so the new one doesn't jump. */
 .toast.gone { position: absolute; transition-duration: var(--dur-fast); }
+/* A toast that counts up in place (an album batch, ui.js reword): the crystals it now adds up to swell once, in place
+   (no lift: the toast clips at its padding, and a hop would lose the number's top). */
+.toast .t-gems.bump { animation: gemswell var(--dur-slow) var(--ease-out); }
+@keyframes gemswell { 40% { transform: scale(calc(1 + var(--m) * .14)); } }
 @keyframes tin { from { transform: translateY(calc(var(--m) * var(--p) * -6)) scale(calc(1 - var(--m) * .04)); opacity: 0; } }
 /* Banner: unfolds with a spring, folds away without one (a spring on the way out flipped it inside out). */
 .banner { transform: scaleY(calc(1 - var(--m))); transition: opacity var(--dur-base) var(--ease-in), transform var(--dur-base) var(--ease-in); }
@@ -1631,7 +1637,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
       'card.hold': "Hold a costume to see it up close.",
       'tut.garden': "Tap open ground and a flower grows",
       'install.title': "Install on your iPhone", 'install.ios': "In Safari tap Share, then \"Add to Home Screen\". The game opens full screen, works offline, and your garden is kept safe.", 'install.short': "Tip: Share, then Add to Home Screen, and your garden is kept safe",
-      'album.title': "Album", 'album.p.veggies': "Veggies", 'album.p.shiny': "Shiny veggies", 'album.p.bosses': "Giants", 'album.p.flowers': "Flowers", 'album.p.visitors': "Visitors", 'album.p.blasters': "Blasters", 'album.p.pets': "Pets", 'album.p.flies': "Butterflies", 'album.p.costumes': "Costumes", 'album.g.garden': "Field", 'album.g.wild': "Wild", 'album.g.collection': "Collection", 'album.found': "Found {n} of {m}", 'album.bonus': "Finished pages: +{p}% coins for good", 'album.intro': "Everything you meet goes here. Finish a page for a lasting bonus.", 'album.boss': "Giant {name}", 'album.shiny': "Shiny {name}", 'album.seen': "Seen ×{n}", 'album.new': "New in the album: {name}", 'album.newn': "{n} new in the album", 'album.newtag': "NEW", 'album.page.done': "Page complete!", 'album.page.reward': "+{g} and +{p}% coins for good", 'album.shiny.got': "Shiny {name}! ×10 coins", 'album.h.biome': "Grows in {b}", 'album.h.shiny': "Very rare. Look closely in {b}", 'album.h.boss': "The giant of {b}", 'album.h.flower': "Plant one in {b}", 'album.h.rare': "Now and then a flower in {b} opens in a rare colour", 'album.h.v.lemon': "Visits by day, anywhere", 'album.h.v.sky': "By day, in the meadow, the greenhouse and the snow", 'album.h.v.peach': "At dawn and at dusk", 'album.h.v.moth': "Only at night", 'album.h.v.glow': "At night, in the mushroom woods, the swamp and the moon garden", 'album.h.v.royal': "Rare. Any time, anywhere. Lucky you!", 'album.h.gear': "From the egg in Blasters", 'album.h.pet': "From the egg in Pets", 'album.h.fly': "From the egg in Butterflies", 'album.h.skin': "Costumes are in the Bunny tab",
+      'album.title': "Album", 'album.p.veggies': "Veggies", 'album.p.shiny': "Shiny veggies", 'album.p.bosses': "Giants", 'album.p.flowers': "Flowers", 'album.p.visitors': "Visitors", 'album.p.blasters': "Blasters", 'album.p.pets': "Pets", 'album.p.flies': "Butterflies", 'album.p.costumes': "Costumes", 'album.g.garden': "Field", 'album.g.wild': "Wild", 'album.g.collection': "Collection", 'album.found': "Found {n} of {m}", 'album.bonus': "Finished pages: +{p}% coins for good", 'album.intro': "Everything you meet goes here. Finish a page for a lasting bonus.", 'album.boss': "Giant {name}", 'album.shiny': "Shiny {name}", 'album.seen': "Seen ×{n}", 'album.new': "New in the album: {name}", 'album.newn.one': "{n} new in the album", 'album.newn.few': "{n} new in the album", 'album.newn.many': "{n} new in the album", 'album.newn.other': "{n} new in the album", 'album.newtag': "NEW", 'album.page.done': "Page complete!", 'album.page.reward': "+{g} and +{p}% coins for good", 'album.shiny.got': "Shiny {name}! ×10 coins", 'album.h.biome': "Grows in {b}", 'album.h.shiny': "Very rare. Look closely in {b}", 'album.h.boss': "The giant of {b}", 'album.h.flower': "Plant one in {b}", 'album.h.rare': "Now and then a flower in {b} opens in a rare colour", 'album.h.v.lemon': "Visits by day, anywhere", 'album.h.v.sky': "By day, in the meadow, the greenhouse and the snow", 'album.h.v.peach': "At dawn and at dusk", 'album.h.v.moth': "Only at night", 'album.h.v.glow': "At night, in the mushroom woods, the swamp and the moon garden", 'album.h.v.royal': "Rare. Any time, anywhere. Lucky you!", 'album.h.gear': "From the egg in Blasters", 'album.h.pet': "From the egg in Pets", 'album.h.fly': "From the egg in Butterflies", 'album.h.skin': "Costumes are in the Bunny tab",
       'rain.name': "Carrot Rain", 'tut.rain': "Carrot Rain is ready: tap!",
       'boss.help': "Help, friends!",
       'tut.tapveg': "*Tap a veggie* to help your squad",
@@ -1836,7 +1842,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
       'card.hold': "Затисни костюм, щоб роздивитися його.",
       'tut.garden': "Тапни по вільній землі — і виросте квітка",
       'install.title': "Встанови на iPhone", 'install.ios': "У Safari натисни «Поділитися», потім «На екран „Додому“». Гра відкриватиметься на весь екран, працюватиме без інтернету, а твій сад точно збережеться.", 'install.short': "Порада: «Поділитися» і «На екран „Додому“» — і сад збережеться",
-      'album.title': "Альбом", 'album.p.veggies': "Овочі", 'album.p.shiny': "Сяйливі овочі", 'album.p.bosses': "Велетні", 'album.p.flowers': "Квіти", 'album.p.visitors': "Гості", 'album.p.blasters': "Бластери", 'album.p.pets': "Звірі", 'album.p.flies': "Метелики", 'album.p.costumes': "Костюми", 'album.g.garden': "Поле", 'album.g.wild': "Природа", 'album.g.collection': "Колекція", 'album.found': "Знайдено {n} з {m}", 'album.bonus': "Завершені сторінки: назавжди +{p}% монет", 'album.intro': "Сюди потрапляє все, що ти зустрічаєш. Збери сторінку — отримаєш постійний бонус.", 'album.boss': "Велетень: {name}", 'album.shiny': "Сяйливий овоч: {name}", 'album.seen': "Бачено ×{n}", 'album.new': "Нове в альбомі: {name}", 'album.newn': "Нових записів в альбомі: {n}", 'album.newtag': "НОВЕ", 'album.page.done': "Сторінку зібрано!", 'album.page.reward': "+{g} і назавжди +{p}% монет", 'album.shiny.got': "Сяйливий овоч: {name}! ×10 монет", 'album.h.biome': "Росте тут: {b}", 'album.h.shiny': "Дуже рідкісний. Придивляйся: {b}", 'album.h.boss': "Велетень місцини: {b}", 'album.h.flower': "Посади квітку тут: {b}", 'album.h.rare': "Іноді квітка тут розквітає рідкісним кольором: {b}", 'album.h.v.lemon': "Прилітає вдень, будь-де", 'album.h.v.sky': "Вдень: на лузі, в теплиці й у снігах", 'album.h.v.peach': "На світанку й у сутінках", 'album.h.v.moth': "Лише вночі", 'album.h.v.glow': "Уночі: у грибному лісі, на болоті й у місячному саду", 'album.h.v.royal': "Рідкісний. Будь-коли й будь-де. Щасти!", 'album.h.gear': "З яйця у Бластерах", 'album.h.pet': "З яйця у Звірях", 'album.h.fly': "З яйця в Метеликах", 'album.h.skin': "Костюми — у вкладці Кролик",
+      'album.title': "Альбом", 'album.p.veggies': "Овочі", 'album.p.shiny': "Сяйливі овочі", 'album.p.bosses': "Велетні", 'album.p.flowers': "Квіти", 'album.p.visitors': "Гості", 'album.p.blasters': "Бластери", 'album.p.pets': "Звірі", 'album.p.flies': "Метелики", 'album.p.costumes': "Костюми", 'album.g.garden': "Поле", 'album.g.wild': "Природа", 'album.g.collection': "Колекція", 'album.found': "Знайдено {n} з {m}", 'album.bonus': "Завершені сторінки: назавжди +{p}% монет", 'album.intro': "Сюди потрапляє все, що ти зустрічаєш. Збери сторінку — отримаєш постійний бонус.", 'album.boss': "Велетень: {name}", 'album.shiny': "Сяйливий овоч: {name}", 'album.seen': "Бачено ×{n}", 'album.new': "Нове в альбомі: {name}", 'album.newn.one': "{n} новий запис в альбомі", 'album.newn.few': "{n} нові записи в альбомі", 'album.newn.many': "{n} нових записів в альбомі", 'album.newn.other': "{n} нового запису в альбомі", 'album.newtag': "НОВЕ", 'album.page.done': "Сторінку зібрано!", 'album.page.reward': "+{g} і назавжди +{p}% монет", 'album.shiny.got': "Сяйливий овоч: {name}! ×10 монет", 'album.h.biome': "Росте тут: {b}", 'album.h.shiny': "Дуже рідкісний. Придивляйся: {b}", 'album.h.boss': "Велетень місцини: {b}", 'album.h.flower': "Посади квітку тут: {b}", 'album.h.rare': "Іноді квітка тут розквітає рідкісним кольором: {b}", 'album.h.v.lemon': "Прилітає вдень, будь-де", 'album.h.v.sky': "Вдень: на лузі, в теплиці й у снігах", 'album.h.v.peach': "На світанку й у сутінках", 'album.h.v.moth': "Лише вночі", 'album.h.v.glow': "Уночі: у грибному лісі, на болоті й у місячному саду", 'album.h.v.royal': "Рідкісний. Будь-коли й будь-де. Щасти!", 'album.h.gear': "З яйця у Бластерах", 'album.h.pet': "З яйця у Звірях", 'album.h.fly': "З яйця в Метеликах", 'album.h.skin': "Костюми — у вкладці Кролик",
       'rain.name': "Морквяний дощ", 'tut.rain': "Морквяний дощ готовий: тисни!",
       'boss.help': "Друзі, на допомогу!",
       'tut.tapveg': "*Тапни по овочу* — допоможи загону",
@@ -2046,7 +2052,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
       'story.2': 'Więc Guzik i przyjaciele chwytają blastery. Czas wyplenić olbrzymów!',
       'album.squad': 'Twoja drużyna', 'squad.join.1': 'Dołączy, gdy założysz drugi blaster', 'squad.join.2': 'Dołączy, gdy założysz trzeci blaster',
       'biome.next': 'Dalej: {b}',
-      'album.title': 'Album', 'album.p.veggies': 'Warzywa', 'album.p.shiny': 'Lśniące warzywa', 'album.p.bosses': 'Olbrzymy', 'album.p.flowers': 'Kwiaty', 'album.p.visitors': 'Goście', 'album.p.blasters': 'Blastery', 'album.p.pets': 'Pupile', 'album.p.flies': 'Motyle', 'album.p.costumes': 'Stroje', 'album.g.garden': 'Pole', 'album.g.wild': 'Przyroda', 'album.g.collection': 'Kolekcja', 'album.found': 'Znaleziono {n} z {m}', 'album.bonus': 'Skończone strony: na zawsze +{p}% monet', 'album.intro': 'Trafia tu wszystko, co spotkasz. Skończ stronę, a dostaniesz stały bonus.', 'album.boss': 'Olbrzym: {name}', 'album.shiny': 'Lśniąca odmiana: {name}', 'album.seen': 'Widziano ×{n}', 'album.new': 'Nowość w albumie: {name}', 'album.newn': 'Nowe w albumie: {n}', 'album.newtag': 'NOWE', 'album.page.done': 'Strona skończona!', 'album.page.reward': '+{g} i na zawsze +{p}% monet', 'album.shiny.got': 'Lśniąca odmiana: {name}! ×10 monet', 'album.h.biome': 'Rośnie tu: {b}', 'album.h.shiny': 'Bardzo rzadkie. Wypatruj tu: {b}', 'album.h.boss': 'Olbrzym tej krainy: {b}', 'album.h.flower': 'Posadź tu: {b}', 'album.h.rare': 'Czasem kwiat rozkwita tu w rzadkim kolorze: {b}', 'album.h.v.lemon': 'Przylatuje za dnia, wszędzie', 'album.h.v.sky': 'Za dnia: na łące, w szklarni i w śniegu', 'album.h.v.peach': 'O świcie i o zmierzchu', 'album.h.v.moth': 'Tylko nocą', 'album.h.v.glow': 'Nocą: w grzybowym lesie, na bagnach i w księżycowym ogrodzie', 'album.h.v.royal': 'Rzadki gość. O każdej porze, wszędzie. Masz szczęście!', 'album.h.gear': 'Z jajka w Blasterach', 'album.h.pet': 'Z jajka w Pupilach', 'album.h.fly': 'Z jajka w Motylach', 'album.h.skin': 'Stroje są w zakładce Królik',
+      'album.title': 'Album', 'album.p.veggies': 'Warzywa', 'album.p.shiny': 'Lśniące warzywa', 'album.p.bosses': 'Olbrzymy', 'album.p.flowers': 'Kwiaty', 'album.p.visitors': 'Goście', 'album.p.blasters': 'Blastery', 'album.p.pets': 'Pupile', 'album.p.flies': 'Motyle', 'album.p.costumes': 'Stroje', 'album.g.garden': 'Pole', 'album.g.wild': 'Przyroda', 'album.g.collection': 'Kolekcja', 'album.found': 'Znaleziono {n} z {m}', 'album.bonus': 'Skończone strony: na zawsze +{p}% monet', 'album.intro': 'Trafia tu wszystko, co spotkasz. Skończ stronę, a dostaniesz stały bonus.', 'album.boss': 'Olbrzym: {name}', 'album.shiny': 'Lśniąca odmiana: {name}', 'album.seen': 'Widziano ×{n}', 'album.new': 'Nowość w albumie: {name}', 'album.newn.one': '{n} nowość w albumie', 'album.newn.few': '{n} nowości w albumie', 'album.newn.many': '{n} nowości w albumie', 'album.newn.other': '{n} nowości w albumie', 'album.newtag': 'NOWE', 'album.page.done': 'Strona skończona!', 'album.page.reward': '+{g} i na zawsze +{p}% monet', 'album.shiny.got': 'Lśniąca odmiana: {name}! ×10 monet', 'album.h.biome': 'Rośnie tu: {b}', 'album.h.shiny': 'Bardzo rzadkie. Wypatruj tu: {b}', 'album.h.boss': 'Olbrzym tej krainy: {b}', 'album.h.flower': 'Posadź tu: {b}', 'album.h.rare': 'Czasem kwiat rozkwita tu w rzadkim kolorze: {b}', 'album.h.v.lemon': 'Przylatuje za dnia, wszędzie', 'album.h.v.sky': 'Za dnia: na łące, w szklarni i w śniegu', 'album.h.v.peach': 'O świcie i o zmierzchu', 'album.h.v.moth': 'Tylko nocą', 'album.h.v.glow': 'Nocą: w grzybowym lesie, na bagnach i w księżycowym ogrodzie', 'album.h.v.royal': 'Rzadki gość. O każdej porze, wszędzie. Masz szczęście!', 'album.h.gear': 'Z jajka w Blasterach', 'album.h.pet': 'Z jajka w Pupilach', 'album.h.fly': 'Z jajka w Motylach', 'album.h.skin': 'Stroje są w zakładce Królik',
       'rain.name': 'Marchewkowy deszcz', 'tut.rain': 'Marchewkowy deszcz gotowy: stuknij!',
       'boss.help': 'Na pomoc, przyjaciele!',
       'tut.tapveg': '*Stuknij warzywo*, by pomóc drużynie',
@@ -4127,6 +4133,18 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
     s.crystals += p.gems;
     return { ok: true, gems: p.gems, bonus: eco.ALBUM_PAGE_BONUS };
   }
+  // Finds close together come as one toast (ui.albumFound): new finds join the batch whose toast is still up (on
+  // screen, or held back for its turn) or whose last find was under BATCH_MS ago; otherwise they start a new batch.
+  // `prev` is the last result (null at first), `ids` the finds just made, `now` in ms. Returns the batch: its number
+  // (`no`, the toast's tag), how many it holds (`n`), its first find (named when it is the only one), when it last
+  // grew (`at`), whether these joined (`join`) and the crystals the lot paid. Words only: discover() already paid.
+  const BATCH_MS = 2500;
+  function batch(prev, ids, now, showing) {
+    if (!ids.length) return prev;
+    const join = !!prev && (showing || now - prev.at < BATCH_MS);
+    const n = (join ? prev.n : 0) + ids.length;
+    return { no: join ? prev.no : (prev ? prev.no : 0) + 1, n, first: join ? prev.first : ids[0], at: now, join, gems: n * ENTRY_GEMS };
+  }
   const markViewed = (s, pageId) => { const p = PAGES.find((x) => x.id === pageId); if (p) for (const e of p.entries) delete A(s).fresh[e.id]; };
   // The red dot: something new to look at, or a page to claim.
   const ready = (s) => pages(s).filter((p) => p.fresh || (p.done && !p.claimed)).length;
@@ -4153,7 +4171,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
     return pool[pool.length - 1].id;
   }
 
-  return { PAGES, ALL, VISITORS, VEGGIES, ENTRY_GEMS, SHINY_CHANCE, RARE_BLOOM, seen, discover, sync, pages, claim, markViewed, ready, progress, squad, pickVisitor };
+  return { PAGES, ALL, VISITORS, VEGGIES, ENTRY_GEMS, SHINY_CHANCE, RARE_BLOOM, BATCH_MS, seen, discover, sync, batch, pages, claim, markViewed, ready, progress, squad, pickVisitor };
 });
 
 // ---- tips.js
@@ -8351,7 +8369,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
   // (motion.css). It stays 1.6 s, a little longer when it is long. Over the field it keeps to its own lane, clear of the
   // Carrot Rain key (style.css). A celebration on screen (fx.rebirth), the story intro, a banner in the toasts' lane,
   // the language picker or the seed pick holds toasts back; they follow it one by one (toast.flush).
-  const held = [];
+  // A toast with a `tag` that is still up (on screen, held back, or due) takes new words in place instead of queueing
+  // another: an album batch counts up (albumFound). Held and due toasts are [text, kind, tag].
+  const held = [], due = [];
   const HOLD = '#dialogs .rb-cel:not(.out), #dialogs .story:not(.out), #dialogs .lang-ov:not(.out), #dialogs .overlay:not(.out) .seeds, #banner.sub.show';
   // A banner where the toast would land: the garden banner always (it rests on the upgrades), the middle one where
   // the screen is short enough that it reaches the toasts' lane (a 568-px phone).
@@ -8361,18 +8381,35 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
     const lane = boxOf($('#toasts')).bottom, p = boxOf(b);   // the toasts' box grows upwards from its bottom
     return p.top < lane && lane - 84 < p.bottom;
   }
-  function toast(text, kind = '') {
-    if (document.querySelector(HOLD) || bannerInLane()) { held.push([text, kind]); return; }
+  function toast(text, kind = '', tag = '') {
+    const up = tagged(tag);
+    if (Array.isArray(up)) { up[0] = text; return; }
+    if (up) { reword(up, text); return; }
+    if (document.querySelector(HOLD) || bannerInLane()) { held.push([text, kind, tag]); return; }
     const box = $('#toasts');
     for (const old of box.children) leaveToast(old, true);
     const el = document.createElement('div');
     el.className = 'toast ' + kind;
     el.innerHTML = text;
-    el.kind = kind; el.born = performance.now();
+    el.kind = kind; el.tag = tag; el.born = performance.now();
     box.appendChild(el);
     lowToasts();
-    const words = el.textContent.trim().split(/\s+/).length;
-    el.t = setTimeout(() => leaveToast(el), 1600 + (300 * Math.max(0, words - 8)) / 8);
+    el.t = setTimeout(() => leaveToast(el), stay(el));
+  }
+  const stay = (el) => 1600 + (300 * Math.max(0, el.textContent.trim().split(/\s+/).length - 8)) / 8;
+  // The toast with this tag that is still up: a held or due entry, or the element on screen (else null).
+  function tagged(tag) {
+    if (!tag) return null;
+    return held.find((h) => h[2] === tag) || due.find((h) => h[2] === tag) || [...$('#toasts').children].find((e) => e.tag === tag && !e.gone) || null;
+  }
+  toast.live = (tag) => !!tagged(tag);
+  // New words on a toast on screen: its clock starts again and what changed hops (.t-gems, the crystals; calm: still).
+  function reword(el, text) {
+    el.innerHTML = text;
+    el.born = performance.now();
+    clearTimeout(el.t);
+    el.t = setTimeout(() => leaveToast(el), stay(el));
+    BB.motion.kick(el.querySelector('.t-gems') || el, 'bump', 300);
   }
   function leaveToast(el, fast) {
     if (fast) el.classList.add('gone');   // out of the way of the new one, even if it was already leaving
@@ -8382,7 +8419,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
     el.classList.add('out');
     setTimeout(() => el.remove(), BB.motion.ms(fast ? 'fast' : 'base'));
   }
-  toast.flush = () => held.splice(0).forEach(([text, kind], i) => setTimeout(() => toast(text, kind), i * 1900));
+  toast.flush = () => held.splice(0).forEach((h, i) => {
+    due.push(h);
+    setTimeout(() => { due.splice(due.indexOf(h), 1); toast(h[0], h[1], h[2]); }, i * 1900);
+  });
   // While a dialog is up, toasts drop to the hotbar: under the dialog's buttons rather than on them.
   const lowToasts = () => { const box = $('#toasts'); if (box) box.classList.toggle('low', !!document.querySelector('#dialogs .overlay:not(.out)')); };
   // A long toast on a narrow lane (a 320-px phone, a short window) drops its lead-in ("New in the album:") and keeps
@@ -8409,7 +8449,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
     // banner with the others it holds.
     for (const old of [...$('#toasts').children]) {
       if (!sub && (old.gone || !overlaps(old, el))) continue;
-      if (!old.gone && performance.now() - (old.born || 0) < 1000) held.push([old.innerHTML, old.kind || '']);
+      if (!old.gone && performance.now() - (old.born || 0) < 1000) held.push([old.innerHTML, old.kind || '', old.tag || '']);
       leaveToast(old, true);
     }
     clearTimeout(banner.t);
@@ -9779,17 +9819,20 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"balloon":"data:image/png
     return i18n.name('skin', key);
   }
   const hintText = (e) => { const [k, v] = e.hint; return t(k, v.b != null ? { b: i18n.name('biome', v.b) } : v); };
-  // New finds come in batches (a x10 draw, a sync): one toast for the lot.
-  let foundQ = [], foundT = 0;
+  // New finds come in batches (a x10 draw, a sync, a few new veggies in a row): one toast for the lot. Finds in the
+  // same instant are gathered first; later ones join the batch while its toast is up or for album.BATCH_MS, and the
+  // toast counts up in place ("3 new in the album", the crystals of the lot) instead of queueing another.
+  let foundQ = [], foundT = 0, finds = null;
   function albumFound(id) {
     foundQ.push(id);
     clearTimeout(foundT);
     foundT = setTimeout(() => {
-      const n = foundQ.length, first = foundQ[0];
+      const ids = foundQ;
       foundQ = [];
-      const gems = `${ico('crystal', 'ico xs')}+${n * BB.album.ENTRY_GEMS}`;
-      toast(`${ico('book', 'ico sm')} ${n === 1 ? lead('album.new', { name: esc(entryName(first)) }, 'name') : t('album.newn', { n })} ${gems}`, 'gold');
-      BB.fx.fly('book', 1); BB.fx.fly('crystals', Math.min(4, n));
+      finds = BB.album.batch(finds, ids, performance.now(), !!finds && toast.live('album' + finds.no));
+      const what = finds.n === 1 ? lead('album.new', { name: esc(entryName(finds.first)) }, 'name') : i18n.tn('album.newn', finds.n);
+      toast(`${ico('book', 'ico sm')} ${what} <span class="t-gems">${ico('crystal', 'ico sm')}+${fmt.num(finds.gems)}</span>`, 'gold', 'album' + finds.no);
+      BB.fx.fly('book', 1); BB.fx.fly('crystals', Math.min(4, ids.length));
       BB.sound.play('coin');
       G().changed();
     }, 260);
