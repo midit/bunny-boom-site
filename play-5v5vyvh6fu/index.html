@@ -480,6 +480,11 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .dlg-body { padding: 0 var(--s1); }
 .dlg-btns { display: flex; gap: var(--s2); justify-content: center; margin-top: var(--s3); flex-wrap: wrap; }
 .dlg-btns .btn { flex: 1 1 0; min-width: 120px; }
+/* Seed pick (seeds.js): three seeds stacked, each its icon, name and what it does */
+.dialog.seeds .dlg-btns { flex-direction: column; }
+.dlg-btns .btn.seed { flex: none; width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: var(--s2); text-align: left; padding: var(--s1) var(--s3); }
+.btn.seed span { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; flex: 1; white-space: normal; }
+.btn.seed small { font-size: var(--fs-s); }
 .dialog.win h3 { font-size: var(--fs-xxl); color: var(--leaf-d); } .dialog.lose h3 { font-size: var(--fs-xxl); color: #a82a33; }
 .reward-line { font-size: var(--fs-xl); display: flex; justify-content: center; gap: var(--s2); align-items: center; flex-wrap: wrap; }
 .price-big { font-size: var(--fs-xxl); }
@@ -915,6 +920,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'tut.new': "New: {name}!", 'tut.power': "Coins! Spend them here to pop veggies faster", 'tut.hold': "Each level hits harder. Hold to buy fast", 'tut.stage': "Pop 10 veggies to clear this field", 'tut.boss': "Beat it in {s}s!", 'tut.retry': "Upgrade, then try again", 'tut.gear': "New: Blasters! Tap to open", 'tut.freedraw': "A free blaster for you!", 'tut.merge': "Drag onto its twin to merge", 'tut.equip': "Drag it here to equip", 'pass.tierup': "Garden Pass: tier {n}!",
       'tut.opens.stage': "Opens at stage {s}",
       'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "Claim {n} crystals each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.manage': "Manage", 'club.fine.store': "Renews monthly at {p} until you cancel. Cancel anytime in Google Play > Payments & subscriptions.", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass · Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
+      // Seed pick before a Raid or Tower run (seeds.js)
+      'seed.title': 'Pick a seed', 'seed.sub': 'One perk for this run only',
+      'seed.sharp': 'Sharp seeds', 'seed.sharp.d': '+35% damage', 'seed.quick': 'Quick seeds', 'seed.quick.d': '+30% shots per second',
+      'seed.lucky': 'Lucky seeds', 'seed.lucky.d': '+15% crit chance, +50% crit damage', 'seed.time': 'Slow-grow seeds', 'seed.time.d': '+12 seconds',
+      'seed.sticky': 'Sticky seeds', 'seed.sticky.d': 'Slugs crawl 30% slower', 'seed.thorny': 'Thorny seeds', 'seed.thorny.d': '+20% damage, +6 seconds',
       'draw.nofree': "No free draws left today. More tomorrow!", 'mergeall': "Merge all", 'mergeall.none': "Nothing to merge yet", 'mergeall.done': "{n} merges!", 'mode.fights': "Fights today", 'mode.nofights': "No fights left today. Come back tomorrow!", 'mission.skip': "Skip", 'mission.skip.d': "Swap this mission for the next one? No reward. You can skip again in 30 minutes.",
       'settings.calm': "Calm mode (less shake and flashing)", 'settings.haptics': "Vibration", 'settings.bigtext': "Bigger text", 'settings.skiptips': "Skip tips and tutorial", 'settings.notify': "Reminders", 'promo.title': "Promo code", 'promo.go': "Redeem", 'promo.bad': "That code doesn't work", 'promo.used': "You've already used this code", 'promo.expired': "This code has expired", 'promo.ok': "Code redeemed!", 'share.title': "Show off your garden", 'share.btn': "Share", 'share.world': "World {n} reached!", 'share.rebirth': "{n} rebirths!", 'share.code': "my code: {c}", 'share.cta': "Play Bunny Boom!", 'share.text': "My bunny reached World {n} in Bunny Boom! My code: {c}", 'share.record': "New record!", 'notif.trip.t': "Your bunny is back!", 'notif.trip.b': "The trip is over. Come and see what it brought home.", 'notif.full.t': "The coin bag is full", 'notif.full.b': "Your garden earned all it can while you were away.", 'notif.gift.t': "A gift is waiting", 'notif.gift.b': "Today's daily gift is ready in Bunny Boom.", 'notif.app': "Reminders work in the app from the store.", 'notif.denied': "Notifications are off for Bunny Boom in your phone settings.", 'notif.ask': "Want a reminder when your bunny is back from the trip? Also when the coin bag is full and the daily gift waits.", 'notif.yes': "Remind me", 'notif.no': "Not now", 'notif.on': "Reminders on", 'about.title': "About", 'about.text': "Bunny Boom is a cosy idle shooter made with free tools only.", 'about.font': "Font: Handjet by Rosetta Type (SIL Open Font License).", 'about.art': "Every sprite is drawn by code in the game's own art scripts.", 'about.skills': "Pixel tools: pixel-art-studio (MIT). Feel and UX guides: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Made with love for bunnies and vegetables.", 'about.secret': "The bunny likes you!", 'privacy.title': "Privacy", 'privacy.ads': "Ad choices", 'privacy.text': "Your progress is saved on this phone. The game does not ask for your name, email or location and keeps no account.", 'privacy.more': "The store version shows ads (Google AdMob) and handles purchases through Google Play / App Store; they get the data their own policies describe. Delete the app to delete your save.", 'privacy.full': "Full privacy policy", 'egg.sneeze': "Achoo! The bunny sneezed out coins", 'egg.fluff': "500 pats! The bunny loves you", 'egg.dev': "You found the developer's secret garden!", 'egg.goldslug': "Golden slug!", 'egg.fib': "World {n}: a Fibonacci bunny!", 'egg.easter': "Happy Easter from the garden!", 'egg.moon': "Full moon tonight. The moon rabbits are watching!", 'egg.night': "It's 3 a.m. The bunny is sleepy… and so are you?",
       'hb.up': "Upgrade", 'hb.bunny': "Bunny", 'hb.gear': "Blasters", 'hb.pets': "Pets", 'hb.adv': "Adventure", 'hb.shop': "Shop",
@@ -1078,6 +1088,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'tut.new': "Нове: {name}!", 'tut.power': "Монети! Витрачай їх тут — овочі падатимуть швидше", 'tut.hold': "Кожен рівень б'є сильніше. Затисни — купує швидко", 'tut.stage': "Розбий 10 овочів — і поле пройдено", 'tut.boss': "Здолай за {s} с!", 'tut.retry': "Прокачайся і спробуй ще", 'tut.gear': "Нове: бластери! Тисни, щоб відкрити", 'tut.freedraw': "Бластер у подарунок!", 'tut.merge': "Перетягни на такий самий — злиття", 'tut.equip': "Перетягни сюди, щоб вдягнути", 'pass.tierup': "Садовий пропуск: рівень {n}!",
       'tut.opens.stage': "Відкриється на етапі {s}",
       'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "Забирай {n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автооб'єднання, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється щомісяця за {p}, доки не скасуєш. Скасувати можна будь-коли: Google Play > Платежі й підписки.", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск · Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Об'єднай ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Об'єднай ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
+      // Вибір насіння перед набігом чи вежею (seeds.js)
+      'seed.title': 'Обери насіння', 'seed.sub': 'Одна перевага лише на цей бій',
+      'seed.sharp': 'Гостре насіння', 'seed.sharp.d': '+35% шкоди', 'seed.quick': 'Швидке насіння', 'seed.quick.d': '+30% пострілів за секунду',
+      'seed.lucky': 'Щасливе насіння', 'seed.lucky.d': '+15% шансу криту, +50% крит. шкоди', 'seed.time': 'Повільне насіння', 'seed.time.d': '+12 секунд',
+      'seed.sticky': 'Липке насіння', 'seed.sticky.d': 'Слимаки повзуть на 30% повільніше', 'seed.thorny': 'Колюче насіння', 'seed.thorny.d': '+20% шкоди, +6 секунд',
       'draw.nofree': "Безкоштовні спроби на сьогодні скінчились. Завтра будуть ще!", 'mergeall': "Об'єднати", 'mergeall.none': "Поки нічого об'єднувати", 'mergeall.done': "Об'єднань: {n}!", 'mode.fights': "Боїв сьогодні", 'mode.nofights': "Бої на сьогодні скінчились. Повертайся завтра!", 'mission.skip': "Пропустити", 'mission.skip.d': "Замінити це завдання наступним? Без нагороди. Наступний пропуск — за 30 хвилин.",
       'settings.calm': "Спокійний режим (менше трусіння і спалахів)", 'settings.haptics': "Вібрація", 'settings.skiptips': "Без підказок і навчання", 'settings.bigtext': "Більший текст", 'settings.notify': "Нагадування", 'promo.title': "Промокод", 'promo.go': "Застосувати", 'promo.bad': "Цей код не працює", 'promo.used': "Ти вже використав цей код", 'promo.expired': "Строк дії коду минув", 'promo.ok': "Код застосовано!", 'share.title': "Похвалитися городом", 'share.btn': "Поділитися", 'share.world': "Дійшов до Світу {n}!", 'share.rebirth': "Перероджень: {n}!", 'share.code': "мій код: {c}", 'share.cta': "Грай у Bunny Boom!", 'share.text': "Мій кролик дійшов до Світу {n} у Bunny Boom! Мій код: {c}", 'share.record': "Новий рекорд!", 'notif.trip.t': "Кролик повернувся!", 'notif.trip.b': "Подорож скінчилась. Подивись, що він приніс.", 'notif.full.t': "Мішок з монетами повний", 'notif.full.b': "Город заробив усе, що міг, поки тебе не було.", 'notif.gift.t': "На тебе чекає подарунок", 'notif.gift.b': "Сьогоднішній подарунок у Bunny Boom уже готовий.", 'notif.app': "Нагадування працюють у застосунку з магазину.", 'notif.denied': "Сповіщення для Bunny Boom вимкнені в налаштуваннях телефону.", 'notif.ask': "Нагадати, коли кролик повернеться з подорожі? А ще коли мішок з монетами повний і чекає щоденний подарунок.", 'notif.yes': "Нагадати", 'notif.no': "Не зараз", 'notif.on': "Нагадування увімкнено", 'about.title': "Про гру", 'about.text': "Bunny Boom — затишний idle-шутер, зроблений лише безкоштовними інструментами.", 'about.font': "Шрифт: Handjet від Rosetta Type (SIL Open Font License).", 'about.art': "Кожен спрайт намальований кодом у власних арт-скриптах гри.", 'about.skills': "Піксельні інструменти: pixel-art-studio (MIT). Поради щодо відчуття гри й UX: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Зроблено з любов'ю до кроликів і овочів.", 'about.secret': "Кролик тебе любить!", 'privacy.title': "Приватність", 'privacy.ads': "Вибір реклами", 'privacy.text': "Прогрес зберігається на цьому телефоні. Гра не питає ім'я, пошту чи місцезнаходження і не створює акаунтів.", 'privacy.more': "Версія з магазину показує рекламу (Google AdMob), а покупки проходять через Google Play / App Store; вони отримують дані, описані в їхніх власних правилах. Видали гру — і збереження зникне.", 'privacy.full': "Повна політика конфіденційності", 'egg.sneeze': "Апчхи! Кролик вичхнув монети", 'egg.fluff': "500 погладжувань! Кролик тебе обожнює", 'egg.dev': "Ти знайшов таємний город розробника!", 'egg.goldslug': "Золотий слимак!", 'egg.fib': "Світ {n}: кролик Фібоначчі!", 'egg.easter': "З Великоднем! Вітання з городу!", 'egg.moon': "Сьогодні повня. Місячні кролики дивляться!", 'egg.night': "Третя ночі. Кролик сонний… а ти?",
       'hb.up': "Качай", 'hb.bunny': "Кролик", 'hb.gear': "Зброя", 'hb.pets': "Звірі", 'hb.adv': "Мандри", 'hb.shop': "Лавка",
@@ -3078,6 +3093,50 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   return { TIPS, IDS, NEW, KEEP, seen, wanted, ask, next, shown, duration };
 });
 
+// ---- seeds.js
+// Seed pick: at the start of a Raid or a Tower run the player picks 1 of 3 seeds, a perk for that run only. A light
+// decision before each fight instead of the same fight again (docs/COMPETITORS.md C-09). Pure: which three are offered,
+// what each does to the squad's numbers. Nothing is saved: the perk ends with the run.
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else (root.BB = root.BB || {}).seeds = api;
+})(typeof self !== 'undefined' ? self : this, function () {
+  // dmg, rate: multipliers of every blaster's damage and shots; crit: + crit chance (0..1); critDmg: + crit damage
+  // (1 = +100 %); time: seconds added to the run; slow: slugs crawl at this share of their speed. modes: where it grows.
+  // Each is worth about a third more of the squad's punch, in its own way, so the pick is about the fight ahead, not
+  // about one right answer: a close Tower wants time, a crit-heavy squad wants luck, a fast wave wants sticky seeds.
+  const SEEDS = {
+    sharp: { dmg: 1.35, icon: 'power', modes: ['raid', 'tower'] },
+    quick: { rate: 1.3, icon: 'speed', modes: ['raid', 'tower'] },
+    lucky: { crit: 0.15, critDmg: 0.5, icon: 'star', modes: ['raid', 'tower'] },
+    time: { time: 12, icon: 'warp', modes: ['raid', 'tower'] },
+    sticky: { slow: 0.7, icon: 'paw', modes: ['raid'] },
+    thorny: { dmg: 1.2, time: 6, icon: 'sword', modes: ['tower'] },
+  };
+  const IDS = Object.keys(SEEDS);
+  const pool = (mode) => IDS.filter((id) => SEEDS[id].modes.includes(mode));
+  // Three different seeds for a run of `mode` (fewer only if the pool is smaller).
+  function offer(mode, rnd = Math.random) {
+    const left = pool(mode), out = [];
+    while (out.length < 3 && left.length) out.push(left.splice(Math.floor(rnd() * left.length), 1)[0]);
+    return out;
+  }
+  // The squad's numbers with a seed planted (a new object; st is left as it was).
+  function apply(st, id) {
+    const S = SEEDS[id];
+    if (!st || !S) return st;
+    const guns = st.guns.map((g) => ({ ...g, dmg: g.dmg * (S.dmg || 1), rate: g.rate * (S.rate || 1) }));
+    const critRate = Math.min(1, st.critRate + (S.crit || 0)), critDmg = st.critDmg + (S.critDmg || 0);
+    const dps = guns.reduce((t, w) => t + w.dmg * w.rate, 0) * (1 + critRate * (critDmg - 1));
+    return { ...st, guns, critRate, critDmg, dps, seed: id };
+  }
+  const time = (id) => (SEEDS[id] && SEEDS[id].time) || 0;
+  const slow = (id) => (SEEDS[id] && SEEDS[id].slow) || 1;
+
+  return { SEEDS, IDS, pool, offer, apply, time, slow };
+});
+
 // ---- art.js
 // Pixel-art sprites. They are drawn by art/*.py (pixel-art-studio skill) into
 // assets/sprites/*.png and embedded by tools/build.js as BB.SPRITES {name: dataURL}.
@@ -4066,6 +4125,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     stT = 0.5;
     const s = save();
     st = mode === 'main' ? eco.stats(s, now()) : eco.modePower(s, now());
+    // A Raid or Tower run with a seed picked (seeds.js): its perk on top.
+    if (mode !== 'main' && modeCfg && modeCfg.seed) st = BB.seeds.apply(st, modeCfg.seed);
   }
   function curN() { const s = save(); return eco.stageN(s.stage.world, s.stage.sub); }
   function farmN() { const n = curN(); return save().stage.farming ? n - 1 : n; }
@@ -4203,12 +4264,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   // ---------- side modes ----------
-  function startMode(kind, level) {
+  function startMode(kind, level, seed) {
     mode = kind; targets = []; bullets = []; golden = null; floats = [];
     // Carrot Rain stays on the main field (a press still waiting keeps its charge).
     drops2 = []; rainT = 0; rainPhase = 0; rainQueued = false;
     const s = save();
-    modeCfg = { kind, level, killed: 0, spawned: 0, gems: 0, spawnT: 0.4 };
+    modeCfg = { kind, level, killed: 0, spawned: 0, gems: 0, spawnT: 0.4, seed: seed || null };
     if (kind === 'raid') {
       modeCfg.total = eco.raidWaveSize(level);
       modeCfg.hp = eco.raidHp(level);
@@ -4222,6 +4283,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       modeT = logic.caveTime(s, now());
       for (let i = 0; i < 4; i++) spawnRock();
     }
+    if (seed) modeT += BB.seeds.time(seed);
     modeCfg.timeTotal = modeT;
     phase = 'fight';
     refreshStats(true);
@@ -4242,7 +4304,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const gold = rnd() < 0.001;
     // From wave 6 every third slug wears an acorn cap: blasters barely scratch it until a tap knocks it off.
     const cap = !gold && modeCfg.level >= RAID_CAP.wave && modeCfg.spawned % 3 === 2;
-    targets.push(T({ type: 'slug', name: 'slug_' + k, x, y, r: 9, w: 25, hp: modeCfg.hp * (gold ? 3 : 1), maxHp: modeCfg.hp * (gold ? 3 : 1), speed: (7.5 + rnd() * 3) * (gold ? 0.6 : 1), gold, cap }));
+    targets.push(T({ type: 'slug', name: 'slug_' + k, x, y, r: 9, w: 25, hp: modeCfg.hp * (gold ? 3 : 1), maxHp: modeCfg.hp * (gold ? 3 : 1), speed: (7.5 + rnd() * 3) * (gold ? 0.6 : 1) * (modeCfg.seed ? BB.seeds.slow(modeCfg.seed) : 1), gold, cap }));
     modeCfg.spawned++;
   }
   function endMode(win) {
@@ -6973,7 +7035,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
               S().cave.used++; S().stats.caves++;
             } else if (!logic.useMode(S(), kind, now())) { toast(t('mode.nofights')); return; }
             closeSheet();
-            BB.engine.startMode(kind, lvl);
+            if (kind === 'cave') BB.engine.startMode(kind, lvl);
+            else pickSeed(kind).then((seed) => BB.engine.startMode(kind, lvl, seed));
           },
           sweep: () => {
             if (!logic.vipOn(S(), 'conv', now())) { toast(t('vip.sweep') + ' - ' + t('club.title')); openShop('club'); return; }
@@ -6985,6 +7048,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         });
       },
     });
+  }
+
+  // Seed pick (seeds.js): three seeds, one tap, a perk for this run only. Back (Android) takes the first one.
+  function pickSeed(kind) {
+    const ids = BB.seeds.offer(kind);
+    if (!ids.length) return Promise.resolve(null);
+    return dialog({
+      title: t('seed.title'), cls: 'seeds', html: `<p class="muted">${t('seed.sub')}</p>`,
+      buttons: ids.map((id) => ({ label: `${ico(BB.seeds.SEEDS[id].icon, 'ico md')}<span><b>${esc(t('seed.' + id))}</b><small>${esc(t('seed.' + id + '.d'))}</small></span>`, value: id, cls: 'seed' })),
+    }).then((id) => { if (id) banner(t('seed.' + id)); return id || null; });
   }
 
   function modeResult(res) {
@@ -7006,7 +7079,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       html: `<div class="center">${res.win ? ico('trophy', 'ico huge') : spr('slug_1', 'ico huge')}${reward ? `<p class="reward-line">${rewardHtml(reward)}</p>` : ''}</div>`,
       buttons: next ? [{ label: t('exit'), value: 'exit' }, { label: t('challenge'), value: 'next', cls: 'yellow' }] : [{ label: t('ok'), value: 'exit', cls: 'green' }],
     }).then((v) => {
-      if (v === 'next' && logic.useMode(S(), res.kind, now())) BB.engine.startMode(res.kind, res.level + 1);
+      if (v === 'next' && logic.useMode(S(), res.kind, now())) pickSeed(res.kind).then((seed) => BB.engine.startMode(res.kind, res.level + 1, seed));
       else if (v === 'next') { toast(t('mode.nofights')); BB.engine.exitMode(); openMode(res.kind); }
       else { BB.engine.exitMode(); if (res.kind === 'cave' || !res.win) openMode(res.kind); }
     });
@@ -7165,7 +7238,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   BB.ui = {
     pickSave,
     buildStatic, relabel, updateHud, toast, banner, openSheet, closeSheet, rerender, dialog, confirmDlg, testAd, testPurchase,
-    modeResult, offlinePopup, goldenPopup, adRecovered, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml,
+    modeResult, pickSeed, offlinePopup, goldenPopup, adRecovered, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml,
     openTab, openBunny, openGacha, openAdventure, openQuests, openDaily, openSettings, openStepUp, openShop, showOffer, itemCard, skinCard, albumFound,
     openAlbum: (g) => { if (g) albumGroup = g; openQuests('album'); },
     isOpen: () => !!sheet || !!document.querySelector('#dialogs .overlay'),
