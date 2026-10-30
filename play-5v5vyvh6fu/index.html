@@ -88,6 +88,7 @@ img.px, .px { image-rendering: pixelated; image-rendering: crisp-edges; flex: no
 .btn:active:not(:disabled) > * { transform: translateY(var(--p)); }
 .btn:disabled { --b: var(--ui-btn-grey); --fg: #efe7ef; --tsh: var(--sh1); cursor: default; }
 .btn:disabled .ico { filter: grayscale(.6); }
+a.btn { text-decoration: none; }
 .btn.green { --b: var(--ui-btn-green); --bon: var(--ui-btn-green-on); --fg: var(--white); --tsh: var(--sh1); }
 .btn.yellow { --b: var(--ui-btn-yellow); --bon: var(--ui-btn-yellow-on); }
 .btn.red { --b: var(--ui-btn-red); --bon: var(--ui-btn-red-on); --fg: var(--white); --tsh: var(--sh1); }
@@ -668,12 +669,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.BB = root.BB || {}).fmt = api;
 })(typeof self !== 'undefined' ? self : this, function () {
-  // 1.23K, 4.5M, 7.8B, 9.1T, then aa, ab ... az, ba ... (each step is x1000). Two lowercase letters
-  // never look like K/M/B/T, unlike a lone "b".
+  // 1.23K, 4.5M, 7.8B, 9.1T, then aa, ab, ac, ae ... az, ba ... (each step is x1000). Two lowercase letters
+  // never look like K/M/B/T, unlike a lone "b". "ad" is skipped: "5.11ad" next to an ad icon reads as an advert.
   const BASE = ['', 'K', 'M', 'B', 'T'];
   function suffix(i) {
     if (i < BASE.length) return BASE[i];
-    const k = i - BASE.length;
+    let k = i - BASE.length;
+    if (k >= 3) k++;
     return String.fromCharCode(97 + Math.floor(k / 26) % 26) + String.fromCharCode(97 + (k % 26));
   }
   function num(x) {
@@ -754,6 +756,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'boss.fail': 'Too slow! Get stronger and try again',
       'boss.challenge': 'Challenge Boss',
       'boss.ready': 'You can win now!',
+      'stage.tough': 'Too tough! Farming the stage before', 'stage.retry': 'Try again',
       'hopping': 'Bunny is hopping…',
       'end.title': 'You reached the edge of the garden!',
       'end.text': 'New worlds are being planted. Rebirth to get stronger meanwhile.',
@@ -789,7 +792,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'mode.sweep': 'Quick Clear', 'mode.sweep.d': 'Collect your best level\'s reward again (once a day)', 'mode.sweep.used': 'Used today', 'mode.noticket': 'No entries left today',
       'cave.more': 'More entries', 'cave.passd': 'Daily Crystal Cave entries become 6',
       // trip
-      'trip.title': 'Trip', 'trip.text': 'Send your bunny on a trip and come back with treasure.', 'trip.go': 'Go ({t})', 'trip.away': 'Back in {t}', 'trip.ad': 'Speed up 1h', 'trip.back': 'Your bunny is back!', 'trip.unlock': 'Opens at World 5',
+      'trip.title': 'Trip', 'trip.text': 'Send your bunny on a trip and come back with treasure.', 'trip.go': 'Go ({t})', 'trip.away': 'Back in {t}', 'trip.ad': 'Speed up 1h', 'trip.ad.none': 'No more speed-ups today', 'trip.back': 'Your bunny is back!', 'trip.unlock': 'Opens at World 5',
       // shop
       'shop.title': 'Shop', 'shop.free': 'Free Rewards', 'shop.freec': 'Free Crystals', 'shop.freec.d': 'Watch a short ad: +{n} crystals ({left} left today)',
       'shop.daily': 'Daily Gift', 'shop.daily.d': 'Log in every day for bigger gifts',
@@ -808,7 +811,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'pity.left': "{g} or better within {n} draws", 'pity.text': "Paid draws only: an x10 always holds an {a} or better, and your {n}th draw at the latest is an {g} or better.",
       'tut.new': "New: {name}!", 'tut.power': "Tap to power up!", 'tut.hold': "Hold to buy fast", 'tut.stage': "10 veggies, then the next field", 'tut.boss': "Beat it in {s}s!", 'tut.retry': "Upgrade, then try again", 'tut.gear': "New: Blasters!", 'tut.freedraw': "A free blaster for you!", 'tut.merge': "Drag onto its twin to merge", 'tut.equip': "Drag it here to equip", 'pass.tierup': "Garden Pass: tier {n}!",
       'tut.opens.stage': "Opens at stage {s}",
-      'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "+{n} crystals every day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass · Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
+      'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "Claim {n} crystals each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.manage': "Manage", 'club.fine.store': "Renews monthly at {p} until you cancel. Cancel anytime in Google Play > Payments & subscriptions.", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass · Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
       'draw.nofree': "No free draws left today. More tomorrow!", 'mergeall': "Merge all", 'mergeall.none': "Nothing to merge yet", 'mergeall.done': "{n} merges!", 'mode.fights': "Fights today", 'mode.nofights': "No fights left today. Come back tomorrow!", 'mission.skip': "Skip", 'mission.skip.d': "Swap this mission for the next one? No reward. You can skip again in 30 minutes.",
       'settings.calm': "Calm mode (less shake and flashing)", 'settings.haptics': "Vibration", 'settings.bigtext': "Bigger text", 'settings.notify': "Reminders", 'promo.title': "Promo code", 'promo.go': "Redeem", 'promo.bad': "That code doesn't work", 'promo.used': "You've already used this code", 'promo.expired': "This code has expired", 'promo.ok': "Code redeemed!", 'share.title': "Show off your garden", 'share.btn': "Share", 'share.world': "World {n} reached!", 'share.rebirth': "{n} rebirths!", 'share.code': "my code: {c}", 'share.cta': "Play Bunny Boom!", 'share.text': "My bunny reached World {n} in Bunny Boom! My code: {c}", 'share.record': "New record!", 'notif.trip.t': "Your bunny is back!", 'notif.trip.b': "The trip is over. Come and see what it brought home.", 'notif.full.t': "The coin bag is full", 'notif.full.b': "Your garden earned all it can while you were away.", 'notif.gift.t': "A gift is waiting", 'notif.gift.b': "Today's daily gift is ready in Bunny Boom.", 'notif.app': "Reminders work in the app from the store.", 'notif.denied': "Notifications are off for Bunny Boom in your phone settings.", 'about.title': "About", 'about.text': "Bunny Boom is a cosy idle shooter made with free tools only.", 'about.font': "Font: Handjet by Rosetta Type (SIL Open Font License).", 'about.art': "Every sprite is drawn by code in the game's own art scripts.", 'about.skills': "Pixel tools: pixel-art-studio (MIT). Feel and UX guides: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Made with love for bunnies and vegetables.", 'about.secret': "The bunny likes you!", 'privacy.title': "Privacy", 'privacy.ads': "Ad choices", 'privacy.text': "Your progress is saved on this phone. The game does not ask for your name, email or location and keeps no account.", 'privacy.more': "The store version shows ads (Google AdMob) and handles purchases through Google Play / App Store; they get the data their own policies describe. Delete the app to delete your save.", 'privacy.full': "Full privacy policy", 'egg.sneeze': "Achoo! The bunny sneezed out coins", 'egg.fluff': "500 pats! The bunny loves you", 'egg.dev': "You found the developer's secret garden!", 'egg.goldslug': "Golden slug!", 'egg.fib': "World {n}: a Fibonacci bunny!", 'egg.easter': "Happy Easter from the garden!", 'egg.moon': "Full moon tonight. The moon rabbits are watching!", 'egg.night': "It's 3 a.m. The bunny is sleepy… and so are you?",
       'hb.up': "Upgrade", 'hb.bunny': "Bunny", 'hb.gear': "Gear", 'hb.pets': "Pets", 'hb.adv': "Battle", 'hb.shop': "Shop",
@@ -823,6 +826,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.thanks': 'Thank you! Purchase complete.', 'shop.bought': 'Purchased',
       'shop.failed': "The purchase didn't go through. Please try again.", 'shop.restore.none': "Nothing to restore: this store account has no purchases that are kept for good.",
       'shop.pending': 'Payment pending', 'shop.pending.d': "The store hasn't confirmed this payment yet. Your purchase arrives by itself as soon as it does.",
+      'shop.soon': "Packs and passes open up as you play.", 'offer.later': "Not now", 'offer.gems.first': "First buy of this pack is doubled (usually {n}).",
+      'offer.club.d': "+{n} crystals to claim every day, no forced ads, boss time x2, more cave entries, Raid & Tower rewards x2.",
+      'offer.warp.d': "Skip ahead: {n} h of income right now, +{c} coins.", 'offer.boost.d': "Watch a short ad for Damage x2 for 30 minutes. Only if you want to.",
       'step.title': 'Step Up!', 'step.text': 'Buy pets and grow stronger!', 'step.n': 'STEP {n}', 'step.lock': 'Unlocks after Step {n}', 'step.value': 'x{n} value', 'step.go': 'Go to Shop',
       // ads
       'ad.title': 'Advertisement', 'ad.test': 'Test ad. The store build shows a real video ad here.', 'ad.skip': 'Skip in {n}', 'ad.close': 'Get reward', 'ad.vip': 'Ad skipped (No Ads)',
@@ -837,7 +843,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'settings.title': 'Settings', 'settings.lang': 'Language', 'settings.sound': "Sounds", 'settings.eco': 'Eco mode (saves battery)', 'settings.save': 'Save', 'settings.export': 'Copy save code', 'settings.import': 'Load save code', 'settings.reset': 'Reset progress', 'settings.reset.confirm': 'Delete all progress? This cannot be undone.', 'settings.copied': 'Save code copied', 'settings.loaded': 'Save loaded', 'settings.bad': 'That code is not a valid save', 'settings.cloud': 'Cloud save: on', 'settings.local': 'Saved on this device',
       'on': 'On', 'off': 'Off', 'confirm': 'Confirm',
       'toast.nocoins': 'Not enough coins', 'toast.nocrystals': 'Not enough crystals', 'toast.noclovers': 'Not enough clovers', 'toast.saved': 'Saved',
-      'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto Upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min',
+      'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto Upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min', 'auto.notrial': "Today's two free trials are used. Auto Upgrade is in the Shop.",
       
     },
     names: {
@@ -878,6 +884,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'boss.fail': 'Не встиг! Стань сильнішим і спробуй ще',
       'boss.challenge': 'Битва з босом',
       'boss.ready': 'Тепер ти переможеш!',
+      'stage.tough': 'Заважко! Фармимо попередній етап', 'stage.retry': 'Ще раз',
       'hopping': 'Кролик стрибає далі…',
       'end.title': 'Ти дійшов до краю городу!',
       'end.text': 'Нові світи ще садимо. А поки роби Переродження, щоб стати сильнішим.',
@@ -907,7 +914,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'mode.noup': 'Покращення за монети й Переродження тут не діють.', 'mode.win': 'Перемога!', 'mode.lose': 'Поразка', 'mode.left': 'Залишилось {n}', 'mode.time': 'Час',
       'mode.sweep': 'Швидка зачистка', 'mode.sweep.d': 'Забрати нагороду найкращого рівня ще раз (раз на день)', 'mode.sweep.used': 'Вже сьогодні', 'mode.noticket': 'Сьогодні входів більше немає',
       'cave.more': 'Більше входів', 'cave.passd': 'Щодня 6 входів у Кришталеву печеру',
-      'trip.title': 'Подорож', 'trip.text': 'Відправ кролика в подорож — він повернеться зі скарбами.', 'trip.go': 'В путь ({t})', 'trip.away': 'Повернеться за {t}', 'trip.ad': 'Пришвидшити на 1 год', 'trip.back': 'Кролик повернувся!', 'trip.unlock': 'Відкриється у Світі 5',
+      'trip.title': 'Подорож', 'trip.text': 'Відправ кролика в подорож — він повернеться зі скарбами.', 'trip.go': 'В путь ({t})', 'trip.away': 'Повернеться за {t}', 'trip.ad': 'Пришвидшити на 1 год', 'trip.ad.none': 'На сьогодні прискорень більше немає', 'trip.back': 'Кролик повернувся!', 'trip.unlock': 'Відкриється у Світі 5',
       'shop.title': 'Магазин', 'shop.free': 'Безкоштовні нагороди', 'shop.freec': 'Безкоштовні кристали', 'shop.freec.d': 'Переглянь рекламу: +{n} кристалів (сьогодні ще {left})',
       'shop.daily': 'Щоденний подарунок', 'shop.daily.d': 'Заходь щодня — подарунки більшають',
       'shop.starter': 'Стартове яйце', 'shop.starter.d': "Улюбленець S, 300 кристалів і 2 години всіх бафів. Лише раз!",
@@ -925,7 +932,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'pity.left': "{g} або краще не пізніше ніж за {n} спроб", 'pity.text': "Лише платні спроби: у x10 завжди є {a} або краще, а не пізніше ніж {n}-та спроба дає {g} або краще.",
       'tut.new': "Нове: {name}!", 'tut.power': "Тисни, щоб посилитись!", 'tut.hold': "Затисни — купує швидко", 'tut.stage': "10 овочів — і далі наступне поле", 'tut.boss': "Здолай за {s} с!", 'tut.retry': "Прокачайся і спробуй ще", 'tut.gear': "Нове: бластери!", 'tut.freedraw': "Бластер у подарунок!", 'tut.merge': "Перетягни на такий самий — злиття", 'tut.equip': "Перетягни сюди, щоб вдягнути", 'pass.tierup': "Садовий пропуск: рівень {n}!",
       'tut.opens.stage': "Відкриється на етапі {s}",
-      'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "+{n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автозлиття, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск · Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Злий ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Злий ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
+      'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "Забирай {n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автозлиття, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється щомісяця за {p}, доки не скасуєш. Скасувати можна будь-коли: Google Play > Платежі й підписки.", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск · Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Злий ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Злий ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
       'draw.nofree': "Безкоштовні спроби на сьогодні скінчились. Завтра будуть ще!", 'mergeall': "Злити все", 'mergeall.none': "Поки нічого зливати", 'mergeall.done': "Злиттів: {n}!", 'mode.fights': "Боїв сьогодні", 'mode.nofights': "Бої на сьогодні скінчились. Повертайся завтра!", 'mission.skip': "Пропустити", 'mission.skip.d': "Замінити це завдання наступним? Без нагороди. Наступний пропуск — за 30 хвилин.",
       'settings.calm': "Спокійний режим (менше трусіння і спалахів)", 'settings.haptics': "Вібрація", 'settings.bigtext': "Більший текст", 'settings.notify': "Нагадування", 'promo.title': "Промокод", 'promo.go': "Застосувати", 'promo.bad': "Цей код не працює", 'promo.used': "Ти вже використав цей код", 'promo.expired': "Строк дії коду минув", 'promo.ok': "Код застосовано!", 'share.title': "Похвалитися городом", 'share.btn': "Поділитися", 'share.world': "Дійшов до Світу {n}!", 'share.rebirth': "Перероджень: {n}!", 'share.code': "мій код: {c}", 'share.cta': "Грай у Bunny Boom!", 'share.text': "Мій кролик дійшов до Світу {n} у Bunny Boom! Мій код: {c}", 'share.record': "Новий рекорд!", 'notif.trip.t': "Кролик повернувся!", 'notif.trip.b': "Подорож скінчилась. Подивись, що він приніс.", 'notif.full.t': "Мішок з монетами повний", 'notif.full.b': "Город заробив усе, що міг, поки тебе не було.", 'notif.gift.t': "На тебе чекає подарунок", 'notif.gift.b': "Сьогоднішній подарунок у Bunny Boom уже готовий.", 'notif.app': "Нагадування працюють у застосунку з магазину.", 'notif.denied': "Сповіщення для Bunny Boom вимкнені в налаштуваннях телефону.", 'about.title': "Про гру", 'about.text': "Bunny Boom — затишний idle-шутер, зроблений лише безкоштовними інструментами.", 'about.font': "Шрифт: Handjet від Rosetta Type (SIL Open Font License).", 'about.art': "Кожен спрайт намальований кодом у власних арт-скриптах гри.", 'about.skills': "Піксельні інструменти: pixel-art-studio (MIT). Поради щодо відчуття гри й UX: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Зроблено з любов'ю до кроликів і овочів.", 'about.secret': "Кролик тебе любить!", 'privacy.title': "Приватність", 'privacy.ads': "Вибір реклами", 'privacy.text': "Прогрес зберігається на цьому телефоні. Гра не питає ім'я, пошту чи місцезнаходження і не створює акаунтів.", 'privacy.more': "Версія з магазину показує рекламу (Google AdMob), а покупки проходять через Google Play / App Store; вони отримують дані, описані в їхніх власних правилах. Видали гру — і збереження зникне.", 'privacy.full': "Повна політика конфіденційності", 'egg.sneeze': "Апчхи! Кролик вичхнув монети", 'egg.fluff': "500 погладжувань! Кролик тебе обожнює", 'egg.dev': "Ти знайшов таємний город розробника!", 'egg.goldslug': "Золотий слимак!", 'egg.fib': "Світ {n}: кролик Фібоначчі!", 'egg.easter': "З Великоднем! Вітання з городу!", 'egg.moon': "Сьогодні повня. Місячні кролики дивляться!", 'egg.night': "Третя ночі. Кролик сонний… а ти?",
       'hb.up': "Качай", 'hb.bunny': "Кролик", 'hb.gear': "Зброя", 'hb.pets': "Звірі", 'hb.adv': "Бої", 'hb.shop': "Лавка",
@@ -940,6 +947,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.thanks': 'Дякуємо! Покупку завершено.', 'shop.bought': 'Куплено',
       'shop.failed': 'Покупка не вдалася. Спробуй ще раз.', 'shop.restore.none': 'Нічого відновлювати: на цьому акаунті магазину немає покупок назавжди.',
       'shop.pending': 'Оплата очікується', 'shop.pending.d': 'Магазин ще не підтвердив оплату. Покупка прийде сама, щойно він це зробить.',
+      'shop.soon': "Набори й пропуски з'являться, коли пограєш довше.", 'offer.later': "Не зараз", 'offer.gems.first': "Перша покупка цього набору подвоюється (зазвичай {n}).",
+      'offer.club.d': "+{n} кристалів щодня (забираєш сам), без примусової реклами, час на боса x2, більше входів у печеру, нагороди Набігу і Вежі x2.",
+      'offer.warp.d': "Стрибок уперед: {n} год доходу одразу, +{c} монет.", 'offer.boost.d': "Переглянь коротку рекламу, і шкода x2 на 30 хвилин. Лише якщо хочеш.",
       'step.title': 'Крок за кроком!', 'step.text': 'Купуй улюбленців і ставай сильнішим!', 'step.n': 'КРОК {n}', 'step.lock': 'Відкриється після Кроку {n}', 'step.value': 'x{n} вигода', 'step.go': 'До магазину',
       'ad.title': 'Реклама', 'ad.test': 'Тестова реклама. У версії з магазину тут буде справжнє відео.', 'ad.skip': 'Пропуск через {n}', 'ad.close': 'Забрати нагороду', 'ad.vip': 'Рекламу пропущено (Без реклами)',
       'mission.title': 'Місія', 'mission.claim': 'Забрати',
@@ -951,7 +961,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'settings.title': 'Налаштування', 'settings.lang': 'Мова', 'settings.sound': "Звуки", 'settings.eco': 'Економ-режим (береже батарею)', 'settings.save': 'Збереження', 'settings.export': 'Скопіювати код збереження', 'settings.import': 'Завантажити код', 'settings.reset': 'Скинути прогрес', 'settings.reset.confirm': 'Видалити весь прогрес? Це не скасувати.', 'settings.copied': 'Код скопійовано', 'settings.loaded': 'Збереження завантажено', 'settings.bad': 'Це не схоже на код збереження', 'settings.cloud': 'Хмарне збереження: увімкнено', 'settings.local': 'Збережено на цьому пристрої',
       'on': 'Увімк.', 'off': 'Вимк.', 'confirm': 'Підтвердити',
       'toast.nocoins': 'Замало монет', 'toast.nocrystals': 'Замало кристалів', 'toast.noclovers': 'Замало конюшини', 'toast.saved': 'Збережено',
-      'auto.on': 'Автопокращення увімкнено', 'auto.off': 'Автопокращення вимкнено', 'auto.locked': 'Автопокращення є в Магазині. Спробувати 10 хв за рекламу?', 'auto.trial': 'Спробувати 10 хв',
+      'auto.on': 'Автопокращення увімкнено', 'auto.off': 'Автопокращення вимкнено', 'auto.locked': 'Автопокращення є в Магазині. Спробувати 10 хв за рекламу?', 'auto.trial': 'Спробувати 10 хв', 'auto.notrial': 'Дві безкоштовні спроби на сьогодні вже використано. Автопокращення є в Магазині.',
       
     },
     names: {
@@ -977,7 +987,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.BB = root.BB || {}).state = api;
 })(typeof self !== 'undefined' ? self : this, function () {
-  const VERSION = 2;
+  const VERSION = 3;
   const empty = (n) => Array(n).fill(null);
 
   function defaultSave(now = Date.now()) {
@@ -1017,7 +1027,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       piggy: { amt: 0 },
       pity: { weapon: 0, pet: 0, fly: 0 },
       club: { until: 0, claimed: '' },
-      ads: { day: '', inter: 0 },
+      ads: { day: '', inter: 0, last: 0 },
       limits: { day: '', draw: {}, raid: 0, tower: 0 },
       sprout: { until: 0 },
       tut: { step: 0, done: {}, seen: {} },
@@ -1027,6 +1037,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       album: { seen: {}, claimed: {}, fresh: {} },
       eggs: {},
       promos: [],
+      // What the offer engine has heard and shown (offers.js): which paid surfaces are open, signal counters, pop-ups.
+      offers: { rev: {}, life: {}, fresh: {}, wall: { w: 0, n: 0 }, days: 0, day: '', sessAt: 0, lossAt: 0, shortAt: 0, pop: { sess: 0, day: '', today: 0, at: 0 }, dis: {}, streak: 0, disAt: 0, quick: { day: '', n: 0 }, calmUntil: 0, buying: null },
       unlock: { slot3w: false, slot3p: false },
       settings: { sound: true, music: true, dayNight: true, eco: false, buyMult: 1, autoUp: false, autoMerge: false, haptics: true, calm: null, notify: false, bigText: false },
     };
@@ -1040,6 +1052,14 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       if (s.piggy) delete s.piggy.ts;
       // A player who already got past the start skips the first-run tutorial.
       if (s.stats && s.stats.maxWorld > 1) s.tut = { step: 99, done: {}, seen: {} };
+    },
+    // Paid offers now open one at a time after the first 15 minutes (offers.js). A player who is already past them,
+    // or has paid, keeps seeing everything they saw before; behaviour-picked offers still wait for their own turn.
+    3: (s) => {
+      const st = s.stats || {}, paid = s.iap && s.iap.bought && Object.keys(s.iap.bought).length > 0;
+      if ((st.playSec || 0) < 900 && !paid) return;
+      const at = st.playSec || 0;
+      s.offers = { rev: { shop: at, piggy: at, pass: at, starter: at, club: at } };
     },
   };
 
@@ -1720,19 +1740,22 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   // ---------- forced ads: rare, late, and never right after money or a rewarded ad ----------
-  const INTER = { minPlaySec: 900, minSessions: 3, gapMs: 4 * MIN, afterRewardedMs: 3 * MIN, perDay: 6, afterBuyMs: 14 * DAY, everyBoss: 3 };
+  // docs/PRODUCT.md "Never": not in the first 10 worlds (minWorld), not mid-boss (main.js checks the phase when it
+  // shows), not more than once per 4 minutes, also across a restart (ads.last is saved).
+  const INTER = { minPlaySec: 900, minSessions: 3, minWorld: 11, gapMs: 4 * MIN, afterRewardedMs: 3 * MIN, perDay: 6, afterBuyMs: 14 * DAY, everyBoss: 3 };
   function interstitialOk(s, now, { bossWins, lastInter = 0, lastRewarded = 0 }) {
     if (s.iap.noForced || s.iap.noAds || clubOn(s, now)) return false;
     if (bossWins % INTER.everyBoss !== 0) return false;
     if (s.stats.playSec < INTER.minPlaySec || (s.stats.sessions || 0) < INTER.minSessions || dayKey(now) === dayKey(s.created)) return false;
-    if (now - lastInter < INTER.gapMs || now - lastRewarded < INTER.afterRewardedMs) return false;
+    if (maxWorld(s) < INTER.minWorld) return false;
+    if (now - Math.max(lastInter, s.ads.last || 0) < INTER.gapMs || now - lastRewarded < INTER.afterRewardedMs) return false;
     if (s.iap.lastBuy && now - s.iap.lastBuy < INTER.afterBuyMs) return false;
     if (s.ads.day === dayKey(now) && s.ads.inter >= INTER.perDay) return false;
     return true;
   }
   function countInterstitial(s, now) {
     if (s.ads.day !== dayKey(now)) { s.ads.day = dayKey(now); s.ads.inter = 0; }
-    s.ads.inter++;
+    s.ads.inter++; s.ads.last = now;
   }
 
   // ---------- easter eggs and promo codes ----------
@@ -1802,6 +1825,52 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   const piggyOn = (s) => s.piggy.amt > 0 || s.stats.bosses > 0;
   function piggyBoss(s) { s.piggy.amt = Math.min(PIGGY_MAX, s.piggy.amt + PIGGY_BOSS); }
   const piggyReady = (s) => s.piggy.amt >= PIGGY_OPEN;
+
+  // ---------- ads that save time: capped per day ----------
+  // With No Ads a rewarded ad is instant, so these need a daily cap like every other ad reward: an hour off a trip
+  // three times a day (a trip still takes most of a day), a 10-minute Auto Upgrade trial twice a day.
+  // The counters live in the daily `limits` and start at 0 when missing (a save from before them).
+  const AD_CAPS = { tripSpeed: 3, autoTrial: 2 }, TRIP_SPEED_MS = HOUR, TRIAL_MS = 10 * MIN;
+  const tripSpeedLeft = (s, now) => Math.max(0, AD_CAPS.tripSpeed - (daily(s, now).tripSpeed || 0));
+  function speedTrip(s, now) {
+    if (!s.trip.until || s.trip.until <= now || !tripSpeedLeft(s, now)) return { ok: false };
+    const d = daily(s, now); d.tripSpeed = (d.tripSpeed || 0) + 1;
+    s.trip.until = Math.max(now, s.trip.until - TRIP_SPEED_MS);
+    return { ok: true, left: tripSpeedLeft(s, now) };
+  }
+  const autoTrialLeft = (s, now) => (s.iap.autoUp ? 0 : Math.max(0, AD_CAPS.autoTrial - (daily(s, now).autoTrial || 0)));
+  function startAutoTrial(s, now) {
+    if (!autoTrialLeft(s, now) || s.trials.autoUp > now) return { ok: false };
+    const d = daily(s, now); d.autoTrial = (d.autoTrial || 0) + 1;
+    s.trials.autoUp = now + TRIAL_MS; s.settings.autoUp = true;
+    return { ok: true, left: autoTrialLeft(s, now) };
+  }
+
+  // ---------- never stuck: a wall at a normal stage gets the same net as a lost boss fight ----------
+  // 30 s of fighting without a kill: the bunny farms the stage before (coins keep coming, a button tries again);
+  // still nothing there, it steps one more stage back. No new stage for 3 minutes lights Rebirth (when one pays).
+  const STUCK = { quietSec: 30, rebirthSec: 180, retryKillSec: 3 };
+  function stepBack(s, quietSec) {
+    const st = s.stage;
+    if (quietSec < STUCK.quietSec) return false;
+    const n = eco.stageN(st.world, st.sub);
+    if (!st.farming) {
+      if (eco.isBoss(st.sub) || n < 1) return false;
+      st.farming = true;
+      return true;
+    }
+    if (n < 2) return false;
+    const back = eco.fromN(n - 1);
+    st.world = back.world; st.sub = back.sub; st.kills = 0;
+    return true;
+  }
+  // While farming: could the bunny now beat what stopped it? (the boss with 5% of its time to spare, a veggie in 3 s)
+  function canRetry(s, dps, now) {
+    if (!s.stage.farming || !(dps > 0)) return false;
+    const n = eco.stageN(s.stage.world, s.stage.sub);
+    return eco.isBoss(s.stage.sub) ? eco.bossHp(n) / dps <= bossTime(s, now) * 0.95 : eco.hp(n) / dps <= STUCK.retryKillSec;
+  }
+  const rebirthHint = (s, stuckSec) => maxWorld(s) >= 5 && stuckSec >= STUCK.rebirthSec && eco.REBIRTH.pts(s.stage.maxN) > Math.max(5, s.rb.total * 0.5);
 
   // ---------- trip ----------
   const tripHours = (s, now) => TRIP_H - (vipOn(s, 'conv', now) ? VIP.tripCutH : 0);
@@ -1941,7 +2010,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     box, slots, addItem, move, mergeAll, equipBest, draw, DRAW,
     rebirth, rbUpgrade, addBuff, mission, claimMission, dailyState, claimDaily, grantBundle,
     freeCrystalsLeft, claimFreeCrystals, piggyOn,
-    tripHours, startTrip, tripReward, claimTrip,
+    tripHours, startTrip, tripReward, claimTrip, AD_CAPS, tripSpeedLeft, speedTrip, autoTrialLeft, startAutoTrial,
+    STUCK, stepBack, canRetry, rebirthHint,
     caveLeft, caveTime, bossTime, towerTime, raidReward, towerReward, caveReward, sweepLeft, sweep, refreshCave,
     skinUnlocked, checkSkins, buySkin, canBuy, grant, goldenReward, offline,
   };
@@ -2126,6 +2196,316 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     season, seasonEnds, sync, addXp, bossXp, adXp, adXpLeft, quests, claimQuest, questsReady,
     view, claimable, claimTier, buyTier, grantPremium, achievements, claimAch, achReady,
   };
+});
+
+// ---- offers.js
+// Offers: when a paid thing may appear, and which one fits this player now.
+// The engine hears the same events analytics gets (BB.track → hear), keeps a few counters in save.offers and
+// answers three questions, each with its reasons: which surfaces are open yet (step / open), what the offer bubble
+// shows (bubble) and whether a pop-up is due (popup). Pure: no DOM, deterministic given (save, now, ctx).
+// What it never does (docs/PRODUCT.md "Never", Google Play's deceptive-design rules): a paid offer in the first
+// minutes, a pop-up mid-boss or in the tutorial, more than one pop-up a session, a made-up price or timer, a cheaper
+// price for what a payer already bought, anything that sells power the free game doesn't give.
+(function (root, factory) {
+  const isNode = typeof module === 'object' && module.exports;
+  const deps = isNode
+    ? { state: require('./state.js'), logic: require('./logic.js'), pass: require('./pass.js') }
+    : { state: root.BB.state, logic: root.BB.logic, pass: root.BB.pass };
+  const api = factory(deps);
+  if (isNode) module.exports = api;
+  else root.BB.offers = api;
+})(typeof self !== 'undefined' ? self : this, function ({ state, logic, pass }) {
+  const HOUR = 3600e3, DAY = 86400e3;
+  const dayKey = state.dayKey;
+
+  // ---------- every knob in one object (Remote Config may override it within BOUNDS: configure) ----------
+  const DEFAULTS = {
+    quietMin: 15,          // no paid offer of any kind before this many minutes of play
+    gapMin: 5,             // then one surface at a time, at least this many minutes of play apart
+    // In this order, each once its own bar is met (minutes of play, world, sessions, tutorial over).
+    reveal: [
+      { id: 'shop', min: 15 },                              // paid rows in the shop, Step Up in the pet panel
+      { id: 'piggy', min: 15, world: 3 },                   // the piggy bank in the offer bubble and the shop
+      { id: 'pass', min: 15 },                              // Garden Pass premium (shop card, pass panel)
+      { id: 'starter', min: 15, world: 9 },                 // Starter Egg (bubble, shop)
+      { id: 'club', min: 30, sessions: 2 },                 // Garden Club card (shop, cave)
+      { id: 'tailor', min: 30, sessions: 2, afterTutorial: 1 }, // offers picked from behaviour (bubble, pop-up)
+    ],
+    bubbleMin: 2,          // score a tailored offer needs to take the bubble (a pop-up needs popup.minScore)
+    maxPrice: 20,          // the engine never pushes a product dearer than this (USD); the shop still lists it
+    popup: { perSession: 1, perDay: 2, gapH: 4, warmSec: 60, afterLossSec: 120, afterBuyH: 24, minScore: 3 },
+    // "Not now" is respected: that offer rests for `days`, after `maxSame` it is never pushed again; `streak`
+    // pop-ups refused in a row pause all pop-ups for streakDays, doubling with each further refusal (≤ capDays).
+    dismiss: { days: 3, maxSame: 3, streak: 2, streakDays: 2, capDays: 14 },
+    // Payment dialogs closed within a few seconds, `cancels` times in a day: a child tapping, not a buyer. No pop-ups.
+    kid: { cancels: 2, days: 3 },
+    signals: { minLookSec: 4, longLookSec: 20, hesitate: 3, short: 2, adLover: 12, wall: 3, loyalDays: 3, passTiers: 3 },
+    // [{ id, from, to }]: that offer exists only inside a real window (ms timestamps), the same for every player.
+    windows: [],
+  };
+  const BOUNDS = {
+    quietMin: [5, 240], gapMin: [0, 120], bubbleMin: [0, 10], maxPrice: [1, 100],
+    reveal: { min: [5, 600], world: [1, 300], sessions: [0, 100], afterTutorial: [0, 1] },
+    popup: { perSession: [0, 1], perDay: [0, 3], gapH: [1, 168], warmSec: [0, 3600], afterLossSec: [60, 3600], afterBuyH: [0, 720], minScore: [1, 20] },
+    dismiss: { days: [1, 60], maxSame: [1, 10], streak: [1, 10], streakDays: [1, 60], capDays: [1, 90] },
+    kid: { cancels: [1, 10], days: [1, 30] },
+    signals: { minLookSec: [1, 60], longLookSec: [5, 600], hesitate: [1, 50], short: [1, 50], adLover: [3, 500], wall: [2, 20], loyalDays: [1, 60], passTiers: [0, 30] },
+  };
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const CFG = clone(DEFAULTS);
+
+  // Remote Config hands plain values; `offers` is one JSON parameter shaped like DEFAULTS (any part of it).
+  // A number outside its bounds, a wrong type or an unknown key keeps the shipped value; {} restores everything.
+  function configure(raw = {}) {
+    let want = raw && raw.offers;
+    if (typeof want === 'string') { try { want = JSON.parse(want); } catch (e) { want = null; } }
+    const fresh = clone(DEFAULTS);
+    const take = (dst, src, bounds) => {
+      if (!src || typeof src !== 'object') return;
+      for (const [k, b] of Object.entries(bounds)) {
+        if (Array.isArray(b)) { const n = src[k]; if (typeof n === 'number' && Number.isFinite(n) && n >= b[0] && n <= b[1]) dst[k] = n; }
+        else if (k !== 'reveal') take(dst[k], src[k], b);
+      }
+    };
+    if (want && typeof want === 'object') {
+      take(fresh, want, BOUNDS);
+      if (Array.isArray(want.reveal)) for (const r of want.reveal) { const d = r && fresh.reveal.find((x) => x.id === r.id); if (d) take(d, r, BOUNDS.reveal); }
+      if (Array.isArray(want.windows)) fresh.windows = want.windows.filter((w) => w && ORDER.includes(w.id) && Number.isFinite(w.from) && Number.isFinite(w.to) && w.to > w.from).map((w) => ({ id: w.id, from: w.from, to: w.to }));
+    }
+    for (const k of Object.keys(CFG)) delete CFG[k];
+    Object.assign(CFG, fresh);
+    return clone(CFG);
+  }
+
+  // ---------- what the engine remembers (save.offers) ----------
+  const blank = () => ({
+    rev: {},                         // surface → play second it appeared
+    life: {}, fresh: {},             // signal counters: all time, and since the last pop-up (each one needs new evidence)
+    wall: { w: 0, n: 0 },            // boss fights lost in a row at one world
+    days: 0, day: '',                // distinct days played
+    sessAt: 0, lossAt: 0, shortAt: 0,
+    pop: { sess: 0, day: '', today: 0, at: 0 },
+    dis: {},                         // offer → { n, t } "not now"s
+    streak: 0, disAt: 0,             // offers refused in a row
+    quick: { day: '', n: 0 }, calmUntil: 0,
+    buying: null,                    // a payment dialog in progress { id, t }
+  });
+  function box(s) {
+    if (!s.offers || typeof s.offers !== 'object') s.offers = blank();
+    const o = s.offers, b = blank();
+    const kind = (v) => (v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v);
+    for (const k of Object.keys(b)) if (o[k] === undefined || (b[k] !== null && kind(o[k]) !== kind(b[k]))) o[k] = b[k];
+    if (o.buying && (typeof o.buying !== 'object' || !(o.buying.t > 0))) o.buying = null;
+    return o;
+  }
+  const n = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+  const play = (s) => n(s.stats && s.stats.playSec);
+  const BOSS = ['intro', 'boss', 'bossdie'];
+  // The first-run tutorial: until it is over (or World 10), nothing pops up over it.
+  const tutorialOn = (s) => s.tut.step < 99 && logic.maxWorld(s) < 10;
+
+  // ---------- pacing: no paid surface in the first minutes, then one at a time ----------
+  const open = (s, id) => box(s).rev[id] != null;
+  function ready(s, r) {
+    return play(s) >= CFG.quietMin * 60 && play(s) >= n(r.min) * 60 && logic.maxWorld(s) >= (r.world || 1)
+      && n(s.stats.sessions) >= n(r.sessions) && !(r.afterTutorial && tutorialOn(s));
+  }
+  // Called once a second; opens at most one surface and returns its id.
+  function step(s) {
+    const o = box(s), t = play(s);
+    if (t < CFG.quietMin * 60) return null;
+    const seen = Object.values(o.rev).map(n);
+    if (seen.length && t - Math.max(...seen) < CFG.gapMin * 60) return null;
+    const r = CFG.reveal.find((x) => o.rev[x.id] == null && ready(s, x));
+    if (!r) return null;
+    o.rev[r.id] = t;
+    return r.id;
+  }
+  function revealAll(s, ids = CFG.reveal.map((r) => r.id)) {
+    const o = box(s);
+    for (const id of ids) if (o.rev[id] == null) o.rev[id] = play(s);
+  }
+  // The free-crystals bubble (it leads to a rewarded ad) waits for the quiet minutes too; ads stay a free choice.
+  const nudge = (s) => play(s) >= CFG.quietMin * 60;
+
+  // ---------- money already spent: a payer is shown the next tier, never a cheaper version ----------
+  const GEMS = ['gems_1', 'gems_2', 'gems_3', 'gems_4', 'gems_5', 'gems_6'];
+  const bought = (s) => Object.keys(s.iap.bought || {}).filter((id) => logic.PRODUCTS[id] && s.iap.bought[id] > 0);
+  const paidMax = (s) => Math.max(0, ...bought(s).map((id) => logic.PRODUCTS[id].price));
+  function gemsFor(s) {
+    const top = Math.max(-1, ...GEMS.map((id, i) => (s.iap.bought[id] ? i : -1)));
+    const max = paidMax(s);
+    return GEMS.slice(top + 1).find((id) => logic.PRODUCTS[id].price >= max) || null;
+  }
+
+  // ---------- the offers it may push: existing products at their shop price, plus two that cost no money ----------
+  const ORDER = ['piggy', 'starter', 'gems', 'noads', 'club', 'pass', 'warp', 'boost'];
+  function candidates(s, now) {
+    const o = box(s), f = o.fresh, life = o.life, G = CFG.signals;
+    const payer = paidMax(s) > 0, can = (id) => logic.canBuy(s, id, now).ok;
+    const hes = n(f.hes) >= G.hesitate, short = n(f.short) >= G.short, wall = n(f.wall) > 0;
+    const ads = n(life.ads) >= G.adLover, loyal = o.days >= G.loyalDays;
+    const ev = { hes: n(f.hes), look: Math.round(n(f.look)), short: n(f.short), ads: n(life.ads), wall: n(f.wall), days: o.days };
+    const out = [];
+    const add = (id, kind, product, parts, extra = {}) => {
+      const why = parts.filter((p) => p[0]).map((p) => p[1]);
+      const score = parts.reduce((a, p) => a + (p[0] ? p[2] : 0), 0);
+      out.push({ id, kind, product, price: product ? logic.PRODUCTS[product].price : 0, score, why, ev, ref: null, ends: null, ...extra });
+    };
+    // The piggy holds crystals the player earned; once it can open, that is the fairest offer there is.
+    if (open(s, 'piggy') && logic.piggyReady(s) && can('piggy')) add('piggy', 'iap', 'piggy', [[1, 'piggy_full', 3.5]], { value: { crystals: s.piggy.amt } });
+    // The Starter Egg is a first purchase: never pushed at someone who already paid more.
+    if (open(s, 'starter') && !payer && can('starter')) add('starter', 'iap', 'starter', [[1, 'first_buy', 1], [hes, 'hesitation', 2], [short, 'short', 1.5], [wall, 'wall', 1]]);
+    // Running short of crystals: a pack. First buy of a pack doubles for everyone (the reference is the same pack).
+    const g = gemsFor(s);
+    if (open(s, 'shop') && g && (short || (payer && hes))) {
+      const p = logic.PRODUCTS[g], first = !s.iap.bought[g];
+      add('gems', 'iap', g, [[1, 'crystals', 1], [short, 'short', 2], [hes, 'hesitation', 1], [payer, 'next_tier', 0]],
+        { value: { crystals: p.crystals * (first ? 2 : 1) }, ref: first ? { product: g, crystals: p.crystals, price: p.price } : null });
+    }
+    // Someone who watches many rewarded ads: No Ads makes every one of them instant.
+    if (open(s, 'shop') && ads && !s.iap.noAds && can('noads')) add('noads', 'iap', 'noads', [[1, 'ads', 3], [n(f.ads) >= G.adLover / 2, 'ads_lately', 0.5]]);
+    if (open(s, 'club') && !logic.clubOn(s, now) && (ads || loyal) && (payer || loyal) && can('club')) add('club', 'iap', 'club', [[1, 'club', 1], [ads, 'ads', 1.5], [loyal, 'loyal', 1], [payer, 'payer', 0.5]]);
+    // The pass, for someone already climbing it; its season end is real and the same for everyone.
+    const pv = pass.view(s, now);
+    if (open(s, 'pass') && !pv.premium && can('pass') && pv.tier >= G.passTiers && o.days >= 2) add('pass', 'iap', 'pass', [[1, 'pass_progress', 2.5], [loyal, 'loyal', 1]], { ends: now + pv.endsIn });
+    // Stuck at a wall: hours of income for crystals (Time Warp), or a free boost for an optional ad.
+    if (wall) {
+      if (s.crystals >= logic.WARP[1]) { const h = s.crystals >= logic.WARP[4] ? 4 : 1; add('warp', 'crystals', null, [[1, 'wall', 3], [n(f.wall) > 1, 'walls', 0.5]], { hours: h, cost: logic.WARP[h] }); }
+      else if (!s.iap.noAds) add('boost', 'ad', null, [[1, 'wall', 3], [n(f.wall) > 1, 'walls', 0.5]], { buff: 'power' });
+    }
+    return out;
+  }
+  // An offer with a window exists only inside it; its end is the window's end, not a timer made up per player.
+  function inWindow(c, now) {
+    const ws = CFG.windows.filter((w) => w.id === c.id);
+    if (!ws.length) return true;
+    const w = ws.find((x) => now >= x.from && now < x.to);
+    if (w) c.ends = w.to;
+    return !!w;
+  }
+  function allowed(s, c, now, isPopup) {
+    const d = box(s).dis[c.id], D = CFG.dismiss;
+    if (d && now - d.t < D.days * DAY) return false;
+    if (isPopup && d && d.n >= D.maxSame) return false;
+    const max = paidMax(s);
+    if (c.kind === 'iap' && c.price > CFG.maxPrice) return false;
+    if (c.kind === 'iap' && c.id !== 'piggy' && max > 0 && c.price < max) return false;
+    return inWindow(c, now);
+  }
+  function pick(s, now, isPopup = false) {
+    const dis = box(s).dis;
+    const list = candidates(s, now).filter((c) => allowed(s, c, now, isPopup));
+    for (const c of list) if (dis[c.id]) c.score -= 0.5 * n(dis[c.id].n);
+    list.sort((a, b) => b.score - a.score || ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+    return list[0] || null;
+  }
+  const plain = (s, id, now, extra = {}) => ({ id, kind: 'iap', product: id, price: logic.PRODUCTS[id].price, score: 0, why: ['default'], ev: {}, ref: null, ends: null, ...extra });
+
+  // ---------- the one offer bubble on the main screen (passive: shown, never pushed) ----------
+  // ctx: { mode, phase, open, coach } from the UI. Nothing during a boss, a side mode or a coach mark, and nothing
+  // for a few days after payment dialogs were closed within seconds again and again (a child tapping).
+  function bubble(s, now, ctx = {}) {
+    if ((ctx.mode && ctx.mode !== 'main') || BOSS.includes(ctx.phase) || ctx.coach) return null;
+    if (box(s).calmUntil > now) return null;
+    if (open(s, 'tailor')) {
+      const c = pick(s, now, false);
+      if (c && c.score >= CFG.bubbleMin) return c;
+    }
+    const can = (id) => logic.canBuy(s, id, now).ok;
+    const pig = open(s, 'piggy') && logic.piggyOn(s);
+    const egg = open(s, 'starter') && can('starter') && paidMax(s) <= logic.PRODUCTS.starter.price;
+    if (pig && logic.piggyReady(s)) return plain(s, 'piggy', now, { why: ['piggy_full'], note: true });
+    if (egg) return plain(s, 'starter', now);
+    if (pig) return plain(s, 'piggy', now);
+    return null;
+  }
+
+  // ---------- the pop-up: at most one a session, at a calm moment, only with evidence ----------
+  // '' when a pop-up may show now, otherwise the first rule that stops it.
+  function blocked(s, now, ctx = {}) {
+    const o = box(s), P = CFG.popup, D = CFG.dismiss;
+    if (!open(s, 'tailor')) return 'pacing';
+    if (ctx.mode && ctx.mode !== 'main') return 'mode';
+    if (BOSS.includes(ctx.phase)) return 'boss';
+    if (ctx.coach || tutorialOn(s)) return 'tutorial';
+    if (ctx.open) return 'panel';
+    if (now - o.sessAt < P.warmSec * 1000) return 'warm';
+    if (P.perSession < 1 || o.pop.sess === s.stats.sessions) return 'session';
+    if (o.pop.day === dayKey(now) && o.pop.today >= P.perDay) return 'day';
+    if (now - o.pop.at < P.gapH * HOUR) return 'gap';
+    if (now - o.lossAt < P.afterLossSec * 1000) return 'loss';
+    if (s.iap.lastBuy && now - s.iap.lastBuy < P.afterBuyH * HOUR) return 'bought';
+    if (o.calmUntil > now) return 'kid';
+    if (o.streak >= D.streak && now - o.disAt < Math.min(D.capDays, D.streakDays * Math.pow(2, o.streak - D.streak)) * DAY) return 'no_thanks';
+    return '';
+  }
+  function popup(s, now, ctx = {}) {
+    if (blocked(s, now, ctx)) return null;
+    const c = pick(s, now, true);
+    return c && c.score >= CFG.popup.minScore ? c : null;
+  }
+
+  // ---------- signals: the analytics stream, heard (services.js track → hear) ----------
+  function hear(s, name, p = {}, now = Date.now()) {
+    if (!s || !s.stats || !s.iap) return;
+    const o = box(s), f = o.fresh, life = o.life, G = CFG.signals;
+    const inc = (k, v = 1) => { f[k] = n(f[k]) + v; life[k] = n(life[k]) + v; };
+    const tally = (k) => { life[k] = n(life[k]) + 1; };
+    switch (name) {
+      case 'session_start': case 'bb_session':
+        o.sessAt = now;
+        if (o.day !== dayKey(now)) { o.day = dayKey(now); o.days++; }
+        break;
+      case 'shop_open': tally('shop'); break;
+      // A look at a shop with something to buy, long enough to read it, that ends without buying: hesitation.
+      case 'shop_close': {
+        const sec = Math.min(300, Math.max(0, n(p.sec)));
+        if (p.bought || !open(s, 'shop') || sec < G.minLookSec) break;
+        inc('hes', sec >= G.longLookSec ? 2 : 1); inc('look', sec);
+        break;
+      }
+      case 'short': if (now - o.shortAt >= 20e3) { o.shortAt = now; inc('short'); } break;
+      case 'ad_rewarded': inc('ads'); break;
+      case 'boss_result':
+        if (p.win) { o.wall = { w: 0, n: 0 }; f.wall = 0; break; }
+        o.lossAt = now;
+        o.wall = o.wall.w === p.w ? { w: p.w, n: n(o.wall.n) + 1 } : { w: p.w, n: 1 };
+        if (o.wall.n === G.wall) inc('wall');
+        break;
+      case 'offer_shown':
+        if (p.surface !== 'popup') break;
+        if (o.pop.day !== dayKey(now)) { o.pop.day = dayKey(now); o.pop.today = 0; }
+        o.pop.today++; o.pop.at = now; o.pop.sess = s.stats.sessions; tally('shown');
+        o.fresh = {};
+        break;
+      case 'offer_click': tally('clicks'); o.streak = 0; break;
+      case 'offer_dismiss': {
+        const d = o.dis[p.id] || { n: 0, t: 0 };
+        o.dis[p.id] = { n: n(d.n) + 1, t: now };
+        o.streak++; o.disAt = now; tally('dismissed');
+        break;
+      }
+      case 'iap_start': o.buying = { id: p.id, t: now }; break;
+      // A payment dialog closed by the player: after a real look it is the strongest hesitation; within seconds, a tap.
+      // A store error (no network, unavailable) is neither.
+      case 'iap_fail': {
+        const sec = o.buying ? (now - n(o.buying.t)) / 1000 : 0;
+        o.buying = null;
+        if (p.reason && p.reason !== 'cancelled') break;
+        if (sec >= G.minLookSec) { inc('hes'); inc('look', Math.min(300, sec)); break; }
+        if (o.quick.day !== dayKey(now)) o.quick = { day: dayKey(now), n: 0 };
+        o.quick.n++;
+        if (o.quick.n >= CFG.kid.cancels) o.calmUntil = now + CFG.kid.days * DAY;
+        break;
+      }
+      case 'iap_pending': o.buying = null; break;
+      case 'iap_success': o.buying = null; o.streak = 0; o.fresh = {}; tally('bought'); break;
+      default: break;
+    }
+  }
+
+  return { DEFAULTS, BOUNDS, CFG, ORDER, GEMS, configure, hear, step, open, revealAll, nudge, bubble, popup, blocked, pick, candidates, paidMax, gemsFor, tutorialOn, box };
 });
 
 // ---- album.js
@@ -2447,6 +2827,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     track.log.push(e);
     if (track.log.length > 200) track.log.shift();
     try { if (native() && native().track) native().track(name, props); } catch (err) { /* analytics never breaks the game */ }
+    // The offer engine hears the same stream: what the player does is what it decides from (offers.js).
+    try { if (BB.offers && BB.game && BB.game.save) BB.offers.hear(BB.game.save, name, props, BB.state.gameNow(BB.game.save)); } catch (err) { /* nor do offers */ }
   };
   track.log = [];
 
@@ -3286,12 +3668,14 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     if (!leapN++) hooks.onLeap(true);
     return true;
   }
+  // "Challenge Boss" after a lost boss fight, "Try again" after a wall at a normal stage (logic.stepBack).
   function challengeBoss() {
     const s = save();
     if (!s.stage.farming) return;
     s.stage.farming = false;
     bullets = [];
-    startBoss();
+    if (eco.isBoss(s.stage.sub)) startBoss();
+    else { targets = []; phase = 'fight'; hooks.onStage(); }
   }
 
   // ---------- side modes ----------
@@ -3385,7 +3769,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function hit(b) {
     const t = b.t;
     t.pending = Math.max(0, t.pending - b.dmg);
-    if (t.dead) return;
+    // A boss already beaten is only putting on its show: bullets still flying and carrots still falling miss it.
+    if (t.dead || t.dying != null) return;
     t.hp -= b.dmg;
     // One short flash per target at most every 120 ms, a boss under 3 a second: it stays readable and never strobes.
     if (!calm && t.flashCD <= 0) { t.hit = 0.05; t.flashCD = t.type === 'boss' ? 0.35 : 0.12; }
@@ -3416,6 +3801,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     for (let i = 0; i < n && flyCoins.length < 48; i++) flyCoins.push({ x, y, vx: (rnd() - 0.5) * spread, vy: -40 - rnd() * 60, t: -i * 0.04, f: Math.floor(rnd() * 4) });
   }
   function kill(t) {
+    if (t.dead || t.dying != null) return;
     t.dead = true; t.fade = 0;
     flushDamage(t);
     const s = save();
@@ -4428,7 +4814,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     root.appendChild(ov);
     $('#app').classList.add('in-sheet');
     const body = $('.sheet-body', ov);
-    sheet = { ...opts, ov, body, render: () => { const st = body.scrollTop; opts.render(body); body.scrollTop = st; } };
+    const sh = { ...opts, ov, body, draw: opts.render };
+    sh.render = () => { const st = body.scrollTop; opts.render(body); body.scrollTop = st; sh.html = still(body.innerHTML); };
+    sheet = sh;
     $('.x', ov).onclick = () => closeSheet();
     ov.addEventListener('pointerdown', (e) => { if (e.target === ov) closeSheet(); });
     if (opts.seg) ov.querySelectorAll('[data-seg]').forEach((b) => { b.onclick = () => { BB.sound.play('tap'); opts.seg.go(b.dataset.seg); }; });
@@ -4451,6 +4839,32 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     if (!keepTab) { setTab('up'); $('#app').classList.remove('in-sheet'); BB.sound.duck(false); }
   }
   const rerender = () => { if (sheet) sheet.render(); };
+  // Panels with clocks (tick: true): every timer counts down in place. Once a second the panel is drawn off-screen
+  // and swapped in only if something else changed, and never while a finger is down: a panel rebuilt between
+  // pointerdown and click swallowed the tap (about one in five taps in the Shop).
+  const timerText = (until, tpl) => { const v = timeLeft(until - now()); return tpl ? t(tpl, { t: v }) : v; };
+  const timer = (until, tpl = '') => `<span data-until="${Math.round(until)}"${tpl ? ` data-tpl="${tpl}"` : ''}>${timerText(until, tpl)}</span>`;
+  const still = (html) => html.replace(/(<span data-until="[^"]*"[^>]*>)[^<]*/g, '$1');
+  const fingers = new Map();
+  const fingerDown = () => { for (const [id, t0] of fingers) if (performance.now() - t0 > 8000) fingers.delete(id); return fingers.size > 0; };
+  function watchFingers() {
+    document.addEventListener('pointerdown', (e) => fingers.set(e.pointerId, performance.now()), true);
+    for (const ev of ['pointerup', 'pointercancel']) document.addEventListener(ev, (e) => fingers.delete(e.pointerId), true);
+    window.addEventListener('blur', () => fingers.clear());
+  }
+  function tickSheet() {
+    const sh = sheet;
+    sh.body.querySelectorAll('[data-until]').forEach((el) => { const v = timerText(Number(el.dataset.until), el.dataset.tpl); if (el.textContent !== v) el.textContent = v; });
+    if (fingerDown()) return;
+    const off = document.createElement('div');
+    sh.draw(off);
+    const html = still(off.innerHTML);
+    if (html === sh.html) return;
+    const st = sh.body.scrollTop;
+    sh.body.replaceChildren(...off.childNodes);
+    sh.body.scrollTop = st;
+    sh.html = html;
+  }
   // Pull the panel down by its title bar to close it; let go early and it springs back.
   function pullToClose(panel, handle) {
     let y0 = null, dy = 0, t0 = 0;
@@ -4543,11 +4957,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     ['up', 'up', 'hb.up'], ['bunny', 'bunnyhead', 'hb.bunny'], ['gear', null, 'hb.gear'],
     ['pets', null, 'hb.pets'], ['adv', 'map', 'hb.adv'], ['shop', 'shop', 'hb.shop'],
   ];
-  // Left column: the everyday boosts. Right column (under the HUD tools): one offer, the egg or the piggy.
+  // Left column: the everyday boosts. Right column (under the HUD tools): one offer at a time; offers.js picks it.
   const BUBBLES = [
     ['buffs', 'power', 'btn.buffs'], ['free', 'crystal', 'shop.freec'], ['auto', 'magnet', 'btn.auto'],
   ];
-  const BUBBLES_R = [['starter', null, 'shop.starter'], ['piggy', 'piggy', 'btn.piggy']];
+  const BUBBLES_R = [['offer', null, null]];
   const UI_PIECES = ['wood', 'dark', 'paper', 'slot', 'slot_on', 'bar', 'sign'].concat(
     ...['green', 'yellow', 'red', 'blue', 'purple', 'cream', 'grey'].map((c) => ['btn_' + c, 'btn_' + c + '_on']));
   function layout() {
@@ -4613,11 +5027,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const tabArt = { gear: () => spr('gun_0', 'ico wide'), pets: () => spr('pet_0', 'ico') };
     $('#hotbar').innerHTML = TABS.map(([id, icon, label]) => `<button class="hb" id="tab-${id}" data-tab="${id}" data-ta="${label}" aria-label="${t(label)}">${icon ? ico(icon) : tabArt[id]()}<span data-t="${label}">${t(label)}</span><i class="dot"></i></button>`).join('');
     // Icons only, no captions or price tags over the field: the name is read out (aria-label) and the panel says the rest.
-    const bubble = ([id, icon, label]) => `<button class="bubble" id="bb-${id}" data-act="${id}" data-ta="${label}" aria-label="${esc(t(label))}">${id === 'starter' ? spr('pet_3', 'ico') : ico(icon)}<i class="dot"></i><i class="lockmark">${ico('lock', 'ico xs')}</i></button>`;
+    const bubble = ([id, icon, label]) => (id === 'offer' ? '<button class="bubble" id="bb-offer" data-act="offer" hidden></button>' : `<button class="bubble" id="bb-${id}" data-act="${id}" data-ta="${label}" aria-label="${esc(t(label))}">${id === 'starter' ? spr('pet_3', 'ico') : ico(icon)}<i class="dot"></i><i class="lockmark">${ico('lock', 'ico xs')}</i></button>`);
     $('#bubbles').innerHTML = BUBBLES.map(bubble).join('');
     $('#bubbles-r').innerHTML = BUBBLES_R.map(bubble).join('');
     bind($('#app'), {
-      free: () => freeCrystals(), piggy: () => openPiggy(), auto: () => toggleAuto(), buffs: () => openBunny('buffs'), starter: () => openStarter(),
+      free: () => freeCrystals(), auto: () => toggleAuto(), buffs: () => openBunny('buffs'), offer: () => tapOffer(),
       settings: () => openSettings(), mission: () => openMission(), daily: () => openDaily(), shop: () => openShop(),
       boss: () => { BB.engine.challengeBoss(); }, exitmode: () => exitModeConfirm(),
     });
@@ -4634,6 +5048,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     layout();
     window.addEventListener('resize', layout);
     watchPixels();
+    watchFingers();
     snapAll();
     // The first frame already shows only what the player has reached (no flash of every tab and bubble).
     updateNotes();
@@ -4718,7 +5133,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const s = S();
     const m = s.settings.buyMult;
     if (hudCache.mult !== m) { hudCache.mult = m; document.querySelectorAll('[data-mult]').forEach((b) => b.classList.toggle('on', String(m) === b.dataset.mult)); }
-    const n = Math.max(0, eco.stageN(s.stage.world, Math.min(s.stage.sub, 4)) - (s.stage.farming ? 1 : 0));
+    const n = s.stage.farming ? Math.max(0, eco.stageN(s.stage.world, s.stage.sub) - 1) : eco.stageN(s.stage.world, Math.min(s.stage.sub, 4));
     // With a unit each: damage per volley, shots a second, coins per veggie.
     const values = { power: st.guns.reduce((a, g) => a + g.dmg, 0), speed: st.guns.reduce((a, g) => a + g.rate, 0), money: eco.coins(n) * st.money };
     for (const [k] of UPS) {
@@ -4771,8 +5186,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     setClass('#rain-btn', 'active', rain.active);
     setHidden('#rain-btn', !unlocked('rain'));
     const boss = info.phase === 'boss' || info.phase === 'intro';
-    const sub = s.stage.farming ? 4 : Math.min(s.stage.sub, 5);
-    setText('#stage-label', s.stage.farming ? t('farming', { w: s.stage.world, s: 4 }) : t('world', { w: s.stage.world, s: sub }));
+    // Farming shows the stage the coins come from: the one before the stage that stopped the bunny.
+    const farm = s.stage.farming ? eco.fromN(Math.max(0, eco.stageN(s.stage.world, s.stage.sub) - 1)) : null;
+    const sub = farm ? (farm.world === s.stage.world ? farm.sub : 0) : Math.min(s.stage.sub, 5);
+    setText('#stage-label', farm ? t('farming', { w: farm.world, s: farm.sub }) : t('world', { w: s.stage.world, s: sub }));
     const pct = boss ? Math.round(info.bossHp * 100) : s.stage.farming ? 100 : Math.round((s.stage.kills / eco.C.KILLS) * 100);
     // The bar says how far on its own; words only for the boss clock.
     setText('#progress-label', boss ? fmt.time(Math.ceil(info.bossT)) : '');
@@ -4782,20 +5199,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     setClass('#progress', 'boss', boss);
     setClass('#progress', 'urgent', boss && info.bossT <= 10);
     for (let i = 1; i <= 5; i++) { setClass('#dot' + i, 'on', i < sub || (i === sub && !s.stage.farming)); setClass('#dot' + i, 'cur', i === sub); }
-    const canBeat = s.stage.farming && eco.bossHp(eco.stageN(s.stage.world, 5)) / st.dps <= logic.bossTime(s, now()) * 0.95;
     setHidden('#boss-btn', !s.stage.farming || s.stage.world > eco.C.MAX_WORLD);
-    setClass('#boss-btn', 'pulse', canBeat);
-  }
-
-  // The single offer surface (the bubble under the rail) shows at most one offer, and this is the one place that
-  // picks it: a BUBBLES_R id or null (an offers engine takes over here). Everything it can show is in the shop too.
-  // No paid offer before the player has met a boss: the egg shows after the first boss fail or at World 5.
-  // A piggy that can be opened goes first.
-  function offerNow(s, T) {
-    const pig = logic.piggyOn(s) && unlocked('piggy');
-    if (pig && logic.piggyReady(s)) return 'piggy';
-    if (!s.iap.starter && (s.tut.done.fail || logic.maxWorld(s) >= 5)) return 'starter';
-    return pig ? 'piggy' : null;
+    setText('#boss-btn', t(eco.isBoss(s.stage.sub) ? 'boss.challenge' : 'stage.retry'));
+    setClass('#boss-btn', 'pulse', logic.canRetry(s, st.dps, now()));
   }
 
   // Red dots mean "something free is waiting"; checked once a second, not every frame.
@@ -4803,17 +5209,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const s = S(), T = now();
     setClass('#btn-mission', 'note', logic.mission(s).done || BB.pass.questsReady(s, T) > 0 || BB.pass.claimable(s, T) > 0 || BB.pass.achReady(s) > 0 || BB.album.ready(s) > 0);
     setClass('#btn-daily', 'note', logic.dailyState(s, T).canClaim);
-    // Free crystals: the bubble is there only while some are left today (the shop always has the row).
-    setHidden('#bb-free', !logic.freeCrystalsLeft(s, T));
+    // Free crystals (an ad): the bubble is there only while some are left today, and not in the first quiet minutes.
+    setHidden('#bb-free', !logic.freeCrystalsLeft(s, T) || !BB.offers.nudge(s));
     setClass('#bb-auto', 'active', logic.autoUpOn(s, T) && s.settings.autoUp);
     setClass('#bb-auto', 'locked', !logic.autoUpOn(s, T));
-    const offer = offerNow(s, T);
-    for (const [id] of BUBBLES_R) setHidden('#bb-' + id, offer !== id);
-    setClass('#bb-piggy', 'note', logic.piggyReady(s));
+    offerTick(s, T);
     const buffs = eco.buffState(s, T);
     setClass('#bb-buffs', 'active', buffs.power > 1 || buffs.speed > 1 || buffs.money > 1);
-    // Stuck for 4 minutes with a rebirth worth taking: the Bunny tab glows (and says so once).
-    const rbReady = logic.maxWorld(s) >= 5 && (G().farmSec || 0) >= 240 && eco.REBIRTH.pts(s.stage.maxN) > Math.max(5, s.rb.total * 0.5);
+    // No new stage for 3 minutes with a rebirth worth taking: the Bunny tab glows (and says so once).
+    const rbReady = logic.rebirthHint(s, G().stuckSec || 0);
     setClass('#tab-bunny', 'note', rbReady);
     setClass('#tab-bunny', 'glow', rbReady);
     if (rbReady && !hudCache.rbToast) { hudCache.rbToast = 1; toast(`${ico('moon', 'ico sm')} ${t('rebirth.ready')}`, 'gold'); }
@@ -4844,6 +5248,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   // ---------- simple actions ----------
+  // "Not enough": the toast, and a signal for offers.js (someone who keeps running short may want a pack).
+  function short(cur, where) { toast(t(cur === 'clovers' ? 'toast.noclovers' : 'toast.nocrystals')); BB.track('short', { cur, where }); }
   async function freeCrystals() {
     const s = S();
     if (!logic.freeCrystalsLeft(s, now())) { toast(t('shop.freec.d', { n: logic.FREE_CRYSTALS, left: 0 })); return; }
@@ -4861,10 +5267,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       toast(t(s.settings.autoUp ? 'auto.on' : 'auto.off'));
       return;
     }
-    const v = await dialog({ title: t('shop.autoup'), html: `<p>${t('auto.locked')}</p>`, back: false, buttons: [{ label: t('btn.shop'), value: 'shop', cls: 'berry' }, { label: ico('ad', 'ico sm') + t('auto.trial'), value: 'ad', cls: 'green' }] });
+    // The trial is an ad reward: two a day (logic.AD_CAPS), instant ones with No Ads included.
+    const left = logic.autoTrialLeft(s, now());
+    const trial = left ? [{ label: `<span class="lbl">${t('auto.trial')}</span><span class="cost">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${left}/${logic.AD_CAPS.autoTrial}</span>`, value: 'ad', cls: 'green tall' }] : [];
+    const v = await dialog({ title: t('shop.autoup'), html: `<p>${t(left ? 'auto.locked' : 'auto.notrial')}</p>`, back: false, buttons: [{ label: t('btn.shop'), value: 'shop', cls: 'berry' }, ...trial] });
     if (v === 'shop') openShop('special');
-    if (v === 'ad' && (await BB.ads.rewarded('auto_trial'))) {
-      S().trials.autoUp = now() + 10 * 60e3; S().settings.autoUp = true; toast(t('auto.on'));
+    if (v === 'ad' && logic.autoTrialLeft(S(), now()) && (await BB.ads.rewarded('auto_trial')) && logic.startAutoTrial(S(), now()).ok) {
+      toast(t('auto.on')); G().changed();
     }
   }
   async function exitModeConfirm() {
@@ -4895,9 +5304,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 
   // ---------- shop ----------
   // Free things first, then the best value, then everything else. Nothing here has a fake timer.
+  // A running Club is managed (and cancelled) in Google Play; in the phone app the link opens the Play Store.
+  const CLUB_MANAGE_URL = 'https://play.google.com/store/account/subscriptions?sku=club&package=com.midit.bunnyboom';
+  // Paid rows appear only once offers.js has opened them (not in the first 15 minutes, then one at a time).
+  const paid = (k) => BB.offers.open(S(), k);
   function openShop(focus) {
+    const t0 = Date.now(), buy0 = S().iap.lastBuy;
+    BB.track('shop_open', { from: focus || 'tab' });
     openSheet({
       title: t('shop.title'), cls: 'shop', tab: 'shop', tick: true,
+      onClose: () => BB.track('shop_close', { sec: Math.round((Date.now() - t0) / 1000), bought: S().iap.lastBuy !== buy0 }),
       render(el) {
         const s = S(), T = now();
         const price = (id) => BB.iap.price(id);
@@ -4918,9 +5334,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           ${row({ cls: 'mint', media: ico('crystal', 'ico lg'), title: t('shop.freec'), sub: t('shop.freec.d', { n: logic.FREE_CRYSTALS, left: free }), act: `<button class="btn green" data-act="free" ${free ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}+${logic.FREE_CRYSTALS}</button>` })}
           ${row({ media: ico('calendar', 'ico lg'), title: t('shop.daily'), sub: t('shop.daily.d'), act: `<button class="btn" data-act="daily">${t('open')}</button>` })}
           ${club || sprout ? row({ cls: 'gold', media: ico('club', 'ico lg'), title: t('club.daily'), sub: t('club.daily.d', { n: logic.perkGems(s, T) }), act: `<button class="btn green" data-act="perks" ${perk ? '' : 'disabled'}>${perk ? '+' + logic.perkGems(s, T) : ico('check', 'ico xs')}</button>` }) : ''}
-          ${row({ tag: 'button', attrs: 'data-act="pass"', cls: 'lilac pass-card', media: ico('pass', 'ico lg'), title: t('pass.title', { n: pv.season }), sub: `${t('pass.tier', { n: pv.tier, max: BB.pass.TIERS })} · ${t('pass.ends', { t: timeLeft(pv.endsIn) })}`, act: pv.premium ? ico('check', 'ico sm') : `<span class="btn yellow sm">${price('pass')}</span>` })}
-          ${s.iap.starter || !(s.tut.done.fail || logic.maxWorld(s) >= 5) ? '' : sec(t('shop.starter')) + row({ cls: 'gold', media: spr('pet_3', 'ico lg'), title: t('shop.starter'), sub: t('shop.starter.d'), act: buyBtn('starter') })}
-          ${sec(t('club.title'), club ? t('vip.active', { t: timeLeft(s.club.until - T) }) : '', 'sec-club')}
+          ${row({ tag: 'button', attrs: 'data-act="pass"', cls: 'lilac pass-card', media: ico('pass', 'ico lg'), title: t('pass.title', { n: pv.season }), sub: `${t('pass.tier', { n: pv.tier, max: BB.pass.TIERS })} · ${timer(T + pv.endsIn, 'pass.ends')}`, act: pv.premium ? ico('check', 'ico sm') : paid('pass') ? `<span class="btn yellow sm">${price('pass')}</span>` : `<span class="btn sm">${t('open')}</span>` })}
+          ${s.iap.starter || !paid('starter') ? '' : sec(t('shop.starter')) + row({ cls: 'gold', media: spr('pet_3', 'ico lg'), title: t('shop.starter'), sub: t('shop.starter.d'), act: buyBtn('starter') })}
+          ${!paid('club') && !club ? '' : `${sec(t('club.title'), club ? timer(s.club.until, 'vip.active') : '', 'sec-club')}
           <div class="card plum">
             <div class="perks">
               ${perk1('crystal', t('club.p.gems', { n: logic.CLUB_GEMS }), ico('check', 'ico xs'))}
@@ -4931,15 +5347,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
               ${perk1('calendar', t('vip.offline'), '+4h')}
               ${perk1('magnet', t('club.p.conv'), ico('check', 'ico xs'))}
             </div>
-            <button class="btn wide ${club ? '' : 'green'}" data-act="buy" data-arg="club">${t('club.price', { p: price('club') })}</button>
-            <small class="fine">${t('club.fine')}</small>
-          </div>
-          ${row({ cls: 'mint', media: spr('pet_0', 'ico lg'), title: t('shop.sprout'), sub: t('shop.sprout.d', { now: 100, n: logic.SPROUT_GEMS }), extra: sprout ? `<span><span class="tag">${t('vip.active', { t: timeLeft(s.sprout.until - T) })}</span></span>` : '', act: buyBtn('sprout') })}
-          ${logic.piggyOn(s) ? row({ cls: 'pink', media: ico('piggy', 'ico lg'), title: t('piggy.title'), sub: t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX }), extra: pbar(pig / logic.PIGGY_MAX, `${pig} / ${logic.PIGGY_MAX}`, 'gold'), act: logic.piggyReady(s) ? buyBtn('piggy', 'berry') : `<button class="btn" disabled>${ico('lock', 'ico xs')}</button>` }) : ''}
+            ${club ? `<a class="btn wide" href="${CLUB_MANAGE_URL}" target="_blank" rel="noopener" id="club-manage">${t('club.manage')}</a>` : `<button class="btn wide green" data-act="buy" data-arg="club">${t('club.price', { p: price('club') })}</button>`}
+            <small class="fine">${BB.DEV !== false ? t('club.fine') : t('club.fine.store', { p: price('club') })}</small>
+          </div>`}
+          ${!paid('shop') ? '' : row({ cls: 'mint', media: spr('pet_0', 'ico lg'), title: t('shop.sprout'), sub: t('shop.sprout.d', { now: 100, n: logic.SPROUT_GEMS }), extra: sprout ? `<span><span class="tag">${timer(s.sprout.until, 'vip.active')}</span></span>` : '', act: buyBtn('sprout') })}
+          ${logic.piggyOn(s) && paid('piggy') ? row({ cls: 'pink', media: ico('piggy', 'ico lg'), title: t('piggy.title'), sub: t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX }), extra: pbar(pig / logic.PIGGY_MAX, `${pig} / ${logic.PIGGY_MAX}`, 'gold'), act: logic.piggyReady(s) ? buyBtn('piggy', 'berry') : `<button class="btn" disabled>${ico('lock', 'ico xs')}</button>` }) : ''}
           ${sec(t('warp.title'))}
           <p class="hint">${t('warp.d', { c: fmt.num(eco.incomePerSec(s, T) * 3600) })}</p>
           <div class="draws">${warp(1)}${warp(4)}${warp(12)}</div>
-          ${sec(t('shop.ads'))}
+          ${!paid('shop') ? `<p class="hint">${t('shop.soon')}</p>` : `${sec(t('shop.ads'))}
           ${row({ cls: 'sky', media: ico('ad', 'ico lg'), title: t('shop.noforced'), sub: t('shop.noforced.d'), act: buyBtn('noforced') })}
           ${row({ cls: 'gold', media: ico('skip', 'ico lg'), title: t('shop.noads'), sub: t('shop.noads.d'), act: buyBtn('noads') })}
           ${sec(t('shop.special'), '', 'sec-special')}
@@ -4953,7 +5369,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           <div class="gems">${['skin_carrot', 'skin_golden', 'skin_moon', 'skin_dragon'].map((id) => {
             const sk = BB.skinsData.find((x) => x.id === logic.PRODUCTS[id].skin), has = s.skins.owned.includes(sk.id);
             return `<button class="gem-card skinc" data-act="${has ? '' : 'buy'}" data-arg="${id}"><span class="gart">${spr('bunny_' + sk.id, 'ico lg')}</span><b class="ellip">${esc(i18n.name('skin', sk.id))}</b><small class="bonus">${Object.entries(sk.bonus).map(([k, v]) => `<span class="cost">${ico(k, 'ico xs')}+${v}%</span>`).join('')}</small><span class="btn ${has ? '' : 'green'} sm">${has ? t('owned') : price(id)}</span></button>`;
-          }).join('')}</div>
+          }).join('')}</div>`}
           ${BB.iap.canRestore() ? `<button class="btn wide" data-act="restore">${t('shop.restore')}</button>` : ''}
           ${BB.DEV !== false ? `<p class="hint" style="margin-top:12px">${t('shop.test')}</p>` : ''}`;
         bind(el, {
@@ -4962,7 +5378,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           perks: () => { const r = logic.claimPerks(S(), now()); if (r.ok) { BB.fx.reward({ crystals: r.n }); G().changed(); rerender(); } },
           warp: async (h) => {
             const c = logic.WARP[h];
-            if (S().crystals < c) { toast(t('toast.nocrystals')); return; }
+            if (S().crystals < c) { short('crystals', 'warp'); return; }
             if (!(await confirmDlg(t('warp.title'), t('warp.confirm', { n: h, c: fmt.num(eco.incomePerSec(S(), now()) * h * 3600) })))) return;
             const r = logic.timeWarp(S(), Number(h), now());
             if (r.ok) { BB.fx.reward({ coins: r.coins }); G().statsChanged(); rerender(); }
@@ -4973,12 +5389,66 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       },
     });
   }
-  function openStarter() {
-    dialog({
-      title: t('shop.starter'),
-      html: `<div class="center">${spr('pet_3', 'ico huge')}<p class="inline">${gradeBadge(3)} <b>${esc(i18n.name('pet', 3))}</b></p><p>${t('shop.starter.d')}</p></div>`,
-      buttons: [{ label: t('close'), value: false }, { label: BB.iap.price('starter'), value: true, cls: 'green' }],
-    }).then((v) => v && BB.iap.buy('starter'));
+  // ---------- offers: the one bubble, and at most one pop-up a session; offers.js decides what and when ----------
+  // Each step goes to analytics (docs/ANALYTICS.md, offer funnels): offer_shown → offer_click → iap_start → iap_success.
+  let bubbleNow = null;
+  const bubbleSeen = new Set();
+  const OFFER_ICON = { starter: () => spr('pet_3', 'ico'), piggy: () => ico('piggy'), gems: () => ico('crystal'), noads: () => ico('skip'), club: () => ico('club'), pass: () => ico('pass'), warp: () => ico('warp'), boost: () => ico('power') };
+  const OFFER_TITLE = { starter: 'shop.starter', piggy: 'piggy.title', gems: 'shop.crystals', noads: 'shop.noads', club: 'club.title', pass: 'pass.premium', warp: 'warp.title', boost: 'buff.power' };
+  function offerTick(s, T) {
+    const info = BB.engine.info(), ctx = { mode: info.mode, phase: info.phase, open: BB.ui.isOpen(), coach: !!$('.coach') };
+    const up = BB.offers.step(s);
+    if (up) BB.track('offer_reveal', { surface: up, min: Math.round(s.stats.playSec / 60) });
+    const b = BB.offers.bubble(s, T, ctx), id = b ? b.id : null, el = $('#bb-offer');
+    if (el && id !== (bubbleNow && bubbleNow.id)) {
+      el.innerHTML = id ? `${OFFER_ICON[id]()}<i class="dot"></i>` : '';
+      if (id) { el.dataset.ta = OFFER_TITLE[id]; el.setAttribute('aria-label', t(OFFER_TITLE[id])); }
+      if (id && !bubbleSeen.has(id)) { bubbleSeen.add(id); BB.track('offer_shown', { id, product: b.product || '', surface: 'bubble', why: b.why.join(',') }); }
+    }
+    bubbleNow = b;
+    setHidden('#bb-offer', !id);
+    setClass('#bb-offer', 'note', !!(b && b.note));
+    const p = BB.offers.popup(s, T, ctx);
+    if (p) showOffer(p, 'popup');
+  }
+  function offerCard(o) {
+    const s = S(), T = now();
+    const body = {
+      starter: () => `${spr('pet_3', 'ico huge')}<p class="inline">${gradeBadge(3)} <b>${esc(i18n.name('pet', 3))}</b></p><p>${t('shop.starter.d')}</p>`,
+      piggy: () => `${ico('piggy', 'ico huge')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt} / ${logic.PIGGY_MAX}`, 'gold')}`,
+      gems: () => `${ico('crystal', 'ico huge')}<p class="reward-line">${cost('crystal', o.value.crystals)}</p>${o.ref ? `<p>${t('offer.gems.first', { n: fmt.num(o.ref.crystals) })}</p>` : ''}`,
+      noads: () => `${ico('skip', 'ico huge')}<p>${t('shop.noads.d')}</p>`,
+      club: () => `${ico('club', 'ico huge')}<p>${t('offer.club.d', { n: logic.CLUB_GEMS })}</p><small class="fine">${t('club.fine')}</small>`,
+      pass: () => `${ico('pass', 'ico huge')}<p>${t('pass.premium.d')}</p>`,
+      warp: () => `${ico('warp', 'ico huge')}<p>${t('offer.warp.d', { n: o.hours, c: fmt.num(eco.incomePerSec(s, T) * o.hours * 3600) })}</p>`,
+      boost: () => `${ico('power', 'ico huge')}<p>${t('offer.boost.d')}</p>`,
+    }[o.id]();
+    // A time limit is shown only when it is real and the same for everyone (a pass season, a configured window).
+    const ends = o.ends ? `<p class="muted">${t('pass.ends', { t: timeLeft(o.ends - T) })}</p>` : '';
+    const btn = o.kind === 'iap' ? BB.iap.price(o.product) : o.kind === 'crystals' ? cost('crystal', o.cost) : ico('ad', 'ico sm') + t('buff.add');
+    return { title: t(OFFER_TITLE[o.id]), html: `<div class="center">${body}${ends}</div>`, btn };
+  }
+  async function showOffer(o, surface) {
+    const c = offerCard(o), t0 = Date.now();
+    if (surface === 'popup') BB.track('offer_shown', { id: o.id, product: o.product || '', surface, why: o.why.join(',') });
+    const yes = await dialog({ title: c.title, html: c.html, cls: 'offer', buttons: [{ label: t('offer.later'), value: false }, { label: c.btn, value: true, cls: 'green' }] });
+    const sec = Math.round((Date.now() - t0) / 1000);
+    if (!yes) { BB.track('offer_dismiss', { id: o.id, surface, sec }); return; }
+    BB.track('offer_click', { id: o.id, surface, sec });
+    if (o.kind === 'iap') {
+      if (await buy(o.product)) BB.track('offer_purchase', { id: o.id, product: o.product, price: logic.PRODUCTS[o.product].price });
+    } else if (o.kind === 'crystals') {
+      const r = logic.timeWarp(S(), o.hours, now());
+      if (r.ok) BB.fx.reward({ coins: r.coins }); else short('crystals', 'offer');
+    } else if (await BB.ads.rewarded('offer_boost')) logic.addBuff(S(), o.buff, now());
+    G().statsChanged();
+  }
+  function tapOffer() {
+    const b = bubbleNow;
+    if (!b) return;
+    BB.track('offer_open', { id: b.id });
+    if (b.id === 'piggy' && !logic.piggyReady(S())) openPiggy();
+    else showOffer(b, 'bubble');
   }
 
   // ---------- gacha + merge grid ----------
@@ -5016,7 +5486,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           head = `<div class="eq-row">${b.eq.map((g, i) => eqSlot(i, g)).join('')}</div>`;
         }
         const step = logic.PRODUCTS['step_' + (s.iap.stepUp + 1)];
-        const stepBanner = kind === 'pet' && s.iap.stepUp < 5 ? row({ tag: 'button', attrs: 'data-act="step"', cls: 'gold', media: spr('pet_' + step.pet, 'ico lg'), title: t('step.title'), sub: t('step.text'), act: `<span class="chip">${t('step.value', { n: step.value })}</span>` }) : '';
+        const stepBanner = kind === 'pet' && s.iap.stepUp < 5 && paid('shop') ? row({ tag: 'button', attrs: 'data-act="step"', cls: 'gold', media: spr('pet_' + step.pet, 'ico lg'), title: t('step.title'), sub: t('step.text'), act: `<span class="chip">${t('step.value', { n: step.value })}</span>` }) : '';
         const freeLeft = logic.freeDrawLeft(s, kind, T);
         const gift = kind === 'weapon' && BB.tutorial && BB.tutorial.giftDraw();
         const freeBtn = `<button class="btn tall green" data-act="draw" data-arg="ad:1" ${freeLeft || gift ? '' : 'disabled'}><span class="lbl">${t('draw.free')}</span><span class="cost">${gift || s.iap.noAds ? '' : ico('ad', 'ico sm')}${gift ? '1' : freeLeft + '/' + logic.LIMITS.freeDraw}</span></button>`;
@@ -5092,7 +5562,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       currency = 'free';
     }
     const r = logic.draw(S(), kind, currency, Number(cnt));
-    if (!r.ok) { toast(t(r.err === 'clovers' ? 'toast.noclovers' : r.err === 'full' ? 'draw.full' : 'toast.nocrystals')); return; }
+    if (!r.ok) { if (r.err === 'full') toast(t('draw.full')); else short(r.err === 'clovers' ? 'clovers' : 'crystals', 'draw_' + kind); return; }
     BB.sound.play('draw');
     BB.track('draw', { pool: kind, currency, count: r.items.length, best: Math.max(...r.items) });
     if (BB.tutorial) BB.tutorial.event('draw');
@@ -5268,7 +5738,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           wear: (id) => { S().skins.eq = id; G().changed(); rerender(); BB.sound.play('tap'); },
           buyskin: async (id) => {
             const sk = BB.skinsData.find((x) => x.id === id);
-            if (S().crystals < sk.unlock.crystals) { toast(t('toast.nocrystals')); return; }
+            if (S().crystals < sk.unlock.crystals) { short('crystals', 'skin'); return; }
             if (await confirmDlg(i18n.name('skin', id), `${fmt.num(sk.unlock.crystals)} ${t('res.crystals')}`)) { logic.buySkin(S(), id); S().skins.eq = id; G().statsChanged(); rerender(); BB.sound.play('merge'); }
           },
           shop: () => openShop(),
@@ -5328,7 +5798,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         el.innerHTML = `${row({ cls: 'wood', media: ico('power', 'ico lg'), title: t('buff.all'), act: `<b class="big-num">x3</b>` })}
           <div class="buff-row">${['power', 'speed', 'money'].map((k) => {
             const left = Math.max(0, (s.buffs[k] || 0) - T);
-            return `<div class="buff ${left > 0 ? 'on' : ''}">${ico(k, 'ico lg')}<b>${t('buff.' + k)}</b><small>${t('buff.' + k + '.d', { x: bs.all ? 3 : 2 })}</small><span class="timer">${timeLeft(left)}</span><button class="btn sky" data-act="add" data-arg="${k}">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${t('buff.add')}</button></div>`;
+            return `<div class="buff ${left > 0 ? 'on' : ''}">${ico(k, 'ico lg')}<b>${t('buff.' + k)}</b><small>${t('buff.' + k + '.d', { x: bs.all ? 3 : 2 })}</small><span class="timer">${left > 0 ? timer(s.buffs[k]) : timeLeft(0)}</span><button class="btn sky" data-act="add" data-arg="${k}">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${t('buff.add')}</button></div>`;
           }).join('')}</div><p class="hint" style="margin-top:12px">${t('buff.max')}</p>`;
         bind(el, { add: async (k) => { if (await BB.ads.rewarded('buff_' + k)) { logic.addBuff(S(), k, now()); G().statsChanged(); rerender(); } } });
       },
@@ -5379,7 +5849,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const dayLeft = new Date(new Date(T).setHours(24, 0, 0, 0)) - T;
     el.innerHTML = `${sec(t('mission.title'))}
       ${row({ cls: m.done ? 'done' : 'gold', media: `<span class="qicon">${ico('star', 'ico sm')}</span>`, title: missionText(m), extra: `${pbar(m.progress / m.target, '', 'gold')}<span class="pmeta"><span>${fmt.num(m.progress)} / ${fmt.num(m.target)}</span>${logic.canSkipMission(s, T) ? `<button class="link" data-act="skip">${t('mission.skip')}</button>` : ''}</span>`, act: `<button class="btn ${m.done ? 'green' : ''}" data-act="claim" ${m.done ? '' : 'disabled'}>${cost('crystal', m.reward)}</button>` })}
-      ${sec(t('quests.daily'), timeLeft(dayLeft))}
+      ${sec(t('quests.daily'), timer(T + dayLeft))}
       ${q.daily.map((x) => goalRow({ ...x, title: t('q.' + x.id, { n: fmt.num(x.n) }) }, qa(x))).join('')}
       ${sec(t('quests.weekly'))}
       ${q.weekly.map((x) => goalRow({ ...x, title: t('q.' + x.id, { n: fmt.num(x.n) }) }, qa(x))).join('')}
@@ -5408,13 +5878,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const rows = [];
     for (let tier = 1; tier <= P.TIERS; tier++) rows.push(`<div class="prow ${tier <= v.tier ? 'reached' : ''}"><span class="pnum">${tier}</span>${cell('free', tier)}${cell('prem', tier)}</div>`);
     const ready = P.claimable(s, T);
-    el.innerHTML = `${row({ cls: 'lilac', media: ico('pass', 'ico lg'), title: t('pass.title', { n: v.season }), sub: t('pass.ends', { t: timeLeft(v.endsIn) }), extra: `${pbar(v.tier >= P.TIERS ? 1 : v.inTier / P.XP_TIER, '', 'plum')}<span class="pmeta"><span>${t('pass.tier', { n: v.tier, max: P.TIERS })}</span><span>${v.tier >= P.TIERS ? 'MAX' : v.inTier + ' / ' + P.XP_TIER + ' XP'}</span></span>` })}
+    el.innerHTML = `${row({ cls: 'lilac', media: ico('pass', 'ico lg'), title: t('pass.title', { n: v.season }), sub: timer(T + v.endsIn, 'pass.ends'), extra: `${pbar(v.tier >= P.TIERS ? 1 : v.inTier / P.XP_TIER, '', 'plum')}<span class="pmeta"><span>${t('pass.tier', { n: v.tier, max: P.TIERS })}</span><span>${v.tier >= P.TIERS ? 'MAX' : v.inTier + ' / ' + P.XP_TIER + ' XP'}</span></span>` })}
       <div class="btn-row" style="margin-bottom:12px">
         <button class="btn tall sky" data-act="adxp" ${P.adXpLeft(s, T) ? '' : 'disabled'}><span class="lbl">+${P.XP.ad} XP</span><span class="cost">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${P.adXpLeft(s, T)}/${P.XP.adPerDay}</span></button>
         <button class="btn tall" data-act="tier" ${v.tier < P.TIERS ? '' : 'disabled'}><span class="lbl">${t('pass.buytier')}</span>${cost('crystal', P.TIER_COST)}</button>
       </div>
       ${ready ? `<button class="btn green wide" data-act="all" style="margin-bottom:12px">${t('pass.claimall', { n: ready })}</button>` : ''}
-      ${v.premium ? '' : `<div class="card gold"><p class="row-sub" style="text-align:center;margin-bottom:8px">${t('pass.premium.d')}</p><div class="btn-row"><button class="btn tall yellow" data-act="buy" data-arg="pass"><span class="lbl">${t('pass.premium')}</span>${BB.iap.price('pass')}</button><button class="btn tall berry" data-act="buy" data-arg="pass_plus"><span class="lbl">${t('pass.plus')}</span>${BB.iap.price('pass_plus')}</button></div></div>`}
+      ${v.premium || !paid('pass') ? '' : `<div class="card gold"><p class="row-sub" style="text-align:center;margin-bottom:8px">${t('pass.premium.d')}</p><div class="btn-row"><button class="btn tall yellow" data-act="buy" data-arg="pass"><span class="lbl">${t('pass.premium')}</span>${BB.iap.price('pass')}</button><button class="btn tall berry" data-act="buy" data-arg="pass_plus"><span class="lbl">${t('pass.plus')}</span>${BB.iap.price('pass_plus')}</button></div></div>`}
       <div class="ptrack"><div class="prow head"><span></span><b>${t('pass.free')}</b><b>${t('pass.premium')}</b></div>${rows.join('')}</div>
       <p class="hint" style="margin-top:12px">${t('pass.xp.hint', { d: P.XP.daily, w: P.XP.weekly, b: P.XP.boss })}</p>`;
     bind(el, {
@@ -5432,7 +5902,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         BB.fx.reward(got); G().statsChanged(); rerender();
       },
       adxp: async () => { if (await BB.ads.rewarded('pass_xp')) { const r = P.adXp(S(), now()); if (r) toast(`${ico('pass', 'ico sm')} +${P.XP.ad} XP`, 'gold'); G().changed(); rerender(); } },
-      tier: async () => { if (S().crystals < P.TIER_COST) { toast(t('toast.nocrystals')); return; } if (await confirmDlg(t('pass.buytier'), `${P.TIER_COST} ${t('res.crystals')}`)) { P.buyTier(S(), now()); G().changed(); rerender(); } },
+      tier: async () => { if (S().crystals < P.TIER_COST) { short('crystals', 'pass_tier'); return; } if (await confirmDlg(t('pass.buytier'), `${P.TIER_COST} ${t('res.crystals')}`)) { P.buyTier(S(), now()); G().changed(); rerender(); } },
       buy: async (id, b) => { await buy(id, b); G().changed(); rerender(); },
     });
   }
@@ -5547,16 +6017,20 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         const away = s2.trip.until && s2.trip.until > T;
         const ready = s2.trip.until && s2.trip.until <= T;
         const r = logic.tripReward(s2, T);
+        const speedLeft = logic.tripSpeedLeft(s2, T);
         el.innerHTML = `<div class="mode-hero">${ico('trip', 'ico huge')}</div>
           <div class="mode-text"><p>${t('trip.text')}</p></div>
           <div class="card reward-box"><small>${t('reward')}</small><div>${rewardHtml({ coins: r.coins, crystals: r.crystals, clovers: r.clovers })}</div><small style="margin-top:4px">+25% ${spr('pet_2', 'ico xs')}</small></div>
           <div class="mode-btns">${ready ? `<button class="btn green big" data-act="claim">${t('trip.back')}</button>`
-            : away ? `<span class="timer big" style="text-align:center">${t('trip.away', { t: timeLeft(s2.trip.until - T) })}</span><button class="btn sky" data-act="speed">${s2.iap.noAds ? '' : ico('ad', 'ico sm')}${t('trip.ad')}</button>`
+            : away ? `<span class="timer big" style="text-align:center">${timer(s2.trip.until, 'trip.away')}</span><button class="btn sky" data-act="speed" ${speedLeft ? '' : 'disabled'}>${s2.iap.noAds ? '' : ico('ad', 'ico sm')}${t('trip.ad')} ${speedLeft}/${logic.AD_CAPS.tripSpeed}</button>`
               : logic.maxWorld(s2) < 5 ? `<p class="hint">${t('trip.unlock')}</p>`
                 : `<button class="btn yellow big" data-act="go">${t('trip.go', { t: logic.tripHours(s2, T) + 'h' })}</button>`}</div>`;
         bind(el, {
           go: () => { logic.startTrip(S(), now()); G().changed(); rerender(); },
-          speed: async () => { if (await BB.ads.rewarded('trip_speed')) { S().trip.until -= 3600e3; G().changed(); rerender(); } },
+          speed: async () => {
+            if (!logic.tripSpeedLeft(S(), now())) { toast(t('trip.ad.none')); return; }
+            if ((await BB.ads.rewarded('trip_speed')) && logic.speedTrip(S(), now()).ok) { G().changed(); rerender(); }
+          },
           claim: () => { const res = logic.claimTrip(S(), now()); if (res.ok) { BB.sound.play('win'); BB.fx.reward(res.reward); G().statsChanged(); rerender(); } },
         });
       },
@@ -5586,7 +6060,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           const left = logic.caveLeft(s, T);
           lines = [`<span class="chip">${ico('ticket', 'ico xs')}${t('cave.entries')}: ${left}/${logic.cavePass(s, T) ? eco.CAVE.ticketsPass : eco.CAVE.tickets}</span>`, `<p>${t('cave.text', { s: logic.caveTime(s, T) })}</p>`, `<p class="muted">${t('cave.tip')} ${t('cave.best', { n: s.modes.caveBest })}</p>`];
           reward = `${ico('crystal', 'ico md')}<b>?</b>`;
-          if (!logic.cavePass(s, T)) extra = row({ cls: 'sky', media: ico('ticket', 'ico lg'), title: t('cave.more'), sub: t('cave.passd'), act: `<button class="btn green" data-act="pass">${t('club.title')}</button>` });
+          if (!logic.cavePass(s, T) && paid('club')) extra = row({ cls: 'sky', media: ico('ticket', 'ico lg'), title: t('cave.more'), sub: t('cave.passd'), act: `<button class="btn green" data-act="pass">${t('club.title')}</button>` });
         }
         if (kind !== 'cave') lines.splice(1, 0, `<span class="chip">${ico('ticket', 'ico xs')}${t('mode.fights')}: ${Math.max(0, logic.modeLeft(s, kind, T))}</span>`);
         const sweepable = kind !== 'cave' && (kind === 'raid' ? s.modes.raid : s.modes.boss) > 0;
@@ -5770,7 +6244,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   function tick() {
-    if (sheet && sheet.tick) sheet.render();
+    if (sheet && sheet.tick) tickSheet();
     if (BB.engine.info().mode === 'main') updateNotes();
     if (BB.tutorial) BB.tutorial.tick();
   }
@@ -5779,7 +6253,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     pickSave,
     buildStatic, relabel, updateHud, toast, banner, openSheet, closeSheet, rerender, dialog, confirmDlg, testAd, testPurchase,
     modeResult, offlinePopup, goldenPopup, tick, ico, spr, cost, gradeBadge, itemArt, esc, rewardHtml,
-    openTab, openBunny, openGacha, openAdventure, openQuests, openDaily, openSettings, openStepUp, openShop, itemCard, skinCard, albumFound,
+    openTab, openBunny, openGacha, openAdventure, openQuests, openDaily, openSettings, openStepUp, openShop, showOffer, itemCard, skinCard, albumFound,
     openAlbum: (g) => { if (g) albumGroup = g; openQuests('album'); },
     isOpen: () => !!sheet || !!document.querySelector('#dialogs .overlay'),
     back,
@@ -6382,12 +6856,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       if (got.length) engine.refreshStats();
       if (game.save.stage.world > BB.eco.C.MAX_WORLD) ui.dialog({ title: i18n.t('end.title'), html: `<p>${i18n.t('end.text')}</p>` });
       persist(false);
-      // Rules in logic.INTER: never on day one, 15 min of play first, ≤ 6 a day, none after a purchase.
-      const T = Date.now();
-      if (logic.interstitialOk(game.save, T, { bossWins: ++bossWins, lastInter: lastInterstitial, lastRewarded: BB.ads.lastRewarded || 0 }) && !ui.isOpen()) {
-        lastInterstitial = T;
-        logic.countInterstitial(game.save, T);
-        setTimeout(() => { if (!ui.isOpen()) BB.ads.interstitial(); }, 2400);
+      // Rules in logic.INTER: never on day one, 15 min of play first, past World 10, ≤ 6 a day, none after a purchase.
+      // It is counted when it shows, and it never shows over a panel, in a side mode or once the next boss has begun.
+      if (logic.interstitialOk(game.save, Date.now(), { bossWins: ++bossWins, lastInter: lastInterstitial, lastRewarded: BB.ads.lastRewarded || 0 }) && !ui.isOpen()) {
+        setTimeout(() => {
+          const i = engine.info(), T = Date.now();
+          if (ui.isOpen() || i.mode !== 'main' || ['intro', 'boss', 'bossdie'].includes(i.phase)) return;
+          lastInterstitial = T;
+          logic.countInterstitial(game.save, T);
+          BB.ads.interstitial();
+        }, 2400);
       }
     },
     onBunnyTap: () => BB.extras.bunnyTap(),
@@ -6411,7 +6889,18 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function everySecond() {
     const s = game.save, T = state.gameNow(s);
     s.stats.playSec++;
-    game.farmSec = s.stage.farming && engine.info().mode === 'main' ? (game.farmSec || 0) + 1 : 0;
+    const info = engine.info(), main = info.mode === 'main';
+    // Never stuck (logic.STUCK): seconds of fighting without a kill, and of play without a new stage.
+    const fighting = main && info.phase === 'fight' && !document.hidden;
+    game.quietSec = fighting && s.stats.kills === game.lastKills ? (game.quietSec || 0) + 1 : 0;
+    game.lastKills = s.stats.kills;
+    game.stuckSec = s.stage.maxN !== game.lastMaxN ? 0 : (game.stuckSec || 0) + (main ? 1 : 0);
+    game.lastMaxN = s.stage.maxN;
+    if (fighting && logic.stepBack(s, game.quietSec)) {
+      game.quietSec = 0;
+      engine.startMain();
+      ui.banner(i18n.t('stage.tough'), 'red');
+    }
     if (s.settings.autoUp && logic.autoUpOn(s, T) && engine.info().mode === 'main') {
       if (logic.autoUpgradeTick(s)) engine.refreshStats();
     }
