@@ -67,6 +67,8 @@ img.px, .px { image-rendering: pixelated; image-rendering: crisp-edges; flex: no
 #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; image-rendering: pixelated; }
 #stage-hi { position: absolute; left: 0; top: 0; display: block; pointer-events: none; }
 #app.eco::after { content: ""; position: absolute; inset: 0; background: rgba(20, 10, 30, .35); pointer-events: none; z-index: 1; }
+/* Night mode: a light veil over the panels and sheets too (under toasts), so nothing glares in a dark room. */
+#app.dim::before { content: ""; position: absolute; inset: 0; background: rgba(18, 12, 40, .22); pointer-events: none; z-index: 29; }
 
 .ico { width: 32px; height: 32px; vertical-align: middle; pointer-events: none; }
 .ico.xs { width: 16px; height: 16px; } .ico.sm { width: 20px; height: 20px; } .ico.md { width: 40px; height: 40px; }
@@ -979,7 +981,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'piggy.title': 'Crystal Piggy', 
       'offline.title': 'Welcome back!', 'offline.text': 'Your bunny kept smashing veggies for {t}.', 'offline.x2': 'x2 (ad)',
       'golden.title': 'Golden Carrot!', 'golden.coins': '+{n} coins', 'golden.crystals': '+{n} crystals', 'golden.buff': '{b} for 2 min',
-      'settings.title': 'Settings', 'settings.lang': 'Language', 'settings.sound': "Sounds", 'settings.eco': 'Eco mode (saves battery)', 'settings.save': 'Save', 'settings.export': 'Copy save code', 'settings.import': 'Load save code', 'settings.reset': 'Reset progress', 'settings.reset.confirm': 'Delete all progress and start again from World 1? Purchases stay. The backups above can bring it back, but only until they are replaced (10 min to a day).', 'settings.reset.do': 'Reset', 'settings.copied': 'Save code copied', 'settings.loaded': 'Save loaded', 'settings.bad': 'That code is not a valid save', 'settings.cloud': 'Cloud save: on', 'settings.local': 'Saved on this device',
+      'settings.title': 'Settings', 'settings.lang': 'Language', 'settings.sound': "Sounds", 'settings.eco': 'Eco mode (saves battery)', 'settings.gfx': 'Graphics', 'settings.gfx.auto': 'Auto', 'settings.gfx.high': 'High', 'settings.gfx.low': 'Low', 'settings.sky': 'Time of day', 'settings.sky.day': 'Day', 'settings.sky.clock': 'Clock', 'settings.sky.night': 'Night', 'settings.save': 'Save', 'settings.export': 'Copy save code', 'settings.import': 'Load save code', 'settings.reset': 'Reset progress', 'settings.reset.confirm': 'Delete all progress and start again from World 1? Purchases stay. The backups above can bring it back, but only until they are replaced (10 min to a day).', 'settings.reset.do': 'Reset', 'settings.copied': 'Save code copied', 'settings.loaded': 'Save loaded', 'settings.bad': 'That code is not a valid save', 'settings.cloud': 'Cloud save: on', 'settings.local': 'Saved on this device',
       'on': 'On', 'off': 'Off', 'confirm': 'Confirm',
       // counts: the word follows the number (i18n.tn picks the form by the language's plural rules)
       'n.crystals.one': '{n} crystal', 'n.crystals.few': '{n} crystals', 'n.crystals.many': '{n} crystals', 'n.crystals.other': '{n} crystals',
@@ -1139,7 +1141,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'piggy.title': 'Кришталева скарбничка', 
       'offline.title': 'З поверненням!', 'offline.text': 'Кролик трощив овочі ще {t}.', 'offline.x2': 'x2 (реклама)',
       'golden.title': 'Золота морквина!', 'golden.coins': '+{n} монет', 'golden.crystals': '+{n} кристалів', 'golden.buff': '{b} на 2 хв',
-      'settings.title': 'Налаштування', 'settings.lang': 'Мова', 'settings.sound': "Звуки", 'settings.eco': 'Економ-режим (береже батарею)', 'settings.save': 'Збереження', 'settings.export': 'Скопіювати код збереження', 'settings.import': 'Завантажити код', 'settings.reset': 'Скинути прогрес', 'settings.reset.confirm': 'Видалити весь прогрес і почати знову зі Світу 1? Покупки залишаться. Повернути прогрес можна з резервних копій вище, але лише доки їх не замінять (від 10 хв до доби).', 'settings.reset.do': 'Скинути', 'settings.copied': 'Код скопійовано', 'settings.loaded': 'Збереження завантажено', 'settings.bad': 'Це не схоже на код збереження', 'settings.cloud': 'Хмарне збереження: увімкнено', 'settings.local': 'Збережено на цьому пристрої',
+      'settings.title': 'Налаштування', 'settings.lang': 'Мова', 'settings.sound': "Звуки", 'settings.eco': 'Економ-режим (береже батарею)', 'settings.gfx': 'Графіка', 'settings.gfx.auto': 'Авто', 'settings.gfx.high': 'Висока', 'settings.gfx.low': 'Низька', 'settings.sky': 'Час доби', 'settings.sky.day': 'День', 'settings.sky.clock': 'Годинник', 'settings.sky.night': 'Ніч', 'settings.save': 'Збереження', 'settings.export': 'Скопіювати код збереження', 'settings.import': 'Завантажити код', 'settings.reset': 'Скинути прогрес', 'settings.reset.confirm': 'Видалити весь прогрес і почати знову зі Світу 1? Покупки залишаться. Повернути прогрес можна з резервних копій вище, але лише доки їх не замінять (від 10 хв до доби).', 'settings.reset.do': 'Скинути', 'settings.copied': 'Код скопійовано', 'settings.loaded': 'Збереження завантажено', 'settings.bad': 'Це не схоже на код збереження', 'settings.cloud': 'Хмарне збереження: увімкнено', 'settings.local': 'Збережено на цьому пристрої',
       'on': 'Увімк.', 'off': 'Вимк.', 'confirm': 'Підтвердити',
       'n.crystals.one': '{n} кристал', 'n.crystals.few': '{n} кристали', 'n.crystals.many': '{n} кристалів', 'n.crystals.other': '{n} кристала',
       'n.clovers.one': '{n} конюшина', 'n.clovers.few': '{n} конюшини', 'n.clovers.many': '{n} конюшин', 'n.clovers.other': '{n} конюшини',
@@ -1171,7 +1173,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   if (typeof module === 'object' && module.exports) module.exports = api;
   else (root.BB = root.BB || {}).state = api;
 })(typeof self !== 'undefined' ? self : this, function () {
-  const VERSION = 5;
+  const VERSION = 6;
   const empty = (n) => Array(n).fill(null);
 
   function defaultSave(now = Date.now()) {
@@ -1225,7 +1227,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       // What the offer engine has heard and shown (offers.js): which paid surfaces are open, signal counters, pop-ups.
       offers: { rev: {}, life: {}, fresh: {}, wall: { w: 0, n: 0 }, days: 0, day: '', sessAt: 0, lossAt: 0, shortAt: 0, pop: { sess: 0, day: '', today: 0, at: 0 }, dis: {}, streak: 0, disAt: 0, quick: { day: '', n: 0 }, calmUntil: 0, buying: null },
       unlock: { slot3w: false, slot3p: false },
-      settings: { sound: true, music: true, dayNight: true, eco: false, buyMult: 1, autoUp: false, autoMerge: false, haptics: true, calm: null, notify: false, bigText: false, skipTips: false },
+      settings: { sound: true, music: true, sky: 'day', eco: false, buyMult: 1, autoUp: false, autoMerge: false, haptics: true, calm: null, notify: false, bigText: false, skipTips: false, gfx: 'auto' },
     };
   }
 
@@ -1256,6 +1258,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       const p = s.ads.pending;
       if (p !== undefined && !(p && typeof p === 'object' && typeof p.p === 'string')) s.ads.pending = null;
       if (s.ads.credit !== undefined && (!s.ads.credit || typeof s.ads.credit !== 'object' || Array.isArray(s.ads.credit))) s.ads.credit = {};
+    },
+    // Settings > Graphics: auto picks the detail the phone can carry, high and low pin it.
+    // Settings > Time of day replaces the day-and-night switch: every save starts on Day (night by the clock
+    // surprised players who opened the game late; nobody had chosen it).
+    6: (s) => {
+      if (!s.settings || typeof s.settings !== 'object') return;
+      if (!['auto', 'high', 'low'].includes(s.settings.gfx)) s.settings.gfx = 'auto';
+      delete s.settings.dayNight;
+      s.settings.sky = 'day';
     },
   };
 
@@ -4042,7 +4053,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   let phaseT = 0, bossT = 0, bossTotal = 30, modeCfg = null, modeT = 0;
   let hopOff = 0, shake = 0, nextGolden = 60 + rnd() * 60, tick = 0, introT = 0, crown = null, leapN = 0;
   const INTRO = 0.7, LAND = 0.45, DIE = 0.6;
-  const fx = (n) => (calm ? Math.ceil(n / 2) : n);
+  const fx = (n) => Math.ceil(n * (calm ? 0.5 : 1) * Q.fx);
   const kick = (k) => { if (!calm) shake = Math.max(shake, k); };
   const freeze = (sec) => { if (!calm) stopT = Math.max(stopT, sec); };
   const buzz = (kind) => hooks.haptic && hooks.haptic(kind);
@@ -4572,7 +4583,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     targets = targets.filter((t) => !t.dead || t.fade < 1);
     for (const p of parts) { p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += p.g * dt; }
     parts = parts.filter((p) => p.life > 0);
-    if (parts.length > 220) parts.splice(0, parts.length - 220);
+    if (parts.length > Q.parts) parts.splice(0, parts.length - Q.parts);
     shake = Math.max(0, shake - dt);
   }
 
@@ -4707,9 +4718,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     for (const b of bullets) {
       const x = Math.round(b.x), y = Math.round(b.y), col = art.WEAPON_AMMO[b.g];
       const dx = b.x - b.sx, dy = b.y - b.sy, len = Math.hypot(dx, dy) || 1;
-      lctx.globalAlpha = 0.5; lctx.fillStyle = col;
-      for (let i = 2; i <= 6; i += 2) lctx.fillRect(Math.round(x - dx / len * i), Math.round(y - dy / len * i), 1, 1);
-      lctx.globalAlpha = 1;
+      if (Q.trail) {
+        lctx.globalAlpha = 0.5; lctx.fillStyle = col;
+        for (let i = 2; i <= Q.trail * 2; i += 2) lctx.fillRect(Math.round(x - dx / len * i), Math.round(y - dy / len * i), 1, 1);
+        lctx.globalAlpha = 1;
+      }
       const r = b.crit ? 2 : 1;
       lctx.fillStyle = INK; lctx.fillRect(x - r - 1, y - r, r * 2 + 3, r * 2 + 1); lctx.fillRect(x - r, y - r - 1, r * 2 + 1, r * 2 + 3);
       lctx.fillStyle = col; lctx.fillRect(x - r, y - r, r * 2 + 1, r * 2 + 1);
@@ -4762,7 +4775,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       shakeX = sx; shakeY = sy;
       lo.style.transform = sx || sy ? `translate(${(sx * K) / dpr}px,${(sy * K) / dpr}px)` : '';
     }
-    drawText(coinSpr);
+    // On the lower tiers the numbers move every other frame: each redraw of the full-resolution layer is copied whole.
+    if (++textSkip >= Q.text) { textSkip = 0; drawText(coinSpr); }
   }
 
   // Crisp text on the full-resolution layer. Only the boxes inked last frame are wiped, a frame
@@ -4847,25 +4861,124 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     labels.set(key, lb);
     return lb;
   }
+  // ---------- graphics quality: a phone that struggles gets a lighter garden ----------
+  // Each tier drops what costs a slow phone the most for what it shows least (profiled with the CPU slowed 6x,
+  // docs/PERFORMANCE.md); the last one halves the frame rate. parts: particle cap; fx: share of burst particles;
+  // ambi: drifting pixels and fireflies; clouds: cloud shadows; drops: weather pixels; light: the smallest light
+  // that cuts a pool in the dark; pools: false keeps those pools at that size and reuses the dark layer (only the
+  // lantern is left, so it changes with the hour); trail: pixels behind a bullet; text / hud: the numbers layer
+  // and the HUD are redrawn every n-th frame; fps: frame cap.
+  const TIERS = [
+    { parts: 220, fx: 1, ambi: 1, clouds: true, drops: 1, light: 0, pools: true, trail: 3, text: 1, hud: 1, fps: 60 },
+    { parts: 120, fx: 0.7, ambi: 0.5, clouds: false, drops: 0.5, light: 3, pools: true, trail: 1, text: 1, hud: 1, fps: 60 },
+    { parts: 60, fx: 0.5, ambi: 0, clouds: false, drops: 0.25, light: 30, pools: false, trail: 0, text: 2, hud: 2, fps: 60 },
+    { parts: 60, fx: 0.5, ambi: 0, clouds: false, drops: 0.25, light: 30, pools: false, trail: 0, text: 1, hud: 1, fps: 30 },
+  ];
+  const LOW = 2;
+  let gfx = 'auto', tier = 0, Q = TIERS[0], textSkip = 0, hudSkip = 0;
+  function setTier(t) { tier = Math.max(0, Math.min(TIERS.length - 1, t)); Q = TIERS[tier]; }
+  // An obviously weak phone (4 cores or fewer, 3 GB or less) starts a step or two down and climbs if it can.
+  const weakStart = () => (navigator.hardwareConcurrency <= 4 ? 1 : 0) + (navigator.deviceMemory <= 3 ? 1 : 0);
+  function setGfx(mode, force) {
+    mode = mode === 'high' || mode === 'low' ? mode : 'auto';
+    if (mode === gfx && !force) return;
+    gfx = mode;
+    setTier(gfx === 'high' ? 0 : gfx === 'low' ? LOW : weakStart());
+    aq = aqNew();
+  }
+
+  // Auto: every frame posts itself a message, which runs once the browser has also styled, painted and committed
+  // that frame, so the gap is the frame's whole cost on the main thread (copying a big canvas costs there, not in
+  // our code). Every 2 s the average decides. Over down[tier] of the frame time, or more than late[tier] of the
+  // frames late, is a step down (the step to 30 fps wants more proof). Under up[tier - 1] at the faster tier's
+  // frame rate for 8 s is a step up; a step up that doesn't hold doubles that wait.
+  const AQ = { win: 2000, down: [0.5, 0.6, 0.85], late: [0.1, 0.1, 0.25], up: [0.3, 0.36, 0.64], wait: 8000, waitMax: 240e3, warm: 3000 };
+  const aqNew = (o) => ({ t: performance.now() + AQ.warm, n: 0, cost: 0, late: 0, last: 0, ok: 0, rose: -1e9, wait: AQ.wait, ...o });
+  let aq = aqNew(), costPort = null, lastCost = 0;
+  const curFps = () => Math.min(ecoMode ? 24 : 60, Q.fps);
+  function watch(ts, t0) {
+    if (!costPort) { const ch = new MessageChannel(); ch.port1.onmessage = (e) => frameCost(performance.now() - e.data); costPort = ch.port2; }
+    costPort.postMessage(t0);
+    // A frame that comes half a frame or more after its time is late (a pause or a stall over 250 ms isn't counted).
+    const gap = ts - aq.last;
+    if (aq.last && gap > due * 1.5 + 2 && gap < 250) aq.late++;
+    aq.last = ts;
+  }
+  function frameCost(c) {
+    lastCost = c = Math.min(100, c);
+    if (prof) prof.c.push(c);
+    const now = performance.now();
+    if (now < aq.t) { aq.n = aq.cost = aq.late = 0; return; }
+    aq.n++; aq.cost += c;
+    if (now - aq.t < AQ.win || aq.n < 10) return;
+    const avg = aq.cost / aq.n, load = (avg * curFps()) / 1000, late = aq.late / aq.n;
+    if (gfx === 'auto') {
+      if ((load > AQ.down[tier] || late > AQ.late[tier]) && tier < TIERS.length - 1) {
+        setTier(tier + 1);
+        if (now - aq.rose < AQ.win * 3) aq.wait = Math.min(AQ.waitMax, aq.wait * 2);
+        aq.ok = 0;
+      } else if (tier > 0 && (avg * Math.min(ecoMode ? 24 : 60, TIERS[tier - 1].fps)) / 1000 < AQ.up[tier - 1] && late < 0.05) {
+        aq.ok += now - aq.t;
+        if (aq.ok >= aq.wait) { setTier(tier - 1); aq.rose = now; aq.ok = 0; }
+      } else aq.ok = 0;
+    }
+    aq.load = load; aq.lateShare = late;
+    aq.t = now; aq.n = aq.cost = aq.late = 0;
+  }
+
   // Frame timing for test/perf.e2e.js: profile(n) measures the next n frames.
   let prof = null, frameDt = 0;
+  // Asking for every refresh of a 90/120 Hz screen and skipping some in JS still costs the browser a whole frame
+  // each time (style, commit: on a slow phone, a third of the main thread). Once a refresh has come sooner than our
+  // next frame, that frame is asked for later, from a timer: as long before the refresh it should land on as a
+  // request takes to come back (measured, about one refresh). Every 2 s it asks straight away once more, in case
+  // the screen has slowed down.
+  let vsync = 0, vsyncT = 0, due = 1000 / 60, lag = -1, askedAt = 0;
+  const ask = () => { askedAt = performance.now(); requestAnimationFrame(frame); };
+  function nextFrame(ts) {
+    const now = performance.now();
+    if (vsync && now - vsyncT > 2000) vsync = 0;
+    const k = vsync ? Math.ceil((1000 / curFps() - 2) / vsync) : 1;
+    if (lag < 0 && vsync) lag = vsync;
+    const wait = ts + (k - 0.25) * vsync - lag - now;
+    // due: the gap the next frame should come after (watch() counts it late from half a gap more).
+    due = k > 1 ? k * vsync : 1000 / curFps();
+    if (k > 1 && wait > 1) setTimeout(ask, wait);
+    else { askedAt = 0; requestAnimationFrame(frame); }
+  }
   function frame(ts) {
-    requestAnimationFrame(frame);
-    if (paused) { last = ts; acc = 0; return; }
-    acc += Math.min(0.1, (ts - last) / 1000 || 0);
+    if (askedAt) { lag += (Math.max(0, ts - askedAt) - lag) * 0.1; askedAt = 0; }
+    if (paused) { last = ts; acc = 0; aq.last = 0; requestAnimationFrame(frame); return; }
+    const gap = ts - last;
+    acc += Math.min(0.1, gap / 1000 || 0);
     last = ts;
-    // 90/120 Hz screens still get 60 frames a second (24 in battery saver): pixel art gains nothing, the battery does.
-    if (acc < (ecoMode ? 1 / 24 : 1 / 60) - 0.002) return;
+    // 90/120 Hz screens still get 60 frames a second (24 in battery saver, 30 on the lowest tier): pixel art
+    // gains nothing, the battery does.
+    if (acc < 1 / curFps() - 0.002) {
+      if (gap > 1) { vsync = vsync ? Math.min(vsync, gap) : gap; vsyncT = performance.now(); }
+      requestAnimationFrame(frame);
+      return;
+    }
+    watch(ts, performance.now());
+    nextFrame(ts);
     const dt = Math.min(0.1, acc);
     acc = 0;
     frameDt = dt;
+    const hud = ++hudSkip >= Q.hud;
+    if (hud) hudSkip = 0;
     try {
-      if (!prof) { update(dt); render(); hooks.onFrame(dt); return; }
-      const a = performance.now(); update(dt); const b = performance.now(); render(); const c = performance.now(); hooks.onFrame(dt);
+      if (!prof) { update(dt); render(); if (hud) hooks.onFrame(dt); return; }
+      const a = performance.now(); update(dt); const b = performance.now(); render(); const c = performance.now(); if (hud) hooks.onFrame(dt);
       prof.f.push([b - a, c - b, performance.now() - c]);
       if (prof.f.length >= prof.n) {
         const tot = prof.f.map(([u, r, h]) => u + r + h).sort((x, y) => x - y), avg = (i) => prof.f.reduce((t, f) => t + f[i], 0) / prof.f.length;
-        prof.done({ avg: tot.reduce((t, v) => t + v, 0) / tot.length, p95: tot[Math.floor(tot.length * 0.95)], upd: avg(0), ren: avg(1), hud: avg(2) });
+        // full: the whole frame on the main thread (ours plus the browser's style, paint and commit); rate: frames a second.
+        const full = prof.c.sort((x, y) => x - y);
+        prof.done({
+          avg: tot.reduce((t, v) => t + v, 0) / tot.length, p95: tot[Math.floor(tot.length * 0.95)], upd: avg(0), ren: avg(1), hud: avg(2),
+          full: full.reduce((t, v) => t + v, 0) / Math.max(1, full.length), fullP95: full[Math.floor(full.length * 0.95)] || 0,
+          rate: prof.f.length / ((performance.now() - prof.t0) / 1000), tier,
+        });
         prof = null;
       }
     } catch (e) { console.error(e); }
@@ -4879,17 +4992,20 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     K = Math.max(2, Math.round(devW / TARGET_W));
     W = Math.ceil(devW / K); H = Math.ceil(devH / K);
     // Each art pixel is exactly K device pixels (the world may run up to K-1 past the right and bottom edges,
-    // where #world clips it) and the text layer covers exactly devW x devH, so nothing resamples on fractional densities.
+    // where #world clips it) and the text layer is exactly devW device pixels wide, so nothing resamples on fractional densities.
     lo.width = W; lo.height = H;
     lo.style.width = (W * K) / dpr + 'px'; lo.style.height = (H * K) / dpr + 'px';
-    cv.width = devW; cv.height = devH;
-    cv.style.width = devW / dpr + 'px'; cv.style.height = devH / dpr + 'px';
     inked = []; titleShown = false;
     const toArt = (cssY) => (cssY * dpr) / K;
     const top = document.getElementById('hud');
     const bottom = document.getElementById('bottom-ui');
     fieldTop = Math.round(top ? toArt(top.getBoundingClientRect().bottom - r.top) + 4 : 40);
     fieldBottom = Math.round(bottom ? toArt(bottom.getBoundingClientRect().top - r.top) : H - 70);
+    // The numbers layer ends where the bottom panel starts: no number goes lower, and where the canvas isn't on
+    // the GPU each redraw copies the whole layer (a third of the screen or more less to copy).
+    const hiH = Math.min(devH, Math.ceil((fieldBottom + 8) * K));
+    cv.width = devW; cv.height = hiH;
+    cv.style.width = devW / dpr + 'px'; cv.style.height = hiH / dpr + 'px';
     bunnyX = Math.round(W / 2);
     bunnyY = fieldBottom - 26;
     const cp = document.getElementById('res-coins');
@@ -4968,7 +5084,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function ambience(dt, tile) {
     const cfg = AMBI[tile] || AMBI.meadow;
     if (tile !== ambiTile) { ambiTile = tile; ambi = []; }
-    const want = calm ? Math.ceil(cfg.n / 2) : cfg.n, top = fieldTop - 8;
+    const want = Math.ceil(cfg.n * (calm ? 0.5 : 1) * Q.ambi), top = fieldTop - 8;
+    if (ambi.length > want) ambi.length = want;
     while (ambi.length < want) ambi.push({ x: rnd() * W, y: top + rnd() * (H - top), s: rnd(), t: rnd() * 9, c: cfg.c[ambi.length % cfg.c.length] });
     for (const a of ambi) {
       a.t += dt;
@@ -4983,7 +5100,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       if (a.x > W + 2) a.x = -2; if (a.x < -2) a.x = W + 2;
     }
     // After dark, fireflies come out in every garden.
-    const nf = sk.dark > 0.45 ? (calm ? 4 : 7) : 0;
+    const nf = sk.dark > 0.45 ? Math.ceil((calm ? 4 : 7) * Q.ambi) : 0;
     while (nightFlies.length < nf) nightFlies.push({ x: rnd() * W, y: top + rnd() * (H - top), s: rnd(), t: rnd() * 9 });
     if (nightFlies.length > nf) nightFlies.length = nf;
     for (const a of nightFlies) {
@@ -4994,7 +5111,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     for (const c of clouds) { c.x += c.v * dt; if (c.x > W + 10) { c.x = -70; c.y = fieldTop + 10 + rnd() * (H - fieldTop - 80); } }
   }
   function drawCloudShadows(tile) {
-    if (!clouds || tile === 'cave') return;
+    if (!clouds || tile === 'cave' || !Q.clouds) return;
     lctx.globalAlpha = 0.07 * (1 - Math.min(1, sk.dark * 1.4));
     for (const c of clouds) lctx.drawImage(cloudShape, Math.round(c.x), Math.round(c.y), 112, 44);
     lctx.globalAlpha = 1;
@@ -5020,7 +5137,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     lctx.globalAlpha = 1;
   }
 
-  // ---------- day and night, by the phone's clock ----------
+  // ---------- day and night: always day, always night, or by the phone's clock ----------
   // Keyframes [hour, how far into the dark (0..1), the colour the world is multiplied by at full dark, warm wash,
   // its colour]. Dawn is pink, the golden hour amber, dusk violet, the night deep blue. Multiplying (not
   // painting over) keeps colours rich in the dark; numbers and UI are drawn after it and stay bright.
@@ -5031,14 +5148,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     [19.7, 0.6, [128, 104, 176], 0.06, [255, 120, 96]], [21, 1, [70, 80, 156], 0, [255, 120, 96]],
     [24, 1, [70, 80, 156], 0, [255, 150, 120]],
   ];
-  let clockHour = null, dayNight = true, sk = { dark: 0, col: [0, 0, 0], warm: 0, wcol: [0, 0, 0] };
+  // Settings > Time of day: 'day' (the default) is always noon, 'night' always 11 pm, 'clock' follows the phone.
+  // setClock(h) pins the hour over any of them (screenshots, tests).
+  let clockHour = null, skyMode = 'day', sk = { dark: 0, col: [0, 0, 0], warm: 0, wcol: [0, 0, 0] };
   const lerp = (a, b, k) => a + (b - a) * k;
   // A new player's first run stays in daylight (until World 3 or the second session): an evening start
   // shouldn't open on a dark field. A pinned hour (setClock: screenshots, tests) still shows that hour.
   const firstRun = (s) => (s.stats.maxWorld || 1) < 3 && (s.stats.sessions || 0) < 2;
   function skyNow(s) {
     const d = new Date();
-    const h = !dayNight || (clockHour == null && firstRun(s)) ? 12 : clockHour != null ? clockHour : d.getHours() + d.getMinutes() / 60;
+    const h = clockHour != null ? clockHour : skyMode === 'clock' ? (firstRun(s) ? 12 : d.getHours() + d.getMinutes() / 60) : skyMode === 'night' ? 23 : 12;
     let i = 0;
     while (i < SKY.length - 2 && SKY[i + 1][0] <= h) i++;
     const [h0, d0, c0, w0, wc0] = SKY[i], [h1, d1, c1, w1, wc1] = SKY[i + 1];
@@ -5052,7 +5171,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   // Lights cut soft pixel pools out of the dark: a full hole, then two dithered rings.
   const lights = [], lastLights = [];
-  const light = (x, y, r) => { if (sk.dark > 0.03) lights.push(x, y, r); };
+  // Lower quality tiers keep only the bigger lights (the lantern, muzzle flashes): fewer pools to cut.
+  const light = (x, y, r) => { if (sk.dark > 0.03 && r >= Q.light) lights.push(x, y, r); };
   let nightCv = null, nightG = null;
   function pool(g, cx, cy, r, a) {
     const ry = Math.max(1, Math.round(r * 0.78));
@@ -5361,7 +5481,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function weather(dt, s) {
     const w = weatherOf(s);
     if (!w) { drops = []; return; }
-    const want = calm ? 12 : { night: 10, rain: 40, snow: 30, gold: 14 }[w];
+    const want = Math.ceil((calm ? 12 : { night: 10, rain: 40, snow: 30, gold: 14 }[w]) * Q.drops);
+    if (drops.length > want) drops.length = want;
     while (drops.length < want) drops.push({ x: rnd() * W, y: rnd() * H, s: rnd(), t: rnd() * 6 });
     for (const d of drops) {
       d.t += dt;
@@ -5397,13 +5518,14 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     lo.addEventListener('pointerdown', (e) => tap(e.clientX, e.clientY));
     lastInput = performance.now();
     document.addEventListener('pointerdown', () => { lastInput = performance.now(); }, { capture: true, passive: true });
+    setGfx(gfx, true);
     startMain();
     requestAnimationFrame(frame);
   }
 
   BB.engine = {
     init, resize, startMain, startMode, exitMode, challengeBoss, refreshStats: () => refreshStats(true),
-    setEco: (v) => { ecoMode = v; }, setPaused: (v) => { paused = v; },
+    setEco: (v) => { ecoMode = v; }, setPaused: (v) => { paused = v; if (!v) aq = aqNew({ wait: aq.wait }); },
     weather: () => weatherOf(save()),
     info: () => ({
       mode, phase, bossT, bossTotal, modeT, modeCfg, alive: targets.filter((t) => !t.dead).length, st,
@@ -5413,9 +5535,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     rain: () => ({ charge: rainCharge, ready: rainCharge >= 1 && rainT <= 0 && !rainQueued && mode === 'main', active: rainT > 0 || rainQueued, combo }),
     useRain, fillRain: () => { rainCharge = 1; },
     hurtBoss: (k) => { const b = targets.find((t) => t.type === 'boss'); if (b) b.hp = b.maxHp * k; },
-    profile: (n) => new Promise((done) => { prof = { n, f: [], done }; }),
-    // Day and night follow the clock unless switched off; setClock(h) pins the hour (screenshots, tests).
-    setDayNight: (v) => { dayNight = !!v; }, setClock: (h) => { clockHour = h; }, sky: () => sk,
+    profile: (n) => new Promise((done) => { prof = { n, f: [], c: [], t0: performance.now(), done }; }),
+    // Graphics: 'auto' | 'high' | 'low' (Settings); quality() reports the tier and what the last frames cost.
+    setGfx, quality: () => ({ gfx, tier, fps: curFps(), cost: lastCost, load: aq.load, late: aq.lateShare, wait: aq.wait }),
+    // Tests: start auto from a given tier (no warm-up), or bend a tier's knobs (profiling only).
+    setTier: (t) => { setTier(t); aq = aqNew({ t: performance.now() }); }, tune: (o) => { Q = { ...Q, ...o }; },
+    // Time of day: 'day' | 'clock' | 'night' (Settings); setClock(h) pins the hour (screenshots, tests).
+    setSky: (m) => { skyMode = m === 'clock' || m === 'night' ? m : 'day'; }, setClock: (h) => { clockHour = h; }, sky: () => sk,
     garden: () => ({ flowers: flowers.length, visitor: visitor && visitor.state, yawning: yawnT >= 0, field: [fieldTop, fieldBottom, bunnyX, bunnyY, W, H], phase }),
     visitNow: () => { nextVisit = 0; },
     shinyNow: () => { const t = targets.find((x) => x.type === 'veg' && !x.dead); if (t) { t.shiny = true; if (hooks.onShinySeen) hooks.onShinySeen(); } return !!t; }, yawnNow: () => { lastInput = performance.now() - 40e3; nextYawn = 0; },
@@ -6901,6 +7027,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   });
 
   const toggleRow = (k, label, on) => `<div class="set-row"><span>${label}</span><button class="toggle ${on ? 'on' : ''}" data-act="toggle" data-arg="${k}">${t(on ? 'on' : 'off')}</button></div>`;
+  // One choice of a few: the buttons are labelled settings.<k>.<option>.
+  const segRow = (k, opts, cur) => `<div class="set-row"><span>${t('settings.' + k)}</span><div class="seg">${opts.map((o) => `<button class="${cur === o ? 'on' : ''}" data-act="${k}" data-arg="${o}">${t(`settings.${k}.${o}`)}</button>`).join('')}</div></div>`;
   // Credits: everything in the game is free and open; the bunny at the bottom hops when poked.
   function openAbout() {
     dialog({
@@ -6934,7 +7062,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           <div class="set-row"><span>${t('settings.lang')}</span><div class="seg">${i18n.languages().map((l) => `<button class="${i18n.getLang() === l.code ? 'on' : ''}" data-act="lang" data-arg="${l.code}">${esc(l.name)}</button>`).join('')}</div></div>
           ${toggleRow('music', t('settings.music'), s.settings.music !== false)}
           ${toggleRow('sound', t('settings.sound'), s.settings.sound)}
-          ${toggleRow('dayNight', t('settings.daynight'), s.settings.dayNight !== false)}
+          ${segRow('sky', ['day', 'clock', 'night'], s.settings.sky || 'day')}
+          ${segRow('gfx', ['auto', 'high', 'low'], s.settings.gfx || 'auto')}
           ${toggleRow('eco', t('settings.eco'), s.settings.eco)}
           ${toggleRow('calm', t('settings.calm'), document.getElementById('app').classList.contains('calm'))}
           ${toggleRow('haptics', t('settings.haptics'), s.settings.haptics !== false)}
@@ -6955,6 +7084,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           <p class="version" data-act="ver">Bunny Boom v${BB.VERSION}</p>`;
         bind(el, {
           lang: (l) => { S().lang = l; i18n.setLang(l); relabel(); rerender(); $('.sheet-title', sheet.ov).textContent = t('settings.title'); },
+          gfx: (g) => { S().settings.gfx = g; G().applySettings(); G().changed(); rerender(); },
+          sky: (v) => { S().settings.sky = v; G().applySettings(); G().changed(); rerender(); },
           export: async () => {
             const code = BB.store.encode(S());
             const ta = $('#save-code', el); ta.value = code; ta.select();
@@ -7875,7 +8006,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     BB.haptics.on = st.haptics !== false;
     sound.setSound(st.sound !== false);
     sound.setMusic(st.music !== false);
-    engine.setDayNight(st.dayNight !== false);
+    engine.setSky(st.sky);
+    // Night mode also dims the panels a little, for playing in the dark.
+    document.getElementById('app').classList.toggle('dim', st.sky === 'night');
+    engine.setGfx(st.gfx);
   }
   game.applySettings = applySettings;
 
