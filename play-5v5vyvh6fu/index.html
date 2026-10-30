@@ -284,7 +284,8 @@ a.btn { text-decoration: none; }
 .up-name { font-size: var(--fs-m); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 /* The level is words after the name ("Lv.12"), not a box. */
 .lv { flex: none; font-style: normal; font-size: var(--fs-s); line-height: 1; color: var(--ink2); white-space: nowrap; }
-.up-stat { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--fs-s); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow: hidden; }
+/* Clipped so a long line can't spill, with room inside the clip (padding, cancelled by the margin) for the buy hop. */
+.up-stat { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--fs-s); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow: hidden; padding: var(--s2) 0; margin: calc(var(--s2) * -1) 0; }
 .up-next { font-style: normal; color: var(--leaf-t, #2f7a2f); }
 .up-row.poor .up-next { color: var(--ink2); }
 /* The price key: green (coins buy it); grey with its lip and a meter while you save up (.btn.poor). */
@@ -296,8 +297,11 @@ a.btn { text-decoration: none; }
 @keyframes afford-shine { 40% { opacity: .22; } }
 .up-row.nope { animation: nope .28s var(--ease-out) 1; }
 @keyframes nope { 33% { transform: translateX(calc(var(--p) * -2)); } 66% { transform: translateX(calc(var(--p) * 2)); } }
-.up-row.bump .up-stat b { animation: bump .3s var(--spring); display: inline-block; }
+/* A buy hops the stat from its left edge, a little: grown from the centre it lost its first digit to the clip and
+   ran into the "+9.7%" beside it. */
+.up-row.bump .up-stat b { animation: statbump .3s var(--spring); display: inline-block; transform-origin: 0 100%; }
 @keyframes bump { 40% { transform: translateY(calc(var(--p) * -2)) scale(1.12); } }
+@keyframes statbump { 40% { transform: translateY(calc(var(--p) * -2)) scale(1.06); } }
 /* The hotbar: square slots on the dark board, our own block-slot bar. Only the tabs already reached show, as a
    centred group; every tab is the same width (up to 72 px) with its label under the slot. The lit slot is the panel
    on screen. */
@@ -887,8 +891,11 @@ label.set-row { cursor: pointer; }
 #rain-btn .rain-lbl { position: relative; z-index: 1; font-style: normal; font-size: var(--fs-xs); line-height: 1; color: var(--white); text-shadow: var(--sh1); white-space: nowrap; }
 #rain-btn.ready .rain-lbl { color: var(--gold-t, #ffe07a); }
 #rain-name { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 72px); pointer-events: none; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 0 var(--s1); font-size: var(--fs-s); line-height: 1.4; color: var(--gold-t, #ffe07a); text-shadow: var(--sh1); white-space: nowrap; animation: tin .38s var(--spring); }
-#rain-btn .rain-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; transform-origin: bottom; transform: scaleY(var(--fill, 0)); background: rgba(255, 168, 64, .55); transition: transform .4s var(--ease-out); }
-#rain-btn:not(.ready) .ico { filter: saturate(.5) brightness(.85); }
+/* The meter rises in 5 % steps. It keeps its own layer: promoted for each step's transition and dropped after, it
+   blinked every few seconds while it charged (seen on an iPhone; Safari draws a fresh layer's first frame empty).
+   The carrot waits dimmed with opacity, not a filter: a filtered sibling is redrawn whenever the meter's layer changes. */
+#rain-btn .rain-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; transform-origin: bottom; transform: scaleY(var(--fill, 0)); background: rgba(255, 168, 64, .55); transition: transform .4s var(--ease-out); will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+#rain-btn:not(.ready) .ico { opacity: .7; }
 #rain-btn.ready { animation: rainready 1.4s var(--breathe) infinite; }
 #rain-btn.ready .rain-fill { background: rgba(255, 196, 80, .8); }
 #rain-btn.ready::after { content: ""; position: absolute; inset: 0; background: #fff6c8; opacity: 0; pointer-events: none; animation: afford-shine 1.4s var(--breathe) infinite; }
@@ -1060,6 +1067,7 @@ label.set-row { cursor: pointer; }
 @keyframes nope { 33% { transform: translateX(calc(var(--m) * var(--p) * -2)); } 66% { transform: translateX(calc(var(--m) * var(--p) * 2)); } }
 @keyframes afford { 40% { transform: scale(calc(1 + var(--m) * .04)); } }
 @keyframes bump { 40% { transform: translateY(calc(var(--m) * var(--p) * -2)) scale(calc(1 + var(--m) * .12)); } }
+@keyframes statbump { 40% { transform: translateY(calc(var(--m) * var(--p) * -2)) scale(calc(1 + var(--m) * .06)); } }
 @keyframes fresh { 50% { transform: translateY(calc(var(--m) * var(--p) * -3)); } }
 @keyframes fxhit { 40% { transform: scale(calc(1 + var(--m) * .18)); } }
 @keyframes rainfire { 30% { transform: scale(calc(1 - var(--m) * .12)); } }
