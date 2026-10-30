@@ -1390,12 +1390,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     return s;
   }
   // A count with its word in the right form: `key.one` / `.few` / `.many` / `.other` by the language's plural
-  // rules (1 кристал, 2 кристали, 100 кристалів). `shown` is the number as printed ({n}).
-  function tn(key, n, shown = n) {
+  // rules (1 кристал, 2 кристали, 100 кристалів). `shown` is the number as printed ({n}); `vars` fills the rest.
+  // A shortened number ("1.2K", "3M") is read "1.2 thousand", so its word takes the form a big round number takes
+  // (5 кристалів, 5 kryształów: `many`).
+  function tn(key, n, shown = n, vars) {
     let rule = 'other';
-    try { rule = new Intl.PluralRules(lang).select(n); } catch (e) { /* very old WebView: the general form */ }
+    if (typeof shown === 'string' && /[a-z]$/i.test(shown)) rule = 'many';
+    else try { rule = new Intl.PluralRules(lang).select(n); } catch (e) { /* very old WebView: the general form */ }
     const has = (k) => pick(lang).strings[k] != null || pick(BASE).strings[k] != null;
-    return t(has(`${key}.${rule}`) ? `${key}.${rule}` : `${key}.other`, { n: shown });
+    return t(has(`${key}.${rule}`) ? `${key}.${rule}` : `${key}.other`, { ...vars, n: shown });
   }
   function name(kind, i) {
     const own = pick(lang).names && pick(lang).names[kind];
@@ -1437,7 +1440,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'stage.clear': 'Stage clear!',
       'boss.down': 'Boss defeated!',
       'boss.fail': 'Too slow! Get stronger and try again',
-      'boss.challenge': 'Challenge Boss',
+      'boss.challenge': 'Challenge boss',
       'boss.ready': 'You can win now!',
       'stage.tough': 'Too tough! Farming the stage before', 'stage.retry': 'Try again',
       'hopping': 'Bunny is hopping…',
@@ -1445,7 +1448,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'end.text': 'New worlds are being planted. Rebirth to get stronger meanwhile.',
       'up.power': 'Power', 'up.speed': 'Speed', 'up.money': 'Money', 'up.v.power': '{v} damage', 'up.v.speed': '{v} shots/s', 'up.v.money': '{v} per veggie', 'up.title': 'Upgrades',
       'tab.up': 'Upgrade', 'tab.bunny': 'Bunny', 'tab.gear': 'Blasters', 'tab.pets': "Pets", 'tab.adv': 'Adventure', 'tab.shop': 'Shop',
-      'buy.x1': 'x1', 'buy.x10': 'x10', 'buy.max': 'MAX',
+      'buy.x1': '×1', 'buy.x10': '×10', 'buy.max': 'MAX',
       'btn.shop': 'Shop', 'btn.rebirth': 'Rebirth', 'btn.pet': 'Pets', 'btn.fly': "Butterflies", 'btn.skin': 'Skins', 'btn.gun': 'Blasters',
       'btn.free': 'For an ad', 'btn.auto': 'Auto', 'btn.trip': 'Trip', 'btn.raid': 'Raid', 'btn.boss': 'Boss', 'btn.cave': 'Cave', 'btn.buffs': 'Buffs', 'btn.mission': 'Mission', 'btn.daily': 'Daily', 'btn.piggy': 'Piggy',
       'close': 'Close', 'ok': 'OK', 'cancel': 'Cancel', 'claim': 'Claim', 'locked': 'Locked', 'equip': 'Equip', 'equipped': 'Equipped', 'owned': 'Owned', 'buy': 'Buy', 'back': 'Back', 'start': 'Start', 'challenge': 'Challenge', 'retry': 'Retry', 'exit': 'Exit', 'done': 'Done', 'reward': 'Reward', 'free': 'FREE', 'or': 'or',
@@ -1453,7 +1456,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       // gacha
       'gun.title': 'Blasters', 'gun.drag': 'Drag a blaster to a slot to equip.', 'gun.merge': "Drag two of the same grade together to merge. Hold one to read its card.",
       'pet.title': 'Pets', 'pet.drag': 'Drag a pet to a slot to equip.', 'fly.title': "Butterflies", 'fly.tip': "Butterflies boost Power and critical hits. Merge the same grade; hold one to read its card.",
-      'draw': 'Draw', 'draw10': 'Draw x10', 'draw.free': 'Free draw', 'draw.ad': 'Ad draw', 'draw.epic': 'Epic draw', 'draw.full': 'No free space. Merge first!', 'draw.got': 'You got {name}!', 'draw.result': 'New!',
+      'draw': 'Draw', 'draw10': 'Draw ×10', 'draw.free': 'Free draw', 'draw.ad': 'Ad draw', 'draw.epic': 'Epic draw', 'draw.full': 'No free space. Merge first!', 'draw.got': 'You got {name}!', 'draw.result': 'New!',
       'equipbest': 'Equip best', 'slot.locked': 'Opens at World {w}', 'auto.merge': 'Auto', 'auto.need': "Auto merge comes with the Garden Club",
       'odds': 'Odds', 'odds.title': 'Draw odds', 'odds.text': 'Each draw gives one item. Higher grades come only from merging.',
       'stat.dmg': 'Damage', 'stat.rate': 'Shots/s', 'stat.money': 'Money', 'stat.speed': 'Speed', 'stat.power': 'Power', 'stat.crit': 'Crit chance', 'stat.critdmg': 'Crit damage',
@@ -1461,54 +1464,54 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'skin.title': 'Costumes', 'skin.tip': 'A costume\'s bonus counts even when you wear another one.',
       'skin.u.world': 'Reach World {w}', 'skin.u.rebirths': 'Rebirth ×{n}', 'skin.u.iap': 'In the Shop',
       // rebirth
-      'rb.title': 'Rebirth', 'rb.avail': 'Moonstones you get now', 'rb.do': 'Rebirth', 'rb.super': 'Super Rebirth x3', 'rb.need': 'Reach World 5 to rebirth',
-      'rb.confirm': 'Start again from World 1 with {n} Moonstones? You keep crystals, blasters, pets, butterflies and costumes.',
-      'rb.power': 'Power boost', 'rb.speed': 'Speed boost', 'rb.money': 'Money boost', 'rb.upgrade': 'Upgrade', 'rb.done': 'Reborn! +{n} Moonstones',
+      'rb.title': 'Rebirth', 'rb.avail': 'Moonstones you get now', 'rb.do': 'Rebirth now', 'rb.ups': 'Moonstone upgrades', 'rb.super': 'Super ×3', 'rb.need': 'Reach World 5 to rebirth',
+      'rb.confirm': 'Back to World 1 with {n}? Only coins and coin upgrades reset.',
+      'rb.power': 'Power boost', 'rb.speed': 'Speed boost', 'rb.money': 'Money boost', 'rb.upgrade': 'Upgrade', 'rb.done': 'Reborn! +{n}',
       // buffs
-      'buff.title': 'Buffs', 'buff.all': "Turn on all three and each becomes x3!", 'buff.power': 'Power Buff', 'buff.speed': 'Speed Buff', 'buff.money': 'Money Buff',
-      'buff.power.d': "Damage x{x}", 'buff.speed.d': "Speed x{x}", 'buff.money.d': "Money x{x}", 'buff.add': "+30 min", 'buff.max': "Up to 4 hours each",
+      'buff.title': 'Buffs', 'buff.all': "Turn on all three and each becomes ×3!", 'buff.power': 'Power buff', 'buff.speed': 'Speed buff', 'buff.money': 'Money buff',
+      'buff.power.d': "Damage ×{x}", 'buff.speed.d': "Speed ×{x}", 'buff.money.d': "Money ×{x}", 'buff.add': "+30 min", 'buff.max': "Up to 4 hours each",
       // modes
       'raid.title': 'Slug Raid', 'raid.text': 'Slugs are coming for the carrots! Stop every one of them.', 'raid.lvl': 'Wave {n}', 'raid.tip': 'From wave {w} some slugs wear acorn caps: tap to knock them off!',
-      'tower.title': 'Boss Tower', 'tower.text': 'Defeat the boss within {s} seconds!', 'tower.lvl': 'Lv.{n}',
-      'cave.title': 'Crystal Cave', 'cave.text': 'Mine as many crystals as you can in {s} seconds!', 'cave.tip': 'Every hit counts as 1, whatever the blaster. Tap rocks to dig faster!', 'cave.entries': 'Entries', 'cave.best': 'Best: {n}',
+      'tower.title': 'Boss Tower', 'tower.text.one': 'Defeat the boss within {n} second!', 'tower.text.few': 'Defeat the boss within {n} seconds!', 'tower.text.many': 'Defeat the boss within {n} seconds!', 'tower.text.other': 'Defeat the boss within {n} seconds!', 'tower.lvl': 'Lv.{n}',
+      'cave.title': 'Crystal Cave', 'cave.text.one': 'Mine as many crystals as you can in {n} second!', 'cave.text.few': 'Mine as many crystals as you can in {n} seconds!', 'cave.text.many': 'Mine as many crystals as you can in {n} seconds!', 'cave.text.other': 'Mine as many crystals as you can in {n} seconds!', 'cave.tip': 'Every hit counts as 1, whatever the blaster. Tap rocks to dig faster!', 'cave.entries': 'Entries', 'cave.best': 'Best: {n}',
       'mode.noup': 'Coin upgrades and Rebirth do not apply here.', 'mode.win': 'Victory!', 'mode.timeup': "Time's up!", 'mode.lose': 'Defeat', 'mode.exit.q': 'Leave this fight? It counts as a loss.', 'mode.left': '{n} left', 'mode.time': 'Time',
       'mode.sweep': 'Quick clear', 'mode.sweep.d': 'Collect your best level\'s reward again (once a day)', 'mode.sweep.used': 'Used today', 'mode.noticket': 'No entries left today',
       'cave.more': 'More entries', 'cave.passd': 'Daily Crystal Cave entries become 6',
       // trip
       'trip.title': 'Trip', 'trip.text': 'Send your bunny on a trip and come back with treasure.', 'trip.go': 'Go ({t})', 'trip.away': 'Back in {t}', 'trip.ad': 'Speed up 1h', 'trip.ad.none': 'No more speed-ups today', 'trip.back': 'Your bunny is back!', 'trip.unlock': 'Opens at World 5',
       // shop
-      'shop.title': 'Shop', 'shop.free': 'Gifts and ad rewards', 'shop.freec': 'Crystals for an ad', 'shop.freec.d': 'Watch a short ad: +{n} crystals ({left} left today)',
-      'shop.daily': 'Daily Gift', 'shop.daily.d': 'Log in every day for bigger gifts',
+      'shop.title': 'Shop', 'shop.free': 'Gifts and ad rewards', 'shop.freec': 'Crystals for an ad', 'shop.freec.d': 'Watch a short ad: +{n} ({left} left today)',
+      'shop.daily': 'Daily gift', 'shop.daily.d': 'Log in every day for bigger gifts',
       'shop.starter': 'Starter Egg', 'shop.starter.d': "S-grade pet, 300 crystals and 2 hours of every buff. Once only!",
-      'shop.ads': 'Remove Ads', 'shop.noforced': 'Remove Forced Ads', 'shop.noforced.d': "No more ads between bosses. Rewarded ads stay optional.",
-      'shop.noads': 'Remove All Ads', 'shop.noads.d': "No ads at all: every ad reward is given instantly, forever.",
-      'shop.special': 'Special', 'shop.autoup': 'Auto Upgrade', 'shop.autoup.d': "Power, Speed and Money upgrade themselves. +300 crystals.",
+      'shop.ads': 'Remove ads', 'shop.noforced': 'Remove forced ads', 'shop.noforced.d': "No more ads between bosses. Rewarded ads stay optional.",
+      'shop.noads': 'Remove all ads', 'shop.noads.d': "No ads at all: every ad reward is given instantly, forever.",
+      'shop.special': 'Special', 'shop.autoup': 'Auto upgrade', 'shop.autoup.d': "Power, Speed and Money upgrade themselves. +300 crystals.",
       
       
       'vip.boss': 'Boss time limit', 'vip.offline': 'Offline earnings', 
-      'vip.sweep': 'Quick Clear', 'vip.active': 'Active: {t}',
-      'shop.crystals': 'Crystals', 'shop.first': 'First buy x2', 'shop.skins': 'Costumes',
-      'shop.test': 'Test mode: no real payment is made. In the store build this opens Apple / Google payment.',
-      'shop.locked': "Not available yet", 'shop.unavailable': "The store is not available right now. Try again later.", 'shop.web': "Purchases are only in the Bunny Boom app. Everything else here is free to play.", 'ad.web': "Videos for rewards are only in the Bunny Boom app.", 'save.failed': "Can't save: the device storage is full. Free some space to keep your progress.", 'shop.restore': "Restore purchases", 'shop.restored': "Purchases restored", 'ad.none': "No ad right now, and nothing was used up. Try again in a minute.", 'save.pick.title': "Two saves found", 'save.pick.text': "This device and the cloud have different progress. Which one do you want to keep?", 'save.pick.local': "This device", 'save.pick.remote': "Cloud", 'save.pick.line': "World {w} · {r} rebirths · {h} played", 'settings.backups': "Backups", 'settings.backup.none': "No backups yet", 'settings.backup.load': "Restore", 'settings.backup.confirm': "Go back to this backup? Progress since then will be lost.", 'settings.edited': "This save was changed outside the game.",
+      'vip.sweep': 'Quick clear', 'vip.active': 'Active: {t}',
+      'shop.crystals': 'Crystals', 'shop.first': 'First buy ×2', 'shop.skins': 'Costumes',
+      'shop.test': 'Test build: no money is charged.',
+      'shop.locked': "Not available yet", 'shop.unavailable': "The store is not available right now. Try again later.", 'shop.web': "Purchases aren't available in the browser. Everything else is free to play.", 'ad.web': "Videos for rewards are only in the Bunny Boom app.", 'save.failed': "Can't save: the device storage is full. Free some space to keep your progress.", 'shop.restore': "Restore purchases", 'shop.restored': "Purchases restored", 'ad.none': "No ad right now, and nothing was used up. Try again in a minute.", 'save.pick.title': "Two saves found", 'save.pick.text': "This device and the cloud have different progress. Which one do you want to keep?", 'save.pick.local': "This device", 'save.pick.remote': "Cloud", 'save.pick.line': "World {w} · {r} · {h} played", 'settings.backups': "Backups", 'settings.backup.none': "No backups yet", 'settings.backup.load': "Restore", 'settings.backup.confirm': "Go back to this backup? Progress since then will be lost.", 'settings.edited': "This save was changed outside the game.",
       'leap.title': "Moon Leap!", 'boss.intro': "BOSS!", 'rebirth.ready': "Rebirth ready!",
-      'pity.left': "{g} or better within {n} draws", 'pity.text': "Paid draws only: an x10 always holds an {a} or better, and your {n}th draw at the latest is an {g} or better.",
+      "pity.left.one": "{g} or better within {n} draw", "pity.left.few": "{g} or better within {n} draws", "pity.left.many": "{g} or better within {n} draws", "pity.left.other": "{g} or better within {n} draws", 'pity.text': "Paid draws: every ×10 has an {a} or better, and at least every {n}th draw is an {g} or better.",
       'tut.new': "New: {name}!", 'tut.power': "*Spend coins here* to hit harder", 'tut.hold': "*Hold* to keep buying levels", 'tut.stage': "*Pop 10 veggies* to clear the field", 'tut.boss': "Beat it in {s}s!", 'tut.retry': "Upgrade, then try again", 'tut.gear': "*Open Blasters*: a gift inside", 'tut.freedraw': "*Draw a free blaster*!", 'tut.merge': "*Drag* onto its twin to merge", 'tut.equip': "*Drag it here* to equip", 'pass.tierup': "Garden Pass: tier {n}!",
       'tut.opens.stage': "Opens at stage {s}",
-      'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "Claim {n} crystals each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.manage': "Manage", 'club.fine.store': "Renews monthly at {p} until you cancel. Cancel anytime in Google Play > Payments & subscriptions.", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass\u00a0· Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
+      'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} every day while active", 'club.p.gems': "Claim {n} each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p}/month", 'club.manage': "Manage", 'club.fine.store': "Renews at {p} a month until you cancel in Google Play (Payments & subscriptions).", 'club.fine': "Test build: 30 days, no money is charged.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c}.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead and get {c}?", 'pass.title': "Garden Pass\u00a0· Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "30 more rewards, an SS pet and an SS butterfly. Premium+ adds 10 tiers and +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
       // Seed pick before a Raid or Tower run (seeds.js)
       'seed.title': 'Pick a seed', 'seed.sub': 'One perk for this run only',
       'seed.sharp': 'Sharp seeds', 'seed.sharp.d': '+35% damage', 'seed.quick': 'Quick seeds', 'seed.quick.d': '+30% shots per second',
       'seed.lucky': 'Lucky seeds', 'seed.lucky.d': '+15% crit chance, +50% crit damage', 'seed.time': 'Slow-grow seeds', 'seed.time.d': '+12 seconds',
       'seed.sticky': 'Sticky seeds', 'seed.sticky.d': 'Slugs crawl 30% slower', 'seed.thorny': 'Thorny seeds', 'seed.thorny.d': '+20% damage, +6 seconds',
-      'draw.nofree': "No free draws left today. More tomorrow!", 'mergeall': "Merge all", 'mergeall.none': "Nothing to merge yet", 'mergeall.done': "{n} merges!", 'mode.fights': "Fights today", 'mode.nofights': "No fights left today. Come back tomorrow!", 'mission.skip': "Skip", 'mission.skip.d': "Swap this mission for the next one? No reward. You can skip again in 30 minutes.",
-      'settings.calm': "Calm mode (less shake and flashing)", 'settings.haptics': "Vibration", 'settings.bigtext': "Bigger text", 'settings.skiptips': "Skip tips and tutorial", 'settings.notify': "Reminders", 'promo.title': "Promo code", 'promo.go': "Redeem", 'promo.bad': "That code doesn't work", 'promo.used': "You've already used this code", 'promo.expired': "This code has expired", 'promo.ok': "Code redeemed!", 'share.title': "Show off your garden", 'share.btn': "Share", 'share.world': "World {n} reached!", 'share.rebirth': "{n} rebirths!", 'share.code': "my code: {c}", 'share.cta': "Play Bunny Boom!", 'share.text': "My bunny reached World {n} in Bunny Boom! My code: {c}", 'share.record': "New record!", 'notif.trip.t': "Your bunny is back!", 'notif.trip.b': "The trip is over. Come and see what it brought home.", 'notif.full.t': "The coin bag is full", 'notif.full.b': "Your garden earned all it can while you were away.", 'notif.gift.t': "A gift is waiting", 'notif.gift.b': "Today's daily gift is ready in Bunny Boom.", 'notif.app': "Reminders work in the app from the store.", 'notif.denied': "Notifications are off for Bunny Boom in your phone settings.", 'notif.ask': "Want a reminder when your bunny is back from the trip? Also when the coin bag is full and the daily gift waits.", 'notif.yes': "Remind me", 'notif.no': "Not now", 'notif.on': "Reminders on", 'about.title': "About", 'about.text': "Bunny Boom is a cosy idle shooter made with free tools only.", 'about.font': "Font: Handjet by Rosetta Type (SIL Open Font License).", 'about.art': "Every sprite is drawn by code in the game's own art scripts.", 'about.skills': "Pixel tools: pixel-art-studio (MIT). Feel and UX guides: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Made with love for bunnies and vegetables.", 'about.secret': "The bunny likes you!", 'privacy.title': "Privacy", 'privacy.ads': "Ad choices", 'privacy.text': "Your progress is saved on this phone. The game does not ask for your name, email or location and keeps no account.", 'privacy.more': "The store version shows ads (Google AdMob) and handles purchases through Google Play / App Store; they get the data their own policies describe. Delete the app to delete your save.", 'privacy.full': "Full privacy policy", 'egg.sneeze': "Achoo! The bunny sneezed out coins", 'egg.fluff': "500 pats! The bunny loves you", 'egg.dev': "You found the developer's secret garden!", 'egg.goldslug': "Golden slug!", 'egg.fib': "World {n}: a Fibonacci bunny!", 'egg.easter': "Happy Easter from the garden!", 'egg.moon': "Full moon tonight. The moon rabbits are watching!", 'egg.night': "It's 3 a.m. The bunny is sleepy… and so are you?",
+      'draw.nofree': "No free draws left today. More tomorrow!", 'mergeall': "Merge all", 'mergeall.none': "Nothing to merge yet", "mergeall.done.one": "{n} merge!", "mergeall.done.few": "{n} merges!", "mergeall.done.many": "{n} merges!", "mergeall.done.other": "{n} merges!", 'mode.fights': "Fights today", 'mode.nofights': "No fights left today. Come back tomorrow!", 'mission.skip': "Skip", 'mission.skip.d': "Swap this mission for the next one? No reward. You can skip again in 30 minutes.",
+      'settings.calm': "Calm mode (less shake and flashing)", 'settings.haptics': "Vibration", 'settings.bigtext': "Bigger text", 'settings.skiptips': "Skip tips and tutorial", 'settings.notify': "Reminders", 'promo.title': "Promo code", 'promo.go': "Redeem", 'promo.bad': "That code doesn't work", 'promo.used': "You've already used this code", 'promo.expired': "This code has expired", 'promo.ok': "Code redeemed!", 'share.title': "Show off your garden", 'share.btn': "Share", 'share.world': "World {n} reached!", 'share.rebirth': "{n}!", 'share.code': "my code: {c}", 'share.cta': "Play Bunny Boom!", 'share.text': "My bunny reached World {n} in Bunny Boom! My code: {c}", 'share.record': "New record!", 'notif.trip.t': "Your bunny is back!", 'notif.trip.b': "The trip is over. Come and see what it brought home.", 'notif.full.t': "The coin bag is full", 'notif.full.b': "Your garden earned all it can while you were away.", 'notif.gift.t': "A gift is waiting", 'notif.gift.b': "Today's daily gift is ready in Bunny Boom.", 'notif.app': "Reminders work in the app from the store.", 'notif.denied': "Notifications are off for Bunny Boom in your phone settings.", 'notif.ask': "Want a reminder when your bunny is back from the trip? Also when the coin bag is full and the daily gift waits.", 'notif.yes': "Remind me", 'notif.no': "Not now", 'notif.on': "Reminders on", 'about.title': "About", 'about.text': "Bunny Boom is a cosy idle shooter made with free tools only.", 'about.font': "Font: Handjet by Rosetta Type (SIL Open Font License).", 'about.art': "Every sprite is drawn by code in the game's own art scripts.", 'about.skills': "Pixel tools: pixel-art-studio (MIT). Feel and UX guides: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Made with love for bunnies and vegetables.", 'about.secret': "The bunny likes you!", 'privacy.title': "Privacy", 'privacy.ads': "Ad choices", 'privacy.text': "Progress stays on this phone until you delete the app. No account, and no name, email or location.", 'privacy.more': "The store app shows Google AdMob ads and sells through Google Play or the App Store, under their own privacy policies.", 'privacy.full': "Full privacy policy", 'egg.sneeze': "Achoo! The bunny sneezed out coins", 'egg.fluff': "500 pats! The bunny loves you", 'egg.dev': "You found the developer's secret garden!", 'egg.goldslug': "Golden slug!", 'egg.fib': "World {n}: a Fibonacci bunny!", 'egg.easter': "Happy Easter from the garden!", 'egg.moon': "Full moon tonight. The moon rabbits are watching!", 'egg.night': "It's 3 a.m. The bunny is sleepy… and so are you?",
       'hb.up': "Upgrade", 'hb.bunny': "Bunny", 'hb.gear': "Blasters", 'hb.pets': "Pets", 'hb.adv': "Adventure", 'hb.shop': "Shop",
       'settings.music': "Music",
       'settings.daynight': "Day & night (your clock)", 'goal.flowers': "Plant flowers ×{n}", 'card.dmg': "Damage per shot", 'card.rate': "Shots per second", 'card.dps': "Damage per second", 'card.money': "Coins", 'card.speed': "Blaster speed", 'card.power': "Power", 'card.crit': "Crit chance", 'card.critdmg': "Crit damage", 'card.merge': "Merge two:", 'card.top': "The top grade. Nothing beats it.", 'card.base': "Base numbers, before upgrades and boosts.", 'card.flyall': "Every butterfly in the meadow counts.", 'card.have': "You have: {n}",
       'card.hold': "Hold a costume to see it up close.",
       'tut.garden': "Tap open ground and a flower grows",
       'install.title': "Install on your iPhone", 'install.ios': "In Safari tap Share, then \"Add to Home Screen\". The game opens full screen, works offline, and your garden is kept safe.", 'install.short': "Tip: Share, then Add to Home Screen, and your garden is kept safe",
-      'album.title': "Album", 'album.p.veggies': "Veggies", 'album.p.shiny': "Shiny veggies", 'album.p.bosses': "Giants", 'album.p.flowers': "Flowers", 'album.p.visitors': "Visitors", 'album.p.blasters': "Blasters", 'album.p.pets': "Pets", 'album.p.flies': "Butterflies", 'album.p.costumes': "Costumes", 'album.g.garden': "Field", 'album.g.wild': "Wild", 'album.g.collection': "Collection", 'album.found': "Found {n} of {m}", 'album.bonus': "Finished pages: +{p}% coins for good", 'album.intro': "Everything you meet goes here. Finish a page for a lasting bonus.", 'album.boss': "Giant {name}", 'album.shiny': "Shiny {name}", 'album.seen': "Seen ×{n}", 'album.new': "New in the album: {name}", 'album.newn': "{n} new in the album", 'album.newtag': "NEW", 'album.page.done': "Page complete!", 'album.page.reward': "+{g} crystals and +{p}% coins for good", 'album.shiny.got': "Shiny {name}! ×10 coins", 'album.h.biome': "Grows in {b}", 'album.h.shiny': "Very rare. Look closely in {b}", 'album.h.boss': "The giant of {b}", 'album.h.flower': "Plant one in {b}", 'album.h.rare': "Now and then a flower in {b} opens in a rare colour", 'album.h.v.lemon': "Visits by day, anywhere", 'album.h.v.sky': "By day, in the meadow, the greenhouse and the snow", 'album.h.v.peach': "At dawn and at dusk", 'album.h.v.moth': "Only at night", 'album.h.v.glow': "At night, in the mushroom woods, the swamp and the moon garden", 'album.h.v.royal': "Rare. Any time, anywhere. Lucky you!", 'album.h.gear': "From the egg in Blasters", 'album.h.pet': "From the egg in Pets", 'album.h.fly': "From the egg in Butterflies", 'album.h.skin': "Costumes are in the Bunny tab",
+      'album.title': "Album", 'album.p.veggies': "Veggies", 'album.p.shiny': "Shiny veggies", 'album.p.bosses': "Giants", 'album.p.flowers': "Flowers", 'album.p.visitors': "Visitors", 'album.p.blasters': "Blasters", 'album.p.pets': "Pets", 'album.p.flies': "Butterflies", 'album.p.costumes': "Costumes", 'album.g.garden': "Field", 'album.g.wild': "Wild", 'album.g.collection': "Collection", 'album.found': "Found {n} of {m}", 'album.bonus': "Finished pages: +{p}% coins for good", 'album.intro': "Everything you meet goes here. Finish a page for a lasting bonus.", 'album.boss': "Giant {name}", 'album.shiny': "Shiny {name}", 'album.seen': "Seen ×{n}", 'album.new': "New in the album: {name}", 'album.newn': "{n} new in the album", 'album.newtag': "NEW", 'album.page.done': "Page complete!", 'album.page.reward': "+{g} and +{p}% coins for good", 'album.shiny.got': "Shiny {name}! ×10 coins", 'album.h.biome': "Grows in {b}", 'album.h.shiny': "Very rare. Look closely in {b}", 'album.h.boss': "The giant of {b}", 'album.h.flower': "Plant one in {b}", 'album.h.rare': "Now and then a flower in {b} opens in a rare colour", 'album.h.v.lemon': "Visits by day, anywhere", 'album.h.v.sky': "By day, in the meadow, the greenhouse and the snow", 'album.h.v.peach': "At dawn and at dusk", 'album.h.v.moth': "Only at night", 'album.h.v.glow': "At night, in the mushroom woods, the swamp and the moon garden", 'album.h.v.royal': "Rare. Any time, anywhere. Lucky you!", 'album.h.gear': "From the egg in Blasters", 'album.h.pet': "From the egg in Pets", 'album.h.fly': "From the egg in Butterflies", 'album.h.skin': "Costumes are in the Bunny tab",
       'rain.name': "Carrot Rain", 'tut.rain': "Carrot Rain is ready: tap!",
       'boss.help': "Help, friends!",
       'tut.tapveg': "*Tap a veggie* to help your squad",
@@ -1524,7 +1527,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'tip.new_pets.free': "*Hatch a free pet*: more coins and speed",
       'tip.new_clovers': "*Clovers* hatch new pets",
       'tip.new_adv': "*Adventure*: win clovers and crystals",
-      'tip.new_buffs': "*Buffs*: x2 power, speed or coins",
+      'tip.new_buffs': "*Buffs*: ×2 power, speed or coins",
       'tip.new_fly': "*Butterflies*, in Pets: each adds power",
       'tip.new_cave': "*Crystal Cave*: break rocks for crystals",
       'tip.new_auto': "*Auto upgrade* buys upgrades for you",
@@ -1542,11 +1545,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'biome.next': "Next: {b}",
       'rain.go': "Tap!", 'rain.banner': "Carrot Rain!", 'rain.dmg': "{n} damage",
       'tip.tapVeg': "*The squad aims* where you tap",
-      'tip.tapBoss': "*Tap fast*: combos deal up to x2 damage",
+      'tip.tapBoss': "*Tap fast*: combos deal up to ×2 damage",
       'tip.boss': "*Beat the boss* before the timer ends",
       'tip.bossWin': "*New world!* Tougher veggies, more coins",
       'tip.bossFail': "*Upgrade a bit*, then challenge the boss here",
-      'tip.shiny': "*Shiny veggie!* Pop it for 10× coins",
+      'tip.shiny': "*Shiny veggie!* Pop it for ×10 coins",
       'tip.golden': "*Catch golden carrots* for prizes",
       'tip.plant': "*+{n} crystals* when a new kind blooms",
       'tip.bloom': "*Plant {n} flowers* for a Goals reward",
@@ -1559,29 +1562,29 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.failed': "The purchase didn't go through. Please try again.", 'shop.restore.none': "Nothing to restore: this store account has no purchases that are kept for good.",
       'shop.pending': 'Payment pending', 'shop.pending.d': "The store hasn't confirmed this payment yet. Your purchase arrives by itself as soon as it does.",
       'shop.soon': "Packs and passes open up as you play.", 'offer.later': "Not now", 'offer.gems.first': "First buy of this pack is doubled (usually {n}).",
-      'offer.club.d': "+{n} crystals to claim every day, no forced ads, boss time x2, more cave entries, Raid & Tower rewards x2.",
-      'offer.warp.d': "Skip ahead: {n} h of income right now, +{c} coins.", 'offer.boost.d': "Watch a short ad for Damage x2 for 30 minutes. Only if you want to.",
-      'step.title': 'Step Up!', 'step.text': 'Buy pets and grow stronger!', 'step.n': 'STEP {n}', 'step.lock': 'Unlocks after Step {n}', 'step.value': 'x{n} value', 'step.go': 'Go to Shop',
+      'offer.club.d': "{n} every day, no forced ads, ×2 boss time and ×2 Raid and Tower rewards.",
+      'offer.warp.d': "Skip ahead: {n} h of income right now, +{c}.", 'offer.boost.d': "Watch a short ad for ×2 damage for 30 minutes. Only if you want to.",
+      'step.title': 'Step Up!', 'step.text': 'Buy pets and grow stronger!', 'step.n': 'Step {n}', 'step.lock': 'Unlocks after Step {n}', 'step.value': '×{n} value', 'step.go': 'Go to Shop',
       // ads
-      'ad.title': 'Advertisement', 'ad.test': 'Test ad. The store build shows a real video ad here.', 'ad.skip': 'Skip in {n}', 'ad.close': 'Get reward', 'ad.vip': 'Ad skipped (No Ads)', 'ad.broken': "The ad broke, but the reward is yours.", 'ad.credit': "You already watched this ad: the reward comes without one.", 'ad.recovered': "Your ad reward from last time", 'ad.recovered.credit': "Last time's ad counts: your next draw or x3 rebirth needs no ad.", 'pass.season': "This season: {d} days, through {date}", 'pass.season.long': "This season: through {date}", 'pass.premium.season': "Premium is for this season only: {d} days, through {date}. The next season starts free again.", 'pass.premium.season.long': "Premium is for this season only, through {date}. The next season starts free again.",
+      'ad.title': 'Advertisement', 'ad.test': 'Test ad. The store build shows a real video ad here.', 'ad.skip': 'Skip in {n}', 'ad.close': 'Get reward', 'ad.vip': 'Ad skipped (ads removed)', 'ad.broken': "The ad broke, but the reward is yours.", 'ad.credit': "You already watched this ad: the reward comes without one.", 'ad.recovered': "Your ad reward from last time", 'ad.recovered.credit': "Last time's ad counts: your next draw or ×3 rebirth needs no ad.", 'pass.season': "This season: {d}, through {date}", 'pass.season.long': "This season: through {date}", 'pass.premium.season': "For this season only: {d}, through {date}.", 'pass.premium.season.long': "For this season only, through {date}.",
       // missions & daily
       'mission.title': 'Mission', 'mission.claim': 'Claim',
-      'm.world': 'Reach World {n}', 'm.upgrades': 'Buy {n} upgrades', 'm.kills': 'Smash {n} veggies', 'm.draws': 'Draw {n} times', 'm.merges': 'Merge {n} times', 'm.raid': 'Clear Raid wave {n}', 'm.tower': 'Beat Boss Tower Lv.{n}', 'm.caves': 'Visit the Crystal Cave {n} times', 'm.rebirths': 'Rebirth ×{n}', 'm.bosses': 'Defeat {n} bosses', 'm.golden': 'Catch {n} golden carrots',
-      'daily.title': 'Daily Gift', 'daily.day': 'Day {n}', 'daily.claimed': 'Come back tomorrow!',
+      'm.world': 'Reach World {n}', 'm.upgrades': 'Buy upgrades ×{n}', 'm.kills': 'Smash veggies ×{n}', 'm.draws': 'Draw ×{n}', 'm.merges': 'Merge ×{n}', 'm.raid': 'Clear Raid wave {n}', 'm.tower': 'Beat Boss Tower Lv.{n}', 'm.caves': 'Visit the Crystal Cave ×{n}', 'm.rebirths': 'Rebirth ×{n}', 'm.bosses': 'Beat bosses ×{n}', 'm.golden': 'Catch golden carrots ×{n}',
+      'daily.title': 'Daily gift', 'daily.day': 'Day {n}', 'daily.claimed': 'Come back tomorrow!',
       // misc
       'piggy.title': 'Crystal Piggy', 
-      'offline.title': 'Welcome back!', 'offline.text': 'Your bunny kept smashing veggies for {t}.', 'offline.x2': 'x2 (ad)',
-      'golden.title': 'Golden Carrot!', 'golden.coins': '+{n} coins', 'golden.crystals': '+{n} crystals', 'golden.buff': '{b} for 2 min',
-      'settings.title': 'Settings', 'settings.lang': 'Language', 'settings.sound': "Sounds", 'settings.eco': 'Eco mode (saves battery)', 'settings.gfx': 'Graphics', 'settings.gfx.auto': 'Auto', 'settings.gfx.high': 'High', 'settings.gfx.low': 'Low', 'settings.sky': 'Time of day', 'settings.sky.day': 'Day', 'settings.sky.clock': 'Clock', 'settings.sky.night': 'Night', 'settings.save': 'Save', 'settings.export': 'Copy save code', 'settings.import': 'Load save code', 'settings.reset': 'Reset progress', 'settings.reset.confirm': 'Delete all progress and start again from World 1? Purchases stay. The backups above can bring it back, but only until they are replaced (10 min to a day).', 'settings.reset.do': 'Reset', 'settings.copied': 'Save code copied', 'settings.loaded': 'Save loaded', 'settings.bad': 'That code is not a valid save', 'settings.cloud': 'Cloud save: on', 'settings.local': 'Saved on this device',
-      'settings.g.sound': 'Sound', 'settings.g.comfort': 'Comfort', 'settings.g.more': 'More',
+      'offline.title': 'Welcome back!', 'offline.text': 'Your bunny kept smashing veggies for {t}.', 'offline.x2': '×2',
+      'golden.title': 'Golden carrot!', 'golden.coins': '+{n} coins', 'golden.crystals': '+{n} crystals', 'golden.buff': '{b} for 2 min',
+      'settings.title': 'Settings', 'settings.lang': 'Language', 'settings.sound': "Sounds", 'settings.eco': 'Eco mode (saves battery)', 'settings.gfx': 'Graphics', 'settings.gfx.auto': 'Auto', 'settings.gfx.high': 'High', 'settings.gfx.low': 'Low', 'settings.sky': 'Time of day', 'settings.sky.day': 'Day', 'settings.sky.clock': 'Clock', 'settings.sky.night': 'Night', 'settings.save': 'Save', 'settings.export': 'Copy save code', 'settings.import': 'Load save code', 'settings.reset': 'Reset progress', 'settings.reset.confirm': 'Delete all progress and start from World 1? Purchases stay. A backup can undo it for a while.', 'settings.reset.do': 'Reset', 'settings.copied': 'Save code copied', 'settings.loaded': 'Save loaded', 'settings.bad': 'That code is not a valid save', 'settings.cloud': 'Cloud save: on', 'settings.local': 'Saved on this device',
+      'settings.g.sound': 'Sound', 'settings.g.general': 'General', 'settings.g.comfort': 'Comfort', 'settings.g.more': 'More',
       'on': 'On', 'off': 'Off', 'confirm': 'Confirm',
       // counts: the word follows the number (i18n.tn picks the form by the language's plural rules)
       'n.crystals.one': '{n} crystal', 'n.crystals.few': '{n} crystals', 'n.crystals.many': '{n} crystals', 'n.crystals.other': '{n} crystals',
-      'n.clovers.one': '{n} clover', 'n.clovers.few': '{n} clovers', 'n.clovers.many': '{n} clovers', 'n.clovers.other': '{n} clovers',
+      'n.clovers.one': '{n} clover', 'n.clovers.few': '{n} clovers', 'n.clovers.many': '{n} clovers', 'n.clovers.other': '{n} clovers', 'n.coins.one': '{n} coin', 'n.coins.few': '{n} coins', 'n.coins.many': '{n} coins', 'n.coins.other': '{n} coins', 'n.rp.one': '{n} moonstone', 'n.rp.few': '{n} moonstones', 'n.rp.many': '{n} moonstones', 'n.rp.other': '{n} moonstones', 'n.rebirths.one': '{n} rebirth', 'n.rebirths.few': '{n} rebirths', 'n.rebirths.many': '{n} rebirths', 'n.rebirths.other': '{n} rebirths', 'n.days.one': '{n} day', 'n.days.few': '{n} days', 'n.days.many': '{n} days', 'n.days.other': '{n} days',
       'time.d': '{n}d',
       'toast.nocoins': 'Not enough coins', 'toast.nocrystals': 'Not enough crystals', 'toast.noclovers': 'Not enough clovers', 'toast.saved': 'Saved',
-      'rb.reborn': 'Reborn!', 'rb.fresh': 'A fresh start in World 1', 'rb.next': 'Next rebirth: +{n} Moonstones', 'rb.next.x': 'up to x{x} power',
-      'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto Upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min', 'auto.notrial': "Today's two free trials are used. Auto Upgrade is in the Shop.",
+      'rb.reborn': 'Reborn!', 'rb.fresh': 'A fresh start in World 1', 'rb.next': 'Next rebirth: +{n}', 'rb.next.x': 'up to ×{x} power',
+      'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min', 'auto.notrial': "Today's two free trials are used. Auto upgrade is in the Shop.",
       // the garden's tricksters (foes.js): first-time tips, event banners, little words over the field
       'tip.foe_runner': "*Pop the radish* before it runs off",
       'tip.foe_armor': "*Tap the pot* until it cracks",
@@ -1624,7 +1627,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       squad: ['Button', 'Sage', 'Nutmeg'],
       squadbio: ["Small and fluffy, with the bravest heart in the valley.", "Talks to seedlings. Says they talk back.", "Can fix any blaster with a spoon and some string."],
       boss: { cabbage: 'King Cabbage', pumpkin: 'Granny Pumpkin', tomato: 'Sir Tomato', mushroom: 'Old Shroom', corn: 'General Cob', turnip: 'Baron Turnip', eggplant: 'Count Eggplant', onion: 'Queen Onion' },
-      skin: { classic: 'Classic', farmer: 'Farmer', scout: 'Scout', chef: 'Chef', sailor: 'Sailor', knight: 'Knight', nurse: 'Nurse', police: 'Officer', detective: 'Detective', witch: 'Witch', ballerina: 'Ballerina', pirate: 'Pirate', astronaut: 'Astronaut', ninja: 'Ninja', samurai: 'Samurai', wizard: 'Wizard', angel: 'Angel', devil: 'Devil', king: 'King', queen: 'Queen', golden: 'Golden', moon: 'Moon Bunny', dragon: 'Dragon', carrot: 'Carrot' },
+      skin: { classic: 'Classic', farmer: 'Farmer', scout: 'Scout', chef: 'Chef', sailor: 'Sailor', knight: 'Knight', nurse: 'Nurse', police: 'Officer', detective: 'Detective', witch: 'Witch', ballerina: 'Ballerina', pirate: 'Pirate', astronaut: 'Astronaut', ninja: 'Ninja', samurai: 'Samurai', wizard: 'Wizard', angel: 'Angel', devil: 'Devil', king: 'King', queen: 'Queen', golden: 'Golden', moon: 'Moon', dragon: 'Dragon', carrot: 'Carrot' },
     },
   };
 });
@@ -1655,8 +1658,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'end.title': 'Ти дійшов до краю городу!',
       'end.text': 'Нові світи ще садимо. А поки роби Переродження, щоб стати сильнішим.',
       'up.power': 'Сила', 'up.speed': 'Швидкість', 'up.money': 'Гроші', 'up.title': 'Качай',
-      'tab.up': 'Качай', 'tab.bunny': 'Кролик', 'tab.gear': 'Зброя', 'tab.pets': "Звірі", 'tab.adv': 'Мандри', 'tab.shop': 'Лавка', 'up.v.power': '{v} шкоди', 'up.v.speed': '{v} пострілів/с', 'up.v.money': '{v} за овоч',
-      'buy.x1': 'x1', 'buy.x10': 'x10', 'buy.max': 'МАКС',
+      'tab.up': 'Качай', 'tab.bunny': 'Кролик', 'tab.gear': 'Зброя', 'tab.pets': "Звірі", 'tab.adv': 'Мандри', 'tab.shop': 'Лавка', 'up.v.power': '{v} шкоди', 'up.v.speed': '{v} постр./с', 'up.v.money': '{v} за овоч',
+      'buy.x1': '×1', 'buy.x10': '×10', 'buy.max': 'МАКС',
       'btn.shop': 'Лавка', 'btn.rebirth': 'Відродж.', 'btn.pet': 'Звірі', 'btn.fly': "Метелики", 'btn.skin': 'Костюми', 'btn.gun': 'Бластери',
       'btn.free': "За рекламу", 'btn.auto': 'Авто', 'btn.trip': 'Подорож', 'btn.raid': 'Набіг', 'btn.boss': 'Бос', 'btn.cave': 'Печера', 'btn.buffs': 'Бафи', 'btn.mission': 'Місія', 'btn.daily': 'Подарунок', 'btn.piggy': 'Скарбничка',
       'close': 'Закрити', 'ok': 'Гаразд', 'cancel': 'Скасувати', 'claim': 'Забрати', 'locked': 'Закрито', 'equip': 'Вдягнути', 'equipped': 'Вдягнуто', 'owned': 'Є', 'buy': 'Купити', 'back': 'Назад', 'start': 'Старт', 'challenge': 'В бій', 'retry': 'Ще раз', 'exit': 'Вийти', 'done': 'Готово', 'reward': 'Нагорода', 'free': 'БЕЗКОШТОВНО', 'or': 'або',
@@ -1669,19 +1672,19 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'stat.dmg': 'Шкода', 'stat.rate': 'Постр./с', 'stat.money': 'Гроші', 'stat.speed': 'Швидкість', 'stat.power': 'Сила', 'stat.crit': 'Шанс крит.', 'stat.critdmg': 'Крит. шкода',
       'skin.title': 'Костюми', 'skin.tip': 'Бонус костюма діє, навіть коли вдягнений інший.',
       'skin.u.world': 'Дійди до Світу {w}', 'skin.u.rebirths': 'Переродись ×{n}', 'skin.u.iap': 'У Лавці',
-      'rb.title': 'Переродження', 'rb.avail': 'Отримаєш Місячних каменів', 'rb.do': 'Переродитись', 'rb.super': 'Супер x3', 'rb.need': 'Дійди до Світу 5, щоб переродитись',
-      'rb.confirm': 'Почати знову зі Світу 1 і отримати {n} Місячних каменів? Кристали, бластери, улюбленці, метелики й костюми залишаться.',
-      'rb.power': 'Посилення сили', 'rb.speed': 'Посилення швидкості', 'rb.money': 'Посилення грошей', 'rb.upgrade': 'Покращити', 'rb.done': 'Переродження! +{n} Місячних каменів',
-      'buff.title': 'Бафи', 'buff.all': "Увімкни всі три — і кожен стане x3!", 'buff.power': 'Баф сили', 'buff.speed': 'Баф швидкості', 'buff.money': 'Баф грошей',
-      'buff.power.d': "Шкода x{x}", 'buff.speed.d': "Швидкість x{x}", 'buff.money.d': "Гроші x{x}", 'buff.add': "+30 хв", 'buff.max': "До 4 годин кожен",
+      'rb.title': 'Переродження', 'rb.avail': 'Отримаєш місячних каменів', 'rb.do': 'Переродитись', 'rb.ups': 'Покращення за місячні камені', 'rb.super': 'Супер ×3', 'rb.need': 'Дійди до Світу 5, щоб переродитись',
+      'rb.confirm': 'Почати зі Світу 1 і отримати {n}? Скинуться лише монети та їхні покращення.',
+      'rb.power': 'Посилення сили', 'rb.speed': 'Посилення швидкості', 'rb.money': 'Посилення грошей', 'rb.upgrade': 'Покращити', 'rb.done': 'Переродження! +{n}',
+      'buff.title': 'Бафи', 'buff.all': "Увімкни всі три — і кожен стане ×3!", 'buff.power': 'Баф сили', 'buff.speed': 'Баф швидкості', 'buff.money': 'Баф грошей',
+      'buff.power.d': "Шкода ×{x}", 'buff.speed.d': "Швидкість ×{x}", 'buff.money.d': "Гроші ×{x}", 'buff.add': "+30 хв", 'buff.max': "До 4 годин кожен",
       'raid.title': 'Набіг слимаків', 'raid.text': 'Слимаки повзуть по моркву! Зупини кожного.', 'raid.lvl': 'Хвиля {n}', 'raid.tip': 'З {w}-ї хвилі деякі слимаки в жолудевих шапочках: збий їх дотиком!',
-      'tower.title': 'Вежа босів', 'tower.text': 'Переможи боса за {s} секунд!', 'tower.lvl': 'Рів.{n}',
-      'cave.title': 'Кришталева печера', 'cave.text': 'Добудь якомога більше кристалів за {s} секунд!', 'cave.tip': 'Кожен удар рахується як 1, хоч би який бластер. Натискай на камені, щоб копати швидше!', 'cave.entries': 'Входи', 'cave.best': 'Рекорд: {n}',
+      'tower.title': 'Вежа босів', 'tower.text.one': 'Переможи боса за {n} секунду!', 'tower.text.few': 'Переможи боса за {n} секунди!', 'tower.text.many': 'Переможи боса за {n} секунд!', 'tower.text.other': 'Переможи боса за {n} секунди!', 'tower.lvl': 'Рів.{n}',
+      'cave.title': 'Кришталева печера', 'cave.text.one': 'Добудь якомога більше кристалів за {n} секунду!', 'cave.text.few': 'Добудь якомога більше кристалів за {n} секунди!', 'cave.text.many': 'Добудь якомога більше кристалів за {n} секунд!', 'cave.text.other': 'Добудь якомога більше кристалів за {n} секунди!', 'cave.tip': 'Кожен удар рахується як 1, хоч би який бластер. Натискай на камені, щоб копати швидше!', 'cave.entries': 'Входи', 'cave.best': 'Рекорд: {n}',
       'mode.noup': 'Покращення за монети й Переродження тут не діють.', 'mode.win': 'Перемога!', 'mode.timeup': 'Час вийшов!', 'mode.lose': 'Поразка', 'mode.exit.q': 'Вийти з бою? Це зарахується як поразка.', 'mode.left': 'Залишилось {n}', 'mode.time': 'Час',
       'mode.sweep': 'Швидка зачистка', 'mode.sweep.d': 'Забрати нагороду найкращого рівня ще раз (раз на день)', 'mode.sweep.used': 'Вже сьогодні', 'mode.noticket': 'Сьогодні входів більше немає',
       'cave.more': 'Більше входів', 'cave.passd': 'Щодня 6 входів у Кришталеву печеру',
       'trip.title': 'Подорож', 'trip.text': 'Відправ кролика в подорож — він повернеться зі скарбами.', 'trip.go': 'В путь ({t})', 'trip.away': 'Повернеться за {t}', 'trip.ad': 'Пришвидшити на 1 год', 'trip.ad.none': 'На сьогодні прискорень більше немає', 'trip.back': 'Кролик повернувся!', 'trip.unlock': 'Відкриється у Світі 5',
-      'shop.title': 'Лавка', 'shop.free': 'Подарунки й нагороди за рекламу', 'shop.freec': 'Кристали за рекламу', 'shop.freec.d': 'Переглянь рекламу: +{n} кристалів (сьогодні ще {left})',
+      'shop.title': 'Лавка', 'shop.free': 'Подарунки й нагороди за рекламу', 'shop.freec': 'Кристали за рекламу', 'shop.freec.d': 'Переглянь рекламу: +{n} (сьогодні ще {left})',
       'shop.daily': 'Щоденний подарунок', 'shop.daily.d': 'Заходь щодня — подарунки більшають',
       'shop.starter': 'Стартове яйце', 'shop.starter.d': "Улюбленець S, 300 кристалів і 2 години всіх бафів. Лише раз!",
       'shop.ads': 'Без реклами', 'shop.noforced': 'Прибрати примусову рекламу', 'shop.noforced.d': "Більше ніякої реклами між босами. Реклама за нагороди лишається за бажанням.",
@@ -1691,28 +1694,28 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       
       'vip.boss': 'Час на боса', 'vip.offline': 'Офлайн-дохід', 
       'vip.sweep': 'Швидка зачистка', 'vip.active': 'Діє: {t}',
-      'shop.crystals': 'Кристали', 'shop.first': "Вперше x2", 'shop.skins': 'Костюми',
-      'shop.test': 'Тестовий режим: справжньої оплати немає. У версії з магазину тут відкриється оплата Apple / Google.',
-      'shop.locked': "Поки недоступно", 'shop.unavailable': "Магазин зараз недоступний. Спробуй пізніше.", 'shop.web': "Покупки є лише в застосунку Bunny Boom. Усе інше тут безкоштовне.", 'ad.web': "Відео за нагороди є лише в застосунку Bunny Boom.", 'save.failed': "Не вдається зберегти: пам'ять пристрою заповнена. Звільни місце, щоб не втратити прогрес.", 'shop.restore': "Відновити покупки", 'shop.restored': "Покупки відновлено", 'ad.none': "Реклами зараз немає, і нічого не витрачено. Спробуй за хвилину.", 'save.pick.title': "Знайдено два збереження", 'save.pick.text': "На цьому пристрої і в хмарі різний прогрес. Яке залишити?", 'save.pick.local': "Цей пристрій", 'save.pick.remote': "Хмара", 'save.pick.line': "Світ {w} · перероджень: {r} · у грі {h}", 'settings.backups': "Резервні копії", 'settings.backup.none': "Копій ще немає", 'settings.backup.load': "Відновити", 'settings.backup.confirm': "Повернутися до цієї копії? Прогрес після неї зникне.", 'settings.edited': "Це збереження змінили поза грою.",
+      'shop.crystals': 'Кристали', 'shop.first': "Вперше ×2", 'shop.skins': 'Костюми',
+      'shop.test': 'Тестова збірка: гроші не списуються.',
+      'shop.locked': "Поки недоступно", 'shop.unavailable': "Магазин зараз недоступний. Спробуй пізніше.", 'shop.web': "У браузері покупки недоступні. Решта гри безкоштовна.", 'ad.web': "Відео за нагороди є лише в застосунку Bunny Boom.", 'save.failed': "Не вдається зберегти: пам'ять пристрою заповнена. Звільни місце, щоб не втратити прогрес.", 'shop.restore': "Відновити покупки", 'shop.restored': "Покупки відновлено", 'ad.none': "Реклами зараз немає, і нічого не витрачено. Спробуй за хвилину.", 'save.pick.title': "Знайдено два збереження", 'save.pick.text': "На цьому пристрої і в хмарі різний прогрес. Яке залишити?", 'save.pick.local': "Цей пристрій", 'save.pick.remote': "Хмара", 'save.pick.line': "Світ {w} · {r} · у грі {h}", 'settings.backups': "Резервні копії", 'settings.backup.none': "Копій ще немає", 'settings.backup.load': "Відновити", 'settings.backup.confirm': "Повернутися до цієї копії? Прогрес після неї зникне.", 'settings.edited': "Це збереження змінили поза грою.",
       'leap.title': "Місячний стрибок!", 'boss.intro': "БОС!", 'rebirth.ready': "Можна переродитися!",
-      'pity.left': "{g} або краще не пізніше ніж за {n} спроб", 'pity.text': "Лише платні спроби: у x10 завжди є {a} або краще, а не пізніше ніж {n}-та спроба дає {g} або краще.",
+      "pity.left.one": "{g} або краще не пізніше ніж за {n} спробу", "pity.left.few": "{g} або краще не пізніше ніж за {n} спроби", "pity.left.many": "{g} або краще не пізніше ніж за {n} спроб", "pity.left.other": "{g} або краще не пізніше ніж за {n} спроби", 'pity.text': "Платні спроби: серед 10 штук завжди є {a} або краще, а щонайменше кожна {n}-та дає {g} або краще.",
       'tut.new': "Нове: {name}!", 'tut.power': "*Витрачай монети тут*, щоб бити сильніше", 'tut.hold': "*Затисни* — купуй рівень за рівнем", 'tut.stage': "*Розбий 10 овочів* — і поле пройдено", 'tut.boss': "Здолай за {s} с!", 'tut.retry': "Прокачайся і спробуй ще", 'tut.gear': "*Відкрий «Зброю»*: там подарунок", 'tut.freedraw': "*Витягни бластер* — задарма!", 'tut.merge': "*Перетягни* на такий самий, щоб об'єднати", 'tut.equip': "*Перетягни сюди*, щоб вдягнути", 'pass.tierup': "Садовий пропуск: рівень {n}!",
       'tut.opens.stage': "Відкриється на етапі {s}",
-      'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "Забирай {n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автооб'єднання, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється щомісяця за {p}, доки не скасуєш. Скасувати можна будь-коли: Google Play > Платежі й підписки.", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск\u00a0· Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Об'єднай ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Об'єднай ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
+      'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} щодня, поки діє", 'club.p.gems': "Забирай {n} щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автооб'єднання, швидка зачистка, короткі подорожі", 'club.price': "{p}/місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється за {p} на місяць, доки не скасуєш у Google Play (Платежі й підписки).", 'club.fine': "Тестова збірка: 30 днів без оплати.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c}.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год: +{c}?", 'pass.title': "Садовий пропуск\u00a0· Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Ще 30 нагород, улюбленець SS і метелик SS. Преміум+ додає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Об'єднай ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Об'єднай ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
       // Вибір насіння перед набігом чи вежею (seeds.js)
       'seed.title': 'Обери насіння', 'seed.sub': 'Одна перевага лише на цей бій',
       'seed.sharp': 'Гостре насіння', 'seed.sharp.d': '+35% шкоди', 'seed.quick': 'Швидке насіння', 'seed.quick.d': '+30% пострілів за секунду',
       'seed.lucky': 'Щасливе насіння', 'seed.lucky.d': '+15% шансу криту, +50% крит. шкоди', 'seed.time': 'Повільне насіння', 'seed.time.d': '+12 секунд',
       'seed.sticky': 'Липке насіння', 'seed.sticky.d': 'Слимаки повзуть на 30% повільніше', 'seed.thorny': 'Колюче насіння', 'seed.thorny.d': '+20% шкоди, +6 секунд',
-      'draw.nofree': "Безкоштовні спроби на сьогодні скінчились. Завтра будуть ще!", 'mergeall': "Об'єднати", 'mergeall.none': "Поки нічого об'єднувати", 'mergeall.done': "Об'єднань: {n}!", 'mode.fights': "Боїв сьогодні", 'mode.nofights': "Бої на сьогодні скінчились. Повертайся завтра!", 'mission.skip': "Пропустити", 'mission.skip.d': "Замінити це завдання наступним? Без нагороди. Наступний пропуск — за 30 хвилин.",
-      'settings.calm': "Спокійний режим (менше трусіння і спалахів)", 'settings.haptics': "Вібрація", 'settings.skiptips': "Без підказок і навчання", 'settings.bigtext': "Більший текст", 'settings.notify': "Нагадування", 'promo.title': "Промокод", 'promo.go': "Застосувати", 'promo.bad': "Цей код не працює", 'promo.used': "Ти вже використав цей код", 'promo.expired': "Строк дії коду минув", 'promo.ok': "Код застосовано!", 'share.title': "Похвалитися городом", 'share.btn': "Поділитися", 'share.world': "Дійшов до Світу {n}!", 'share.rebirth': "Перероджень: {n}!", 'share.code': "мій код: {c}", 'share.cta': "Грай у Bunny Boom!", 'share.text': "Мій кролик дійшов до Світу {n} у Bunny Boom! Мій код: {c}", 'share.record': "Новий рекорд!", 'notif.trip.t': "Кролик повернувся!", 'notif.trip.b': "Подорож скінчилась. Подивись, що він приніс.", 'notif.full.t': "Мішок з монетами повний", 'notif.full.b': "Город заробив усе, що міг, поки тебе не було.", 'notif.gift.t': "На тебе чекає подарунок", 'notif.gift.b': "Сьогоднішній подарунок у Bunny Boom уже готовий.", 'notif.app': "Нагадування працюють у застосунку з магазину.", 'notif.denied': "Сповіщення для Bunny Boom вимкнені в налаштуваннях телефону.", 'notif.ask': "Нагадати, коли кролик повернеться з подорожі? А ще коли мішок з монетами повний і чекає щоденний подарунок.", 'notif.yes': "Нагадати", 'notif.no': "Не зараз", 'notif.on': "Нагадування увімкнено", 'about.title': "Про гру", 'about.text': "Bunny Boom — затишний idle-шутер, зроблений лише безкоштовними інструментами.", 'about.font': "Шрифт: Handjet від Rosetta Type (SIL Open Font License).", 'about.art': "Кожен спрайт намальований кодом у власних арт-скриптах гри.", 'about.skills': "Піксельні інструменти: pixel-art-studio (MIT). Поради щодо відчуття гри й UX: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Зроблено з любов'ю до кроликів і овочів.", 'about.secret': "Кролик тебе любить!", 'privacy.title': "Приватність", 'privacy.ads': "Вибір реклами", 'privacy.text': "Прогрес зберігається на цьому телефоні. Гра не питає ім'я, пошту чи місцезнаходження і не створює акаунтів.", 'privacy.more': "Версія з магазину показує рекламу (Google AdMob), а покупки проходять через Google Play / App Store; вони отримують дані, описані в їхніх власних правилах. Видали гру — і збереження зникне.", 'privacy.full': "Повна політика конфіденційності", 'egg.sneeze': "Апчхи! Кролик вичхнув монети", 'egg.fluff': "500 погладжувань! Кролик тебе обожнює", 'egg.dev': "Ти знайшов таємний город розробника!", 'egg.goldslug': "Золотий слимак!", 'egg.fib': "Світ {n}: кролик Фібоначчі!", 'egg.easter': "З Великоднем! Вітання з городу!", 'egg.moon': "Сьогодні повня. Місячні кролики дивляться!", 'egg.night': "Третя ночі. Кролик сонний… а ти?",
+      'draw.nofree': "Безкоштовні спроби на сьогодні скінчились. Завтра будуть ще!", 'mergeall': "Об'єднати", 'mergeall.none': "Поки нічого об'єднувати", "mergeall.done.one": "{n} об'єднання!", "mergeall.done.few": "{n} об'єднання!", "mergeall.done.many": "{n} об'єднань!", "mergeall.done.other": "{n} об'єднання!", 'mode.fights': "Боїв сьогодні", 'mode.nofights': "Бої на сьогодні скінчились. Повертайся завтра!", 'mission.skip': "Пропустити", 'mission.skip.d': "Замінити це завдання наступним? Без нагороди. Наступний пропуск — за 30 хвилин.",
+      'settings.calm': "Спокійний режим (менше трусіння і спалахів)", 'settings.haptics': "Вібрація", 'settings.skiptips': "Без підказок і навчання", 'settings.bigtext': "Більший текст", 'settings.notify': "Нагадування", 'promo.title': "Промокод", 'promo.go': "Застосувати", 'promo.bad': "Цей код не працює", 'promo.used': "Ти вже використав цей код", 'promo.expired': "Строк дії коду минув", 'promo.ok': "Код застосовано!", 'share.title': "Похвалитися городом", 'share.btn': "Поділитися", 'share.world': "Дійшов до Світу {n}!", 'share.rebirth': "{n}!", 'share.code': "мій код: {c}", 'share.cta': "Грай у Bunny Boom!", 'share.text': "Мій кролик дійшов до Світу {n} у Bunny Boom! Мій код: {c}", 'share.record': "Новий рекорд!", 'notif.trip.t': "Кролик повернувся!", 'notif.trip.b': "Подорож скінчилась. Подивись, що він приніс.", 'notif.full.t': "Мішок з монетами повний", 'notif.full.b': "Город заробив усе, що міг, поки тебе не було.", 'notif.gift.t': "На тебе чекає подарунок", 'notif.gift.b': "Сьогоднішній подарунок у Bunny Boom уже готовий.", 'notif.app': "Нагадування працюють у застосунку з магазину.", 'notif.denied': "Сповіщення для Bunny Boom вимкнені в налаштуваннях телефону.", 'notif.ask': "Нагадати, коли кролик повернеться з подорожі? А ще коли мішок з монетами повний і чекає щоденний подарунок.", 'notif.yes': "Нагадати", 'notif.no': "Не зараз", 'notif.on': "Нагадування увімкнено", 'about.title': "Про гру", 'about.text': "Bunny Boom — затишний idle-шутер, зроблений лише безкоштовними інструментами.", 'about.font': "Шрифт: Handjet від Rosetta Type (SIL Open Font License).", 'about.art': "Кожен спрайт намальований кодом у власних арт-скриптах гри.", 'about.skills': "Піксельні інструменти: pixel-art-studio (MIT). Поради щодо відчуття гри й UX: awesome-gamedev-agent-skills (Apache-2.0).", 'about.made': "Зроблено з любов'ю до кроликів і овочів.", 'about.secret': "Кролик тебе любить!", 'privacy.title': "Приватність", 'privacy.ads': "Вибір реклами", 'privacy.text': "Прогрес — на цьому телефоні, доки є гра. Ні акаунта, ні імені, пошти чи геолокації.", 'privacy.more': "Версія з магазину показує рекламу Google AdMob і продає через Google Play або App Store за їхніми правилами приватності.", 'privacy.full': "Повна політика конфіденційності", 'egg.sneeze': "Апчхи! Кролик вичхнув монети", 'egg.fluff': "500 погладжувань! Кролик тебе обожнює", 'egg.dev': "Ти знайшов таємний город розробника!", 'egg.goldslug': "Золотий слимак!", 'egg.fib': "Світ {n}: кролик Фібоначчі!", 'egg.easter': "З Великоднем! Вітання з городу!", 'egg.moon': "Сьогодні повня. Місячні кролики дивляться!", 'egg.night': "Третя ночі. Кролик сонний… а ти?",
       'hb.up': "Качай", 'hb.bunny': "Кролик", 'hb.gear': "Зброя", 'hb.pets': "Звірі", 'hb.adv': "Мандри", 'hb.shop': "Лавка",
       'settings.music': "Музика",
       'settings.daynight': "День і ніч (за годинником)", 'goal.flowers': "Посади квіти ×{n}", 'card.dmg': "Шкода за постріл", 'card.rate': "Пострілів за секунду", 'card.dps': "Шкода за секунду", 'card.money': "Монети", 'card.speed': "Швидкість бластерів", 'card.power': "Сила", 'card.crit': "Шанс криту", 'card.critdmg': "Шкода криту", 'card.merge': "Об'єднай два:", 'card.top': "Найвищий грейд. Вище нічого немає.", 'card.base': "Базові числа, до прокачок і посилень.", 'card.flyall': "Рахується кожен метелик на лузі.", 'card.have': "У тебе: {n}",
       'card.hold': "Затисни костюм, щоб роздивитися його.",
       'tut.garden': "Тапни по вільній землі — і виросте квітка",
       'install.title': "Встанови на iPhone", 'install.ios': "У Safari натисни «Поділитися», потім «На екран „Додому“». Гра відкриватиметься на весь екран, працюватиме без інтернету, а твій сад точно збережеться.", 'install.short': "Порада: «Поділитися» і «На екран „Додому“» — і сад збережеться",
-      'album.title': "Альбом", 'album.p.veggies': "Овочі", 'album.p.shiny': "Сяйливі овочі", 'album.p.bosses': "Велетні", 'album.p.flowers': "Квіти", 'album.p.visitors': "Гості", 'album.p.blasters': "Бластери", 'album.p.pets': "Звірі", 'album.p.flies': "Метелики", 'album.p.costumes': "Костюми", 'album.g.garden': "Поле", 'album.g.wild': "Природа", 'album.g.collection': "Колекція", 'album.found': "Знайдено {n} з {m}", 'album.bonus': "Завершені сторінки: назавжди +{p}% монет", 'album.intro': "Сюди потрапляє все, що ти зустрічаєш. Збери сторінку — отримаєш постійний бонус.", 'album.boss': "Велетень: {name}", 'album.shiny': "Сяйливий овоч: {name}", 'album.seen': "Бачено ×{n}", 'album.new': "Нове в альбомі: {name}", 'album.newn': "Нових записів в альбомі: {n}", 'album.newtag': "НОВЕ", 'album.page.done': "Сторінку зібрано!", 'album.page.reward': "+{g} кристалів і назавжди +{p}% монет", 'album.shiny.got': "Сяйливий овоч: {name}! ×10 монет", 'album.h.biome': "Росте тут: {b}", 'album.h.shiny': "Дуже рідкісний. Придивляйся: {b}", 'album.h.boss': "Велетень місцини: {b}", 'album.h.flower': "Посади квітку тут: {b}", 'album.h.rare': "Іноді квітка тут розквітає рідкісним кольором: {b}", 'album.h.v.lemon': "Прилітає вдень, будь-де", 'album.h.v.sky': "Вдень: на лузі, в теплиці й у снігах", 'album.h.v.peach': "На світанку й у сутінках", 'album.h.v.moth': "Лише вночі", 'album.h.v.glow': "Уночі: у грибному лісі, на болоті й у місячному саду", 'album.h.v.royal': "Рідкісний. Будь-коли й будь-де. Щасти!", 'album.h.gear': "З яйця у Бластерах", 'album.h.pet': "З яйця у Звірях", 'album.h.fly': "З яйця в Метеликах", 'album.h.skin': "Костюми — у вкладці Кролик",
+      'album.title': "Альбом", 'album.p.veggies': "Овочі", 'album.p.shiny': "Сяйливі овочі", 'album.p.bosses': "Велетні", 'album.p.flowers': "Квіти", 'album.p.visitors': "Гості", 'album.p.blasters': "Бластери", 'album.p.pets': "Звірі", 'album.p.flies': "Метелики", 'album.p.costumes': "Костюми", 'album.g.garden': "Поле", 'album.g.wild': "Природа", 'album.g.collection': "Колекція", 'album.found': "Знайдено {n} з {m}", 'album.bonus': "Завершені сторінки: назавжди +{p}% монет", 'album.intro': "Сюди потрапляє все, що ти зустрічаєш. Збери сторінку — отримаєш постійний бонус.", 'album.boss': "Велетень: {name}", 'album.shiny': "Сяйливий овоч: {name}", 'album.seen': "Бачено ×{n}", 'album.new': "Нове в альбомі: {name}", 'album.newn': "Нових записів в альбомі: {n}", 'album.newtag': "НОВЕ", 'album.page.done': "Сторінку зібрано!", 'album.page.reward': "+{g} і назавжди +{p}% монет", 'album.shiny.got': "Сяйливий овоч: {name}! ×10 монет", 'album.h.biome': "Росте тут: {b}", 'album.h.shiny': "Дуже рідкісний. Придивляйся: {b}", 'album.h.boss': "Велетень місцини: {b}", 'album.h.flower': "Посади квітку тут: {b}", 'album.h.rare': "Іноді квітка тут розквітає рідкісним кольором: {b}", 'album.h.v.lemon': "Прилітає вдень, будь-де", 'album.h.v.sky': "Вдень: на лузі, в теплиці й у снігах", 'album.h.v.peach': "На світанку й у сутінках", 'album.h.v.moth': "Лише вночі", 'album.h.v.glow': "Уночі: у грибному лісі, на болоті й у місячному саду", 'album.h.v.royal': "Рідкісний. Будь-коли й будь-де. Щасти!", 'album.h.gear': "З яйця у Бластерах", 'album.h.pet': "З яйця у Звірях", 'album.h.fly': "З яйця в Метеликах", 'album.h.skin': "Костюми — у вкладці Кролик",
       'rain.name': "Морквяний дощ", 'tut.rain': "Морквяний дощ готовий: тисни!",
       'boss.help': "Друзі, на допомогу!",
       'tut.tapveg': "*Тапни по овочу* — допоможи загону",
@@ -1728,7 +1731,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'tip.new_pets.free': "*Виведи улюбленця задарма*: більше монет і швидкості",
       'tip.new_clovers': "*Конюшина*: за неї — нові улюбленці",
       'tip.new_adv': "*Мандри*: бої за конюшину й кристали",
-      'tip.new_buffs': "*Бафи*: x2 сили, швидкості чи монет",
+      'tip.new_buffs': "*Бафи*: ×2 сили, швидкості чи монет",
       'tip.new_fly': "*Метелики* у «Звірях»: кожен додає сили",
       'tip.new_cave': "*Кришталева печера*: бий каміння, бери кристали",
       'tip.new_auto': "*Автопрокачка* качає за тебе",
@@ -1746,7 +1749,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'biome.next': "Далі: {b}",
       'rain.go': "Тисни!", 'rain.banner': "Морквяний дощ!", 'rain.dmg': "{n} шкоди",
       'tip.tapVeg': "*Загін цілиться* туди, куди ти тапнеш",
-      'tip.tapBoss': "*Тапай швидко*: комбо дає до x2 шкоди",
+      'tip.tapBoss': "*Тапай швидко*: комбо дає до ×2 шкоди",
       'tip.boss': "*Здолай боса*, поки не вийшов час",
       'tip.bossWin': "*Новий світ!* Овочі міцніші, монет більше",
       'tip.bossFail': "*Прокачайся* трохи — і виклич боса тут",
@@ -1763,24 +1766,24 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.failed': 'Покупка не вдалася. Спробуй ще раз.', 'shop.restore.none': 'Нічого відновлювати: на цьому акаунті магазину немає покупок назавжди.',
       'shop.pending': 'Оплата очікується', 'shop.pending.d': 'Магазин ще не підтвердив оплату. Покупка прийде сама, щойно він це зробить.',
       'shop.soon': "Набори й пропуски з'являться, коли пограєш довше.", 'offer.later': "Не зараз", 'offer.gems.first': "Перша покупка цього набору подвоюється (зазвичай {n}).",
-      'offer.club.d': "+{n} кристалів щодня (забираєш сам), без примусової реклами, час на боса x2, більше входів у печеру, нагороди Набігу і Вежі x2.",
-      'offer.warp.d': "Стрибок уперед: {n} год доходу одразу, +{c} монет.", 'offer.boost.d': "Переглянь коротку рекламу, і шкода x2 на 30 хвилин. Лише якщо хочеш.",
-      'step.title': 'Крок за кроком!', 'step.text': 'Купуй улюбленців і ставай сильнішим!', 'step.n': 'КРОК {n}', 'step.lock': 'Відкриється після Кроку {n}', 'step.value': 'x{n} вигода', 'step.go': 'До Лавки', 'shop.soon': "Набори й пропуски з'являться, коли пограєш довше.", 'offer.later': "Не зараз", 'offer.gems.first': "Перша покупка цього набору подвоюється (зазвичай {n}).", 'offer.club.d': "+{n} кристалів щодня (забираєш сам), без примусової реклами, час на боса x2, більше входів у печеру, нагороди Набігу і Вежі x2.", 'offer.warp.d': "Стрибок уперед: {n} год доходу одразу, +{c} монет.", 'offer.boost.d': "Переглянь коротку рекламу, і шкода x2 на 30 хвилин. Лише якщо хочеш.",
-      'ad.title': 'Реклама', 'ad.test': 'Тестова реклама. У версії з магазину тут буде справжнє відео.', 'ad.skip': 'Пропуск через {n}', 'ad.close': 'Забрати нагороду', 'ad.vip': 'Рекламу пропущено (Без реклами)', 'ad.broken': "Реклама зламалась, але нагорода твоя.", 'ad.credit': "Цю рекламу ти вже переглянув: нагорода без неї.", 'ad.recovered': "Нагорода за рекламу з минулого разу", 'ad.recovered.credit': "Реклама з минулого разу зарахована: наступне витягування чи переродження x3 — без реклами.", 'pass.season': "Цей сезон: {d} днів, до {date} включно", 'pass.season.long': "Цей сезон: до {date} включно", 'pass.premium.season': "Преміум — лише на цей сезон: {d} днів, до {date} включно. Наступний сезон знову починається безкоштовно.", 'pass.premium.season.long': "Преміум — лише на цей сезон, до {date} включно. Наступний сезон знову починається безкоштовно.",
+      'offer.club.d': "{n} щодня, без примусової реклами, ×2 часу на боса і нагород Набігу та Вежі.",
+      'offer.warp.d': "Стрибок уперед: {n} год доходу одразу, +{c}.", 'offer.boost.d': "Переглянь коротку рекламу, і шкода ×2 на 30 хвилин. Лише якщо хочеш.",
+      'step.title': 'Крок за кроком!', 'step.text': 'Купуй улюбленців і ставай сильнішим!', 'step.n': 'Крок {n}', 'step.lock': 'Відкриється після Кроку {n}', 'step.value': '×{n} вигода', 'step.go': 'До Лавки',
+      'ad.title': 'Реклама', 'ad.test': 'Тестова реклама. У версії з магазину тут буде справжнє відео.', 'ad.skip': 'Пропуск через {n}', 'ad.close': 'Забрати нагороду', 'ad.vip': 'Рекламу пропущено (реклама вимкнена)', 'ad.broken': "Реклама зламалась, але нагорода твоя.", 'ad.credit': "Цю рекламу ти вже переглянув: нагорода без неї.", 'ad.recovered': "Нагорода за рекламу з минулого разу", 'ad.recovered.credit': "Реклама з минулого разу зарахована: наступне витягування чи переродження ×3 — без реклами.", 'pass.season': "Цей сезон: {d}, до {date} включно", 'pass.season.long': "Цей сезон: до {date} включно", 'pass.premium.season': "Лише на цей сезон: {d}, до {date} включно.", 'pass.premium.season.long': "Лише на цей сезон, до {date} включно.",
       'mission.title': 'Місія', 'mission.claim': 'Забрати',
-      'm.world': 'Дійди до Світу {n}', 'm.upgrades': 'Купи {n} покращень', 'm.kills': 'Розбий {n} овочів', 'm.draws': 'Витягни {n} разів', 'm.merges': "Об'єднай {n} разів", 'm.raid': 'Пройди хвилю набігу {n}', 'm.tower': 'Переможи вежу Рів.{n}', 'm.caves': 'Зайди в печеру {n} разів', 'm.rebirths': 'Переродись ×{n}', 'm.bosses': 'Переможи {n} босів', 'm.golden': 'Злови {n} золотих морквин',
+      'm.world': 'Дійди до Світу {n}', 'm.upgrades': 'Купи покращення ×{n}', 'm.kills': 'Розбий овочі ×{n}', 'm.draws': 'Витягни ×{n}', 'm.merges': "Об'єднай ×{n}", 'm.raid': 'Пройди хвилю набігу {n}', 'm.tower': 'Переможи вежу Рів.{n}', 'm.caves': 'Завітай у печеру ×{n}', 'm.rebirths': 'Переродись ×{n}', 'm.bosses': 'Здолай босів ×{n}', 'm.golden': 'Злови золоті морквини ×{n}',
       'daily.title': 'Щоденний подарунок', 'daily.day': 'День {n}', 'daily.claimed': 'Повертайся завтра!',
       'piggy.title': 'Кришталева скарбничка', 
-      'offline.title': 'З поверненням!', 'offline.text': 'Кролик трощив овочі ще {t}.', 'offline.x2': 'x2 (реклама)',
+      'offline.title': 'З поверненням!', 'offline.text': 'Кролик трощив овочі ще {t}.', 'offline.x2': '×2',
       'golden.title': 'Золота морквина!', 'golden.coins': '+{n} монет', 'golden.crystals': '+{n} кристалів', 'golden.buff': '{b} на 2 хв',
-      'settings.title': 'Налаштування', 'settings.lang': 'Мова', 'settings.sound': "Звуки", 'settings.eco': 'Економ-режим (береже батарею)', 'settings.gfx': 'Графіка', 'settings.gfx.auto': 'Авто', 'settings.gfx.high': 'Висока', 'settings.gfx.low': 'Низька', 'settings.sky': 'Час доби', 'settings.sky.day': 'День', 'settings.sky.clock': 'Годинник', 'settings.sky.night': 'Ніч', 'settings.save': 'Збереження', 'settings.export': 'Скопіювати код збереження', 'settings.import': 'Завантажити код', 'settings.reset': 'Скинути прогрес', 'settings.reset.confirm': 'Видалити весь прогрес і почати знову зі Світу 1? Покупки залишаться. Повернути прогрес можна з резервних копій вище, але лише доки їх не замінять (від 10 хв до доби).', 'settings.reset.do': 'Скинути', 'settings.copied': 'Код скопійовано', 'settings.loaded': 'Збереження завантажено', 'settings.bad': 'Це не схоже на код збереження', 'settings.cloud': 'Хмарне збереження: увімкнено', 'settings.local': 'Збережено на цьому пристрої',
-      'settings.g.sound': 'Звук', 'settings.g.comfort': 'Зручність', 'settings.g.more': 'Інше',
+      'settings.title': 'Налаштування', 'settings.lang': 'Мова', 'settings.sound': "Звуки", 'settings.eco': 'Економ-режим (береже батарею)', 'settings.gfx': 'Графіка', 'settings.gfx.auto': 'Авто', 'settings.gfx.high': 'Висока', 'settings.gfx.low': 'Низька', 'settings.sky': 'Час доби', 'settings.sky.day': 'День', 'settings.sky.clock': 'Годинник', 'settings.sky.night': 'Ніч', 'settings.save': 'Збереження', 'settings.export': 'Скопіювати код збереження', 'settings.import': 'Завантажити код', 'settings.reset': 'Скинути прогрес', 'settings.reset.confirm': 'Стерти прогрес і почати зі Світу 1? Покупки лишаться. Копія ще недовго все поверне.', 'settings.reset.do': 'Скинути', 'settings.copied': 'Код скопійовано', 'settings.loaded': 'Збереження завантажено', 'settings.bad': 'Це не схоже на код збереження', 'settings.cloud': 'Хмарне збереження: увімкнено', 'settings.local': 'Збережено на цьому пристрої',
+      'settings.g.sound': 'Звук', 'settings.g.general': 'Загальне', 'settings.g.comfort': 'Зручність', 'settings.g.more': 'Інше',
       'on': 'Увімк.', 'off': 'Вимк.', 'confirm': 'Підтвердити',
       'n.crystals.one': '{n} кристал', 'n.crystals.few': '{n} кристали', 'n.crystals.many': '{n} кристалів', 'n.crystals.other': '{n} кристала',
-      'n.clovers.one': '{n} конюшина', 'n.clovers.few': '{n} конюшини', 'n.clovers.many': '{n} конюшин', 'n.clovers.other': '{n} конюшини',
+      'n.clovers.one': '{n} конюшина', 'n.clovers.few': '{n} конюшини', 'n.clovers.many': '{n} конюшин', 'n.clovers.other': '{n} конюшини', 'n.coins.one': '{n} монета', 'n.coins.few': '{n} монети', 'n.coins.many': '{n} монет', 'n.coins.other': '{n} монети', 'n.rp.one': '{n} місячний камінь', 'n.rp.few': '{n} місячні камені', 'n.rp.many': '{n} місячних каменів', 'n.rp.other': '{n} місячного каменя', 'n.rebirths.one': '{n} переродження', 'n.rebirths.few': '{n} переродження', 'n.rebirths.many': '{n} перероджень', 'n.rebirths.other': '{n} переродження', 'n.days.one': '{n} день', 'n.days.few': '{n} дні', 'n.days.many': '{n} днів', 'n.days.other': '{n} дня',
       'time.d': '{n} дн.',
       'toast.nocoins': 'Замало монет', 'toast.nocrystals': 'Замало кристалів', 'toast.noclovers': 'Замало конюшини', 'toast.saved': 'Збережено',
-      'rb.reborn': 'Переродження!', 'rb.fresh': 'Новий початок у Світі 1', 'rb.next': 'Наступне переродження: +{n} Місячних каменів', 'rb.next.x': 'до x{x} сили',
+      'rb.reborn': 'Переродження!', 'rb.fresh': 'Новий початок у Світі 1', 'rb.next': 'Наступне переродження: +{n}', 'rb.next.x': 'до ×{x} сили',
       'auto.on': 'Автопокращення увімкнено', 'auto.off': 'Автопокращення вимкнено', 'auto.locked': 'Автопокращення є в Лавці. Спробувати 10 хв за рекламу?', 'auto.trial': 'Спробувати 10 хв', 'auto.notrial': 'Дві безкоштовні спроби на сьогодні вже використано. Автопокращення є в Лавці.',
       // хитрі овочі (foes.js): підказки першого разу, банери подій, слівця над полем
       'tip.foe_runner': "*Розбий редиску*, поки не втекла",
@@ -1858,33 +1861,33 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'end.text': 'Nowe światy dopiero kiełkują. Do tego czasu odradzaj się i rośnij w siłę.',
       'up.power': 'Siła', 'up.speed': 'Szybkość', 'up.money': 'Zysk', 'up.v.power': '{v} obr.', 'up.v.speed': '{v} strz./s', 'up.v.money': '{v} za warzywo', 'up.title': 'Ulepszenia',
       'tab.up': 'Ulepsz', 'tab.bunny': 'Królik', 'tab.gear': 'Blastery', 'tab.pets': 'Pupile', 'tab.adv': 'Przygody', 'tab.shop': 'Sklep',
-      'buy.x1': 'x1', 'buy.x10': 'x10', 'buy.max': 'MAKS',
+      'buy.x1': '×1', 'buy.x10': '×10', 'buy.max': 'MAKS',
       'btn.shop': 'Sklep', 'btn.rebirth': 'Odrodzenie', 'btn.pet': 'Pupile', 'btn.fly': 'Motyle', 'btn.skin': 'Stroje', 'btn.gun': 'Blastery',
       'btn.free': 'Za reklamę', 'btn.auto': 'Auto', 'btn.trip': 'Wyprawa', 'btn.raid': 'Inwazja', 'btn.boss': 'Boss', 'btn.cave': 'Jaskinia', 'btn.buffs': 'Buffy', 'btn.mission': 'Misja', 'btn.daily': 'Prezent', 'btn.piggy': 'Świnka',
       'close': 'Zamknij', 'ok': 'OK', 'cancel': 'Anuluj', 'claim': 'Odbierz', 'locked': 'Zablokowane', 'equip': 'Załóż', 'equipped': 'Założone', 'owned': 'Masz', 'buy': 'Kup', 'back': 'Wróć', 'start': 'Start', 'challenge': 'Do boju', 'retry': 'Jeszcze raz', 'exit': 'Wyjdź', 'done': 'Gotowe', 'reward': 'Nagroda', 'free': 'ZA DARMO', 'or': 'lub',
       'res.coins': 'Monety', 'res.crystals': 'Kryształy', 'res.clovers': 'Koniczyny', 'res.rp': 'Kamienie księżycowe', 'res.tickets': 'Bilety',
       'gun.title': 'Blastery', 'gun.drag': 'Przeciągnij blaster do slotu, żeby go założyć.', 'gun.merge': 'Przeciągnij dwa o tej samej randze na siebie, a się połączą. Przytrzymaj jeden, żeby zobaczyć jego kartę.',
       'pet.title': 'Pupile', 'pet.drag': 'Przeciągnij pupila do slotu, żeby ruszył do walki.', 'fly.title': 'Motyle', 'fly.tip': 'Motyle wzmacniają Siłę i trafienia krytyczne. Łącz te same rangi; przytrzymaj, żeby zobaczyć kartę.',
-      'draw': 'Losuj', 'draw10': 'Losuj x10', 'draw.free': 'Za darmo', 'draw.ad': 'Reklama', 'draw.epic': 'Epickie', 'draw.full': 'Brak miejsca. Najpierw coś połącz!', 'draw.got': 'Masz: {name}!', 'draw.result': 'Nowość!',
+      'draw': 'Losuj', 'draw10': 'Losuj ×10', 'draw.free': 'Za darmo', 'draw.ad': 'Reklama', 'draw.epic': 'Epickie', 'draw.full': 'Brak miejsca. Najpierw coś połącz!', 'draw.got': 'Masz: {name}!', 'draw.result': 'Nowość!',
       'equipbest': 'Załóż najlepsze', 'slot.locked': 'Od Świata {w}', 'auto.merge': 'Auto', 'auto.need': 'Auto-łączenie masz w Klubie Ogrodowym',
       'odds': 'Szanse', 'odds.title': 'Szanse losowania', 'odds.text': 'Każde losowanie daje jeden przedmiot. Wyższe rangi zdobędziesz tylko przez łączenie.',
       'stat.dmg': 'Obrażenia', 'stat.rate': 'Strzały/s', 'stat.money': 'Zysk', 'stat.speed': 'Szybkość', 'stat.power': 'Siła', 'stat.crit': 'Szansa kryt.', 'stat.critdmg': 'Obr. kryt.',
       'skin.title': 'Stroje', 'skin.tip': 'Bonus ze stroju działa, nawet gdy nosisz inny.',
       'skin.u.world': 'Dotrzyj do Świata {w}', 'skin.u.rebirths': 'Odródź się ×{n}', 'skin.u.iap': 'W Sklepie',
-      'rb.title': 'Odrodzenie', 'rb.avail': 'Kamieni do zdobycia', 'rb.do': 'Odródź się', 'rb.super': 'Super x3', 'rb.need': 'Dotrzyj do Świata 5, żeby się odrodzić',
-      'rb.confirm': 'Zacząć od Świata 1? Kamienie księżycowe: +{n}. Kryształy, blastery, pupile, motyle i stroje zostają z tobą.',
-      'rb.power': 'Wzmocnienie siły', 'rb.speed': 'Wzmocnienie szybkości', 'rb.money': 'Wzmocnienie zysku', 'rb.upgrade': 'Ulepsz', 'rb.done': 'Odrodzenie! Kamienie księżycowe: +{n}',
-      'rb.reborn': 'Odrodzenie!', 'rb.fresh': 'Nowy start w Świecie 1', 'rb.next': 'Następne odrodzenie: Kamienie księżycowe +{n}', 'rb.next.x': 'do x{x} siły',
-      'buff.title': 'Buffy', 'buff.all': 'Włącz wszystkie trzy, a każdy da x3!', 'buff.power': 'Buff siły', 'buff.speed': 'Buff szybkości', 'buff.money': 'Buff zysku',
-      'buff.power.d': 'Obrażenia x{x}', 'buff.speed.d': 'Szybkość x{x}', 'buff.money.d': 'Zysk x{x}', 'buff.add': '+30 min', 'buff.max': 'Każdy do 4 godzin',
+      'rb.title': 'Odrodzenie', 'rb.avail': 'Kamieni do zdobycia', 'rb.do': 'Odródź się', 'rb.ups': 'Ulepszenia za kamienie', 'rb.super': 'Super ×3', 'rb.need': 'Dotrzyj do Świata 5, żeby się odrodzić',
+      'rb.confirm': 'Wrócić do Świata 1 i zdobyć {n}? Znikną tylko monety i ich ulepszenia.',
+      'rb.power': 'Wzmocnienie siły', 'rb.speed': 'Wzmocnienie szybkości', 'rb.money': 'Wzmocnienie zysku', 'rb.upgrade': 'Ulepsz', 'rb.done': 'Odrodzenie! +{n}',
+      'rb.reborn': 'Odrodzenie!', 'rb.fresh': 'Nowy start w Świecie 1', 'rb.next': 'Następne odrodzenie: +{n}', 'rb.next.x': 'do ×{x} siły',
+      'buff.title': 'Buffy', 'buff.all': 'Włącz wszystkie trzy, a każdy da ×3!', 'buff.power': 'Buff siły', 'buff.speed': 'Buff szybkości', 'buff.money': 'Buff zysku',
+      'buff.power.d': 'Obrażenia ×{x}', 'buff.speed.d': 'Szybkość ×{x}', 'buff.money.d': 'Zysk ×{x}', 'buff.add': '+30 min', 'buff.max': 'Każdy do 4 godzin',
       'raid.title': 'Inwazja ślimaków', 'raid.text': 'Ślimaki idą po marchewki! Zatrzymaj każdego z nich.', 'raid.lvl': 'Fala {n}', 'raid.tip': 'Od fali {w} część ślimaków ma czapki z żołędzi: stuknij, by je strącić!',
-      'tower.title': 'Wieża bossów', 'tower.text': 'Pokonaj bossa w {s} sekund!', 'tower.lvl': 'Poz. {n}',
-      'cave.title': 'Kryształowa jaskinia', 'cave.text': 'Wykop jak najwięcej kryształów w {s} sekund!', 'cave.tip': 'Każde uderzenie to 1, bez względu na blaster. Stukaj w skały, by kopać szybciej!', 'cave.entries': 'Wejścia', 'cave.best': 'Rekord: {n}',
+      'tower.title': 'Wieża bossów', 'tower.text.one': 'Pokonaj bossa w {n} sekundę!', 'tower.text.few': 'Pokonaj bossa w {n} sekundy!', 'tower.text.many': 'Pokonaj bossa w {n} sekund!', 'tower.text.other': 'Pokonaj bossa w {n} sekundy!', 'tower.lvl': 'Poz. {n}',
+      'cave.title': 'Kryształowa jaskinia', 'cave.text.one': 'Wykop jak najwięcej kryształów w {n} sekundę!', 'cave.text.few': 'Wykop jak najwięcej kryształów w {n} sekundy!', 'cave.text.many': 'Wykop jak najwięcej kryształów w {n} sekund!', 'cave.text.other': 'Wykop jak najwięcej kryształów w {n} sekundy!', 'cave.tip': 'Każde uderzenie to 1, bez względu na blaster. Stukaj w skały, by kopać szybciej!', 'cave.entries': 'Wejścia', 'cave.best': 'Rekord: {n}',
       'mode.noup': 'Ulepszenia za monety i Odrodzenie tu nie działają.', 'mode.win': 'Zwycięstwo!', 'mode.timeup': 'Koniec czasu!', 'mode.lose': 'Porażka', 'mode.exit.q': 'Wyjść z walki? To liczy się jako porażka.', 'mode.left': 'Zostało: {n}', 'mode.time': 'Czas',
       'mode.sweep': 'Szybkie przejście', 'mode.sweep.d': 'Odbierz jeszcze raz nagrodę za najlepszy poziom (raz dziennie)', 'mode.sweep.used': 'Użyte dzisiaj', 'mode.noticket': 'Na dziś koniec wejść',
       'cave.more': 'Więcej wejść', 'cave.passd': 'Codziennie 6 wejść do Kryształowej jaskini',
       'trip.title': 'Wyprawa', 'trip.text': 'Wyślij króliczka na wyprawę, a wróci ze skarbami.', 'trip.go': 'W drogę ({t})', 'trip.away': 'Wróci za {t}', 'trip.ad': 'Przyspiesz o 1 h', 'trip.ad.none': 'Na dziś koniec przyspieszeń','trip.back': 'Króliczek wrócił!', 'trip.unlock': 'Odblokujesz w Świecie 5',
-      'shop.title': 'Sklep', 'shop.free': 'Prezenty i nagrody za reklamy', 'shop.freec': 'Kryształy za reklamę', 'shop.freec.d': 'Obejrzyj krótką reklamę: +{n} kryształów (dziś zostało: {left})',
+      'shop.title': 'Sklep', 'shop.free': 'Prezenty i nagrody za reklamy', 'shop.freec': 'Kryształy za reklamę', 'shop.freec.d': 'Obejrzyj krótką reklamę: +{n} (dziś zostało: {left})',
       'shop.daily': 'Codzienny prezent', 'shop.daily.d': 'Wpadaj codziennie po coraz większe prezenty',
       'shop.starter': 'Jajo startowe', 'shop.starter.d': 'Pupil rangi S, 300 kryształów i 2 godziny każdego buffa. Tylko raz!',
       'shop.ads': 'Bez reklam', 'shop.noforced': 'Bez wymuszonych reklam', 'shop.noforced.d': 'Koniec z reklamami między bossami. Reklamy za nagrody zostają dobrowolne.',
@@ -1894,21 +1897,21 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 
       'vip.boss': 'Czas na bossa', 'vip.offline': 'Zarobki offline',
       'vip.sweep': 'Szybkie przejście', 'vip.active': 'Aktywne: {t}',
-      'shop.crystals': 'Kryształy', 'shop.first': '1. zakup x2', 'shop.skins': 'Stroje',
-      'shop.test': 'Tryb testowy: nie ma prawdziwej płatności. W wersji ze sklepu otworzy się tu płatność Apple / Google.',
-      'shop.locked': 'Jeszcze niedostępne', 'shop.unavailable': 'Sklep jest teraz niedostępny. Spróbuj później.', 'shop.web': 'Zakupy są tylko w aplikacji Bunny Boom. Wszystko inne jest tu za darmo.', 'ad.web': 'Filmy za nagrody są tylko w aplikacji Bunny Boom.', 'save.failed': 'Nie można zapisać: pamięć urządzenia jest pełna. Zwolnij trochę miejsca, by nie stracić postępu.', 'shop.restore': 'Przywróć zakupy', 'shop.restored': 'Zakupy przywrócone', 'ad.none': 'Teraz nie ma reklamy, ale nic nie przepadło. Spróbuj za minutę.', 'save.pick.title': 'Są dwa zapisy', 'save.pick.text': 'Na tym urządzeniu i w chmurze jest inny postęp. Który zapis zostawić?', 'save.pick.local': 'To urządzenie', 'save.pick.remote': 'Chmura', 'save.pick.line': 'Świat {w} · odrodzenia: {r} · w grze {h}', 'settings.backups': 'Kopie zapasowe', 'settings.backup.none': 'Na razie brak kopii', 'settings.backup.load': 'Przywróć', 'settings.backup.confirm': 'Wrócić do tej kopii? Postęp od tamtej chwili przepadnie.', 'settings.edited': 'Ten zapis zmieniono poza grą.',
+      'shop.crystals': 'Kryształy', 'shop.first': '1. zakup ×2', 'shop.skins': 'Stroje',
+      'shop.test': 'Wersja testowa: bez prawdziwej płatności.',
+      'shop.locked': 'Jeszcze niedostępne', 'shop.unavailable': 'Sklep jest teraz niedostępny. Spróbuj później.', 'shop.web': 'W przeglądarce zakupy są niedostępne. Reszta gry jest za darmo.', 'ad.web': 'Filmy za nagrody są tylko w aplikacji Bunny Boom.', 'save.failed': 'Nie można zapisać: pamięć urządzenia jest pełna. Zwolnij trochę miejsca, by nie stracić postępu.', 'shop.restore': 'Przywróć zakupy', 'shop.restored': 'Zakupy przywrócone', 'ad.none': 'Teraz nie ma reklamy, ale nic nie przepadło. Spróbuj za minutę.', 'save.pick.title': 'Są dwa zapisy', 'save.pick.text': 'Na tym urządzeniu i w chmurze jest inny postęp. Który zapis zostawić?', 'save.pick.local': 'To urządzenie', 'save.pick.remote': 'Chmura', 'save.pick.line': 'Świat {w} · {r} · w grze {h}', 'settings.backups': 'Kopie zapasowe', 'settings.backup.none': 'Na razie brak kopii', 'settings.backup.load': 'Przywróć', 'settings.backup.confirm': 'Wrócić do tej kopii? Postęp od tamtej chwili przepadnie.', 'settings.edited': 'Ten zapis zmieniono poza grą.',
       'leap.title': 'Księżycowy skok!', 'boss.intro': 'BOSS!', 'rebirth.ready': 'Można się odrodzić!',
-      'pity.left': '{g} lub lepszy w ciągu {n} losowań', 'pity.text': 'Tylko płatne losowania: x10 zawsze zawiera {a} lub lepszy, a najpóźniej {n}. losowanie daje {g} lub lepszy.',
+      'pity.left.one': '{g} lub lepszy w ciągu {n} losowania', 'pity.left.few': '{g} lub lepszy w ciągu {n} losowań', 'pity.left.many': '{g} lub lepszy w ciągu {n} losowań', 'pity.left.other': '{g} lub lepszy w ciągu {n} losowania', 'pity.text': 'Płatne losowania: ×10 zawsze daje {a} lub lepszy, a co najmniej co {n}. losowanie daje {g} lub lepszy.',
       'tut.new': 'Nowość: {name}!', 'tut.power': '*Wydawaj monety tutaj*, by bić mocniej', 'tut.hold': '*Przytrzymaj*, by kupować szybciej', 'tut.stage': '*Rozbij 10 warzyw*, by zaliczyć pole', 'tut.boss': 'Pokonaj w {s} s!', 'tut.retry': 'Ulepsz się i spróbuj znowu', 'tut.gear': '*Otwórz Blastery*: czeka prezent', 'tut.freedraw': '*Wylosuj blaster* za darmo!', 'tut.merge': '*Przeciągnij* na bliźniaka, by połączyć', 'tut.equip': '*Przeciągnij tutaj*, by założyć', 'pass.tierup': 'Przepustka Ogrodowa: poziom {n}!',
       'tut.opens.stage': 'Otworzy się na etapie {s}',
-      'open': 'Otwórz', 'club.title': 'Klub Ogrodowy', 'club.daily': 'Codzienny prezent klubowy', 'club.daily.d': '+{n} kryształów codziennie, póki trwa', 'club.p.gems': 'Odbieraj {n} kryształów codziennie', 'club.p.noads': 'Bez wymuszonych reklam', 'club.p.cave': 'Wejścia do Kryształowej jaskini dziennie', 'club.p.rewards': 'Nagrody z Inwazji i Wieży', 'club.p.conv': 'Auto-łączenie, szybkie przejście, krótkie wyprawy', 'club.price': '{p} / miesiąc', 'club.manage': 'Zarządzaj', 'club.fine.store': 'Odnawia się co miesiąc za {p}, dopóki nie anulujesz. Anulujesz kiedy chcesz w Google Play > Płatności i subskrypcje.','club.fine': 'Tryb testowy: 30 dni. W aplikacji ze sklepu odnawia się co miesiąc, dopóki nie anulujesz w Google Play / App Store.', 'shop.sprout': 'Tydzień Kiełka', 'shop.sprout.d': '{now} kryształów od razu i po {n} więcej codziennie przez 7 dni.', 'piggy.text2': 'Każdy pokonany boss wrzuca tu 10 kryształów. Rozbij świnkę, gdy uzbiera {n} (maks. {max}).', 'warp.title': 'Skok w czasie', 'warp.d': 'Zgarnij od razu dochód z kilku godzin. Teraz 1 godzina = {c} monet.', 'warp.h': '{n} h', 'warp.confirm': 'Skoczyć {n} h do przodu za {c} monet?', 'pass.title': 'Przepustka Ogrodowa\u00a0· Sezon {n}', 'pass.short': 'Przepustka', 'pass.tier': 'Poziom {n}/{max}', 'pass.ends': 'koniec za {t}', 'pass.premium': 'Premium', 'pass.plus': 'Premium+', 'pass.premium.d': 'Odblokuj złotą ścieżkę: 30 nagród więcej, pupil SS i motyl SS. Premium+ od razu przeskakuje 10 poziomów i daje +20% XP.', 'pass.buytier': '+1 poziom', 'pass.claimall': 'Odbierz wszystko ({n})', 'pass.free': 'Za darmo', 'pass.xp.hint': 'XP: zadanie dzienne {d}, tygodniowe {w}, boss {b} (pierwszych 10 dziennie).', 'egg.tap': 'Stuknij, by pominąć', 'egg.close': 'Stuknij, by zamknąć', 'quests.title': 'Zadania', 'quests.daily': 'Dzienne', 'quests.weekly': 'Tygodniowe', 'quests.hint': 'Zadania dają XP do Przepustki Ogrodowej. Nowe codziennie i w każdy poniedziałek.', 'q.kills': 'Rozbij warzywa ×{n}', 'q.bosses': 'Pokonaj bossów ×{n}', 'q.upgrades': 'Kup ulepszenia ×{n}', 'q.draws': 'Losuj ×{n}', 'q.merges': 'Połącz ×{n}', 'q.golden': 'Złap złote marchewki ×{n}', 'q.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'q.caves': 'Kop w Kryształowej jaskini ×{n}', 'q.towers': 'Wygraj walki w Wieży ×{n}', 'q.rebirths': 'Odródź się ×{n}', 'goals.title': 'Cele', 'goals.hint': 'Cele jednorazowe. Każdy daje kryształy tylko raz.', 'goal.kills': 'Rozbij warzywa ×{n}', 'goal.bosses': 'Pokonaj bossów ×{n}', 'goal.maxWorld': 'Dotrzyj do Świata {n}', 'goal.rebirths': 'Odródź się ×{n}', 'goal.merges': 'Połącz ×{n}', 'goal.draws': 'Losuj ×{n}', 'goal.golden': 'Złap złote marchewki ×{n}', 'goal.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'goal.towers': 'Wygraj walki w Wieży ×{n}', 'goal.caves': 'Odwiedź Kryształową jaskinię ×{n}', 'daily.pause': '28 dni prezentów. Ominął cię dzień? Kalendarz po prostu poczeka.',
+      'open': 'Otwórz', 'club.title': 'Klub Ogrodowy', 'club.daily': 'Codzienny prezent klubowy', 'club.daily.d': '+{n} codziennie, póki trwa', 'club.p.gems': 'Odbieraj {n} codziennie', 'club.p.noads': 'Bez wymuszonych reklam', 'club.p.cave': 'Wejścia do Kryształowej jaskini dziennie', 'club.p.rewards': 'Nagrody z Inwazji i Wieży', 'club.p.conv': 'Auto-łączenie, szybkie przejście, krótkie wyprawy', 'club.price': '{p}/miesiąc', 'club.manage': 'Zarządzaj', 'club.fine.store': 'Odnawia się za {p} miesięcznie, dopóki nie anulujesz w Google Play (Płatności i subskrypcje).','club.fine': 'Wersja testowa: 30 dni bez opłat.', 'shop.sprout': 'Tydzień Kiełka', 'shop.sprout.d': '{now} od razu i po {n} więcej codziennie przez 7 dni.', 'piggy.text2': 'Każdy pokonany boss wrzuca tu 10 kryształów. Rozbij świnkę, gdy uzbiera {n} (maks. {max}).', 'warp.title': 'Skok w czasie', 'warp.d': 'Zgarnij od razu dochód z kilku godzin. Teraz 1 godzina = {c}.', 'warp.h': '{n} h', 'warp.confirm': 'Skoczyć {n} h do przodu: +{c}?', 'pass.title': 'Przepustka Ogrodowa\u00a0· Sezon {n}', 'pass.short': 'Przepustka', 'pass.tier': 'Poziom {n}/{max}', 'pass.ends': 'koniec za {t}', 'pass.premium': 'Premium', 'pass.plus': 'Premium+', 'pass.premium.d': '30 nagród więcej, pupil SS i motyl SS. Premium+ dodaje 10 poziomów i +20% XP.', 'pass.buytier': '+1 poziom', 'pass.claimall': 'Odbierz wszystko ({n})', 'pass.free': 'Za darmo', 'pass.xp.hint': 'XP: zadanie dzienne {d}, tygodniowe {w}, boss {b} (pierwszych 10 dziennie).', 'egg.tap': 'Stuknij, by pominąć', 'egg.close': 'Stuknij, by zamknąć', 'quests.title': 'Zadania', 'quests.daily': 'Dzienne', 'quests.weekly': 'Tygodniowe', 'quests.hint': 'Zadania dają XP do Przepustki Ogrodowej. Nowe codziennie i w każdy poniedziałek.', 'q.kills': 'Rozbij warzywa ×{n}', 'q.bosses': 'Pokonaj bossów ×{n}', 'q.upgrades': 'Kup ulepszenia ×{n}', 'q.draws': 'Losuj ×{n}', 'q.merges': 'Połącz ×{n}', 'q.golden': 'Złap złote marchewki ×{n}', 'q.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'q.caves': 'Kop w Kryształowej jaskini ×{n}', 'q.towers': 'Wygraj walki w Wieży ×{n}', 'q.rebirths': 'Odródź się ×{n}', 'goals.title': 'Cele', 'goals.hint': 'Cele jednorazowe. Każdy daje kryształy tylko raz.', 'goal.kills': 'Rozbij warzywa ×{n}', 'goal.bosses': 'Pokonaj bossów ×{n}', 'goal.maxWorld': 'Dotrzyj do Świata {n}', 'goal.rebirths': 'Odródź się ×{n}', 'goal.merges': 'Połącz ×{n}', 'goal.draws': 'Losuj ×{n}', 'goal.golden': 'Złap złote marchewki ×{n}', 'goal.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'goal.towers': 'Wygraj walki w Wieży ×{n}', 'goal.caves': 'Odwiedź Kryształową jaskinię ×{n}', 'daily.pause': '28 dni prezentów. Ominął cię dzień? Kalendarz po prostu poczeka.',
       // Seed pick before a Raid or Tower run (seeds.js)
       'seed.title': 'Wybierz nasionko', 'seed.sub': 'Jeden bonus tylko na tę rundę',
       'seed.sharp': 'Ostre nasionka', 'seed.sharp.d': '+35% obrażeń', 'seed.quick': 'Szybkie nasionka', 'seed.quick.d': '+30% strzałów na sekundę',
       'seed.lucky': 'Szczęśliwe nasionka', 'seed.lucky.d': '+15% szansy na kryt, +50% obr. kryt.', 'seed.time': 'Leniwe nasionka', 'seed.time.d': '+12 sekund',
       'seed.sticky': 'Lepkie nasionka', 'seed.sticky.d': 'Ślimaki pełzną o 30% wolniej', 'seed.thorny': 'Kolczaste nasionka', 'seed.thorny.d': '+20% obrażeń, +6 sekund',
-      'draw.nofree':'Darmowe losowania na dziś się skończyły. Jutro będą nowe!', 'mergeall': 'Połącz', 'mergeall.none': 'Na razie nie ma czego łączyć', 'mergeall.done': 'Połączenia: {n}!', 'mode.fights': 'Walki dzisiaj', 'mode.nofights': 'Na dziś koniec walk. Wróć jutro!', 'mission.skip': 'Pomiń', 'mission.skip.d': 'Zamienić tę misję na następną? Bez nagrody. Kolejne pominięcie za 30 minut.',
-      'settings.calm': 'Tryb spokojny (mniej trzęsienia i błysków)', 'settings.haptics': 'Wibracje', 'settings.bigtext': 'Większy tekst', 'settings.skiptips': 'Bez wskazówek i samouczka','settings.notify': 'Przypomnienia', 'promo.title': 'Kod promocyjny', 'promo.go': 'Użyj', 'promo.bad': 'Ten kod nie działa', 'promo.used': 'Ten kod jest już wykorzystany', 'promo.expired': 'Ten kod wygasł', 'promo.ok': 'Kod przyjęty!', 'share.title': 'Pochwal się ogrodem', 'share.btn': 'Udostępnij', 'share.world': 'Świat {n} zdobyty!', 'share.rebirth': 'Odrodzenia: {n}!', 'share.code': 'mój kod: {c}', 'share.cta': 'Zagraj w Bunny Boom!', 'share.text': 'Mój króliczek dotarł do Świata {n} w Bunny Boom! Mój kod: {c}', 'share.record': 'Nowy rekord!', 'notif.trip.t': 'Króliczek wrócił!', 'notif.trip.b': 'Wyprawa skończona. Zobacz, co przyniósł do domu.', 'notif.full.t': 'Worek z monetami jest pełny', 'notif.full.b': 'Ogród zarobił pod twoją nieobecność wszystko, co mógł.', 'notif.gift.t': 'Czeka na ciebie prezent', 'notif.gift.b': 'Dzisiejszy prezent w Bunny Boom już jest gotowy.', 'notif.app': 'Przypomnienia działają w aplikacji ze sklepu.', 'notif.denied': 'Powiadomienia dla Bunny Boom są wyłączone w ustawieniach telefonu.', 'notif.ask': 'Przypomnieć, gdy króliczek wróci z wyprawy? A także gdy worek z monetami jest pełny i czeka codzienny prezent.', 'notif.yes': 'Przypomnij mi', 'notif.no': 'Nie teraz', 'notif.on': 'Przypomnienia włączone','about.title': 'O grze', 'about.text': 'Bunny Boom to przytulna strzelanka idle, zrobiona wyłącznie darmowymi narzędziami.', 'about.font': 'Czcionka: Handjet od Rosetta Type (SIL Open Font License).', 'about.art': 'Każdy sprite jest narysowany kodem we własnych skryptach graficznych gry.', 'about.skills': 'Narzędzia pikselowe: pixel-art-studio (MIT). Poradniki o wyczuciu gry i UX: awesome-gamedev-agent-skills (Apache-2.0).', 'about.made': 'Zrobione z miłością do królików i warzyw.', 'about.secret': 'Króliczek cię lubi!', 'privacy.title': 'Prywatność', 'privacy.ads': 'Ustawienia reklam', 'privacy.text': 'Twój postęp jest zapisany na tym telefonie. Gra nie pyta o imię, e-mail ani lokalizację i nie zakłada konta.', 'privacy.more': 'Wersja ze sklepu pokazuje reklamy (Google AdMob), a zakupy przechodzą przez Google Play / App Store; dostają one dane opisane w ich własnych zasadach. Usuń aplikację, żeby usunąć zapis.', 'privacy.full': 'Pełna polityka prywatności', 'egg.sneeze': 'Apsik! Króliczek wykichał monety', 'egg.fluff': '500 pogłaskań! Króliczek cię uwielbia', 'egg.dev': 'Oto sekretny ogródek twórcy gry!', 'egg.goldslug': 'Złoty ślimak!', 'egg.fib': 'Świat {n}: króliczek Fibonacciego!', 'egg.easter': 'Wesołego Alleluja z ogródka!', 'egg.moon': 'Dziś pełnia. Księżycowe króliki patrzą!', 'egg.night': 'Jest 3 w nocy. Króliczek jest śpiący… a ty?',
+      'draw.nofree':'Darmowe losowania na dziś się skończyły. Jutro będą nowe!', 'mergeall': 'Połącz', 'mergeall.none': 'Na razie nie ma czego łączyć', 'mergeall.done.one': '{n} połączenie!', 'mergeall.done.few': '{n} połączenia!', 'mergeall.done.many': '{n} połączeń!', 'mergeall.done.other': '{n} połączenia!', 'mode.fights': 'Walki dzisiaj', 'mode.nofights': 'Na dziś koniec walk. Wróć jutro!', 'mission.skip': 'Pomiń', 'mission.skip.d': 'Zamienić tę misję na następną? Bez nagrody. Kolejne pominięcie za 30 minut.',
+      'settings.calm': 'Tryb spokojny (mniej trzęsienia i błysków)', 'settings.haptics': 'Wibracje', 'settings.bigtext': 'Większy tekst', 'settings.skiptips': 'Bez wskazówek i samouczka','settings.notify': 'Przypomnienia', 'promo.title': 'Kod promocyjny', 'promo.go': 'Użyj', 'promo.bad': 'Ten kod nie działa', 'promo.used': 'Ten kod jest już wykorzystany', 'promo.expired': 'Ten kod wygasł', 'promo.ok': 'Kod przyjęty!', 'share.title': 'Pochwal się ogrodem', 'share.btn': 'Udostępnij', 'share.world': 'Świat {n} zdobyty!', 'share.rebirth': '{n}!', 'share.code': 'mój kod: {c}', 'share.cta': 'Zagraj w Bunny Boom!', 'share.text': 'Mój króliczek dotarł do Świata {n} w Bunny Boom! Mój kod: {c}', 'share.record': 'Nowy rekord!', 'notif.trip.t': 'Króliczek wrócił!', 'notif.trip.b': 'Wyprawa skończona. Zobacz, co przyniósł do domu.', 'notif.full.t': 'Worek z monetami jest pełny', 'notif.full.b': 'Ogród zarobił pod twoją nieobecność wszystko, co mógł.', 'notif.gift.t': 'Czeka na ciebie prezent', 'notif.gift.b': 'Dzisiejszy prezent w Bunny Boom już jest gotowy.', 'notif.app': 'Przypomnienia działają w aplikacji ze sklepu.', 'notif.denied': 'Powiadomienia dla Bunny Boom są wyłączone w ustawieniach telefonu.', 'notif.ask': 'Przypomnieć, gdy króliczek wróci z wyprawy? A także gdy worek z monetami jest pełny i czeka codzienny prezent.', 'notif.yes': 'Przypomnij mi', 'notif.no': 'Nie teraz', 'notif.on': 'Przypomnienia włączone','about.title': 'O grze', 'about.text': 'Bunny Boom to przytulna strzelanka idle, zrobiona wyłącznie darmowymi narzędziami.', 'about.font': 'Czcionka: Handjet od Rosetta Type (SIL Open Font License).', 'about.art': 'Każdy sprite jest narysowany kodem we własnych skryptach graficznych gry.', 'about.skills': 'Narzędzia pikselowe: pixel-art-studio (MIT). Poradniki o wyczuciu gry i UX: awesome-gamedev-agent-skills (Apache-2.0).', 'about.made': 'Zrobione z miłością do królików i warzyw.', 'about.secret': 'Króliczek cię lubi!', 'privacy.title': 'Prywatność', 'privacy.ads': 'Ustawienia reklam', 'privacy.text': 'Postęp zostaje na tym telefonie, dopóki masz aplikację. Bez konta, imienia, e-maila i lokalizacji.', 'privacy.more': 'Wersja ze sklepu pokazuje reklamy Google AdMob i sprzedaje przez Google Play lub App Store, zgodnie z ich zasadami prywatności.', 'privacy.full': 'Pełna polityka prywatności', 'egg.sneeze': 'Apsik! Króliczek wykichał monety', 'egg.fluff': '500 pogłaskań! Króliczek cię uwielbia', 'egg.dev': 'Oto sekretny ogródek twórcy gry!', 'egg.goldslug': 'Złoty ślimak!', 'egg.fib': 'Świat {n}: króliczek Fibonacciego!', 'egg.easter': 'Wesołego Alleluja z ogródka!', 'egg.moon': 'Dziś pełnia. Księżycowe króliki patrzą!', 'egg.night': 'Jest 3 w nocy. Króliczek jest śpiący… a ty?',
       'hb.up': 'Ulepsz', 'hb.bunny': 'Królik', 'hb.gear': 'Blastery', 'hb.pets': 'Pupile', 'hb.adv': 'Przygody', 'hb.shop': 'Sklep',
       'settings.music': 'Muzyka',
       'settings.daynight': 'Dzień i noc (wg zegara)', 'goal.flowers': 'Posadź kwiaty ×{n}', 'card.dmg': 'Obrażenia na strzał', 'card.rate': 'Strzały na sekundę', 'card.dps': 'Obrażenia na sekundę', 'card.money': 'Monety', 'card.speed': 'Szybkość blasterów', 'card.power': 'Siła', 'card.crit': 'Szansa na kryt', 'card.critdmg': 'Obrażenia krytyczne', 'card.merge': 'Połącz dwa:', 'card.top': 'Najwyższa ranga. Nic jej nie przebije.', 'card.base': 'Wartości bazowe, przed ulepszeniami i wzmocnieniami.', 'card.flyall': 'Liczy się każdy motyl na łące.', 'card.have': 'Masz: {n}',
@@ -1921,7 +1924,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'story.2': 'Więc Guzik i przyjaciele chwytają blastery. Czas wyplenić olbrzymów!',
       'album.squad': 'Twoja drużyna', 'squad.join.1': 'Dołączy, gdy założysz drugi blaster', 'squad.join.2': 'Dołączy, gdy założysz trzeci blaster',
       'biome.next': 'Dalej: {b}',
-      'album.title': 'Album', 'album.p.veggies': 'Warzywa', 'album.p.shiny': 'Lśniące warzywa', 'album.p.bosses': 'Olbrzymy', 'album.p.flowers': 'Kwiaty', 'album.p.visitors': 'Goście', 'album.p.blasters': 'Blastery', 'album.p.pets': 'Pupile', 'album.p.flies': 'Motyle', 'album.p.costumes': 'Stroje', 'album.g.garden': 'Pole', 'album.g.wild': 'Przyroda', 'album.g.collection': 'Kolekcja', 'album.found': 'Znaleziono {n} z {m}', 'album.bonus': 'Skończone strony: na zawsze +{p}% monet', 'album.intro': 'Trafia tu wszystko, co spotkasz. Skończ stronę, a dostaniesz stały bonus.', 'album.boss': 'Olbrzym: {name}', 'album.shiny': 'Lśniąca odmiana: {name}', 'album.seen': 'Widziano ×{n}', 'album.new': 'Nowość w albumie: {name}', 'album.newn': 'Nowe w albumie: {n}', 'album.newtag': 'NOWE', 'album.page.done': 'Strona skończona!', 'album.page.reward': '+{g} kryształów i na zawsze +{p}% monet', 'album.shiny.got': 'Lśniąca odmiana: {name}! ×10 monet', 'album.h.biome': 'Rośnie tu: {b}', 'album.h.shiny': 'Bardzo rzadkie. Wypatruj tu: {b}', 'album.h.boss': 'Olbrzym tej krainy: {b}', 'album.h.flower': 'Posadź tu: {b}', 'album.h.rare': 'Czasem kwiat rozkwita tu w rzadkim kolorze: {b}', 'album.h.v.lemon': 'Przylatuje za dnia, wszędzie', 'album.h.v.sky': 'Za dnia: na łące, w szklarni i w śniegu', 'album.h.v.peach': 'O świcie i o zmierzchu', 'album.h.v.moth': 'Tylko nocą', 'album.h.v.glow': 'Nocą: w grzybowym lesie, na bagnach i w księżycowym ogrodzie', 'album.h.v.royal': 'Rzadki gość. O każdej porze, wszędzie. Masz szczęście!', 'album.h.gear': 'Z jajka w Blasterach', 'album.h.pet': 'Z jajka w Pupilach', 'album.h.fly': 'Z jajka w Motylach', 'album.h.skin': 'Stroje są w zakładce Królik',
+      'album.title': 'Album', 'album.p.veggies': 'Warzywa', 'album.p.shiny': 'Lśniące warzywa', 'album.p.bosses': 'Olbrzymy', 'album.p.flowers': 'Kwiaty', 'album.p.visitors': 'Goście', 'album.p.blasters': 'Blastery', 'album.p.pets': 'Pupile', 'album.p.flies': 'Motyle', 'album.p.costumes': 'Stroje', 'album.g.garden': 'Pole', 'album.g.wild': 'Przyroda', 'album.g.collection': 'Kolekcja', 'album.found': 'Znaleziono {n} z {m}', 'album.bonus': 'Skończone strony: na zawsze +{p}% monet', 'album.intro': 'Trafia tu wszystko, co spotkasz. Skończ stronę, a dostaniesz stały bonus.', 'album.boss': 'Olbrzym: {name}', 'album.shiny': 'Lśniąca odmiana: {name}', 'album.seen': 'Widziano ×{n}', 'album.new': 'Nowość w albumie: {name}', 'album.newn': 'Nowe w albumie: {n}', 'album.newtag': 'NOWE', 'album.page.done': 'Strona skończona!', 'album.page.reward': '+{g} i na zawsze +{p}% monet', 'album.shiny.got': 'Lśniąca odmiana: {name}! ×10 monet', 'album.h.biome': 'Rośnie tu: {b}', 'album.h.shiny': 'Bardzo rzadkie. Wypatruj tu: {b}', 'album.h.boss': 'Olbrzym tej krainy: {b}', 'album.h.flower': 'Posadź tu: {b}', 'album.h.rare': 'Czasem kwiat rozkwita tu w rzadkim kolorze: {b}', 'album.h.v.lemon': 'Przylatuje za dnia, wszędzie', 'album.h.v.sky': 'Za dnia: na łące, w szklarni i w śniegu', 'album.h.v.peach': 'O świcie i o zmierzchu', 'album.h.v.moth': 'Tylko nocą', 'album.h.v.glow': 'Nocą: w grzybowym lesie, na bagnach i w księżycowym ogrodzie', 'album.h.v.royal': 'Rzadki gość. O każdej porze, wszędzie. Masz szczęście!', 'album.h.gear': 'Z jajka w Blasterach', 'album.h.pet': 'Z jajka w Pupilach', 'album.h.fly': 'Z jajka w Motylach', 'album.h.skin': 'Stroje są w zakładce Królik',
       'rain.name': 'Marchewkowy deszcz', 'tut.rain': 'Marchewkowy deszcz gotowy: stuknij!',
       'boss.help': 'Na pomoc, przyjaciele!',
       'tut.tapveg': '*Stuknij warzywo*, by pomóc drużynie',
@@ -1937,7 +1940,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'tip.new_pets.free': '*Wykluj pupila za darmo*: więcej monet i szybkości',
       'tip.new_clovers': '*Koniczyny*: za nie wykluwasz pupile',
       'tip.new_adv': '*Przygody*: walki o koniczyny i kryształy',
-      'tip.new_buffs': '*Buffy*: x2 siły, szybkości lub monet',
+      'tip.new_buffs': '*Buffy*: ×2 siły, szybkości lub monet',
       'tip.new_fly': '*Motyle* w Pupilach: każdy dodaje siły',
       'tip.new_cave': '*Kryształowa jaskinia*: rozbijaj skały po kryształy',
       'tip.new_auto': '*Auto-ulepszanie* ulepsza za ciebie',
@@ -1949,7 +1952,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'lang.title': 'Wybierz język', 'lang.later': 'Zmienisz go w każdej chwili w Ustawieniach',
       'rain.go': 'Stuknij!', 'rain.banner': 'Marchewkowy deszcz!', 'rain.dmg': '{n} obr.',
       'tip.tapVeg': '*Drużyna celuje* tam, gdzie stukniesz',
-      'tip.tapBoss': '*Stukaj szybko*: combo daje do x2 obrażeń',
+      'tip.tapBoss': '*Stukaj szybko*: combo daje do ×2 obrażeń',
       'tip.boss': '*Pokonaj bossa*, zanim minie czas',
       'tip.bossWin': '*Nowy świat!* Twardsze warzywa, więcej monet',
       'tip.bossFail': '*Ulepsz się* i wyzwij bossa tutaj',
@@ -1988,22 +1991,22 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.failed': 'Zakup się nie udał. Spróbuj jeszcze raz.', 'shop.restore.none': 'Nie ma czego przywrócić: na tym koncie sklepu nie ma zakupów na zawsze.',
       'shop.pending': 'Płatność w toku', 'shop.pending.d': 'Sklep jeszcze nie potwierdził tej płatności. Zakup dotrze sam, gdy tylko to zrobi.',
       'shop.soon': 'Pakiety i przepustki odblokują się w trakcie gry.', 'offer.later': 'Nie teraz', 'offer.gems.first': 'Pierwszy zakup tego pakietu jest podwojony (zwykle {n}).',
-      'offer.club.d': '+{n} kryształów do odebrania codziennie, bez wymuszonych reklam, czas na bossa x2, więcej wejść do jaskini, nagrody z Inwazji i Wieży x2.',
-      'offer.warp.d': 'Skok do przodu: dochód z {n} h od razu, +{c} monet.', 'offer.boost.d': 'Obejrzyj krótką reklamę: obrażenia x2 przez 30 minut. Tylko jeśli chcesz.',
-      'step.title': 'Krok po kroku!', 'step.text': 'Kupuj pupile i rośnij w siłę!', 'step.n': 'KROK {n}', 'step.lock': 'Odblokujesz po Kroku {n}', 'step.value': 'x{n} wartości', 'step.go': 'Do Sklepu',
-      'ad.title': 'Reklama', 'ad.test': 'Testowa reklama. W wersji ze sklepu będzie tu prawdziwe wideo.', 'ad.skip': 'Pomiń za {n}', 'ad.close': 'Odbierz nagrodę', 'ad.vip': 'Reklama pominięta (Bez reklam)', 'ad.broken': 'Reklama się zepsuła, ale nagroda jest twoja.', 'ad.credit': 'Ta reklama jest już obejrzana: nagroda przyjdzie bez niej.', 'ad.recovered': 'Twoja nagroda za reklamę z poprzedniego razu', 'ad.recovered.credit': 'Reklama z poprzedniego razu się liczy: następne losowanie lub odrodzenie x3 bez reklamy.', 'pass.season': 'Ten sezon: {d} dni, do {date} włącznie', 'pass.season.long': 'Ten sezon: do {date} włącznie', 'pass.premium.season': 'Premium tylko na ten sezon: {d} dni, do {date} włącznie. Następny sezon znów zaczyna się za darmo.', 'pass.premium.season.long': 'Premium tylko na ten sezon, do {date} włącznie. Następny sezon znów zaczyna się za darmo.',
+      'offer.club.d': '{n} dziennie, bez wymuszonych reklam, ×2 czasu na bossa i nagród z Inwazji i Wieży.',
+      'offer.warp.d': 'Skok do przodu: dochód z {n} h od razu, +{c}.', 'offer.boost.d': 'Obejrzyj krótką reklamę: obrażenia ×2 przez 30 minut. Tylko jeśli chcesz.',
+      'step.title': 'Krok po kroku!', 'step.text': 'Kupuj pupile i rośnij w siłę!', 'step.n': 'Krok {n}', 'step.lock': 'Odblokujesz po Kroku {n}', 'step.value': '×{n} wartości', 'step.go': 'Do Sklepu',
+      'ad.title': 'Reklama', 'ad.test': 'Testowa reklama. W wersji ze sklepu będzie tu prawdziwe wideo.', 'ad.skip': 'Pomiń za {n}', 'ad.close': 'Odbierz nagrodę', 'ad.vip': 'Reklama pominięta (reklamy wyłączone)', 'ad.broken': 'Reklama się zepsuła, ale nagroda jest twoja.', 'ad.credit': 'Ta reklama jest już obejrzana: nagroda przyjdzie bez niej.', 'ad.recovered': 'Twoja nagroda za reklamę z poprzedniego razu', 'ad.recovered.credit': 'Reklama z poprzedniego razu się liczy: następne losowanie lub odrodzenie ×3 bez reklamy.', 'pass.season': 'Ten sezon: {d}, do {date} włącznie', 'pass.season.long': 'Ten sezon: do {date} włącznie', 'pass.premium.season': 'Tylko na ten sezon: {d}, do {date} włącznie.', 'pass.premium.season.long': 'Tylko na ten sezon, do {date} włącznie.',
       'mission.title': 'Misja', 'mission.claim': 'Odbierz',
       'm.world': 'Dotrzyj do Świata {n}', 'm.upgrades': 'Kup ulepszenia ×{n}', 'm.kills': 'Rozbij warzywa ×{n}', 'm.draws': 'Losuj ×{n}', 'm.merges': 'Połącz ×{n}', 'm.raid': 'Przejdź falę inwazji {n}', 'm.tower': 'Pokonaj Wieżę, poz. {n}', 'm.caves': 'Odwiedź jaskinię ×{n}', 'm.rebirths': 'Odródź się ×{n}', 'm.bosses': 'Pokonaj bossów ×{n}', 'm.golden': 'Złap złote marchewki ×{n}',
       'daily.title': 'Codzienny prezent', 'daily.day': 'Dzień {n}', 'daily.claimed': 'Wróć jutro!',
       'piggy.title': 'Kryształowa świnka',
-      'offline.title': 'Witaj z powrotem!', 'offline.text': 'Króliczek rozbijał warzywa jeszcze przez {t}.', 'offline.x2': 'x2 (reklama)',
+      'offline.title': 'Witaj z powrotem!', 'offline.text': 'Króliczek rozbijał warzywa jeszcze przez {t}.', 'offline.x2': '×2',
       'golden.title': 'Złota marchewka!', 'golden.coins': '+{n} monet', 'golden.crystals': '+{n} kryształów', 'golden.buff': '{b} na 2 min',
-      'settings.g.sound': 'Dźwięk', 'settings.g.comfort': 'Wygoda', 'settings.g.more': 'Więcej',
-      'settings.title': 'Ustawienia', 'settings.lang': 'Język', 'settings.sound': 'Dźwięki', 'settings.eco': 'Tryb eko (oszczędza baterię)', 'settings.gfx': 'Grafika', 'settings.gfx.auto': 'Auto', 'settings.gfx.high': 'Wysoka', 'settings.gfx.low': 'Niska', 'settings.sky': 'Pora dnia', 'settings.sky.day': 'Dzień', 'settings.sky.clock': 'Zegar', 'settings.sky.night': 'Noc','settings.save': 'Zapis', 'settings.export': 'Kopiuj kod zapisu', 'settings.import': 'Wczytaj kod zapisu', 'settings.reset': 'Zresetuj postęp', 'settings.reset.confirm': 'Usunąć cały postęp i zacząć od Świata 1? Zakupy zostają. Kopie zapasowe powyżej mogą go przywrócić, ale tylko dopóki nie zostaną zastąpione (od 10 min do doby).', 'settings.reset.do': 'Zresetuj','settings.copied': 'Kod zapisu skopiowany', 'settings.loaded': 'Zapis wczytany', 'settings.bad': 'To nie jest prawidłowy kod zapisu', 'settings.cloud': 'Zapis w chmurze: włączony', 'settings.local': 'Zapisano na tym urządzeniu',
-      'on': 'WŁ.', 'off': 'WYŁ.', 'confirm': 'Potwierdź',
+      'settings.g.sound': 'Dźwięk', 'settings.g.general': 'Ogólne', 'settings.g.comfort': 'Wygoda', 'settings.g.more': 'Więcej',
+      'settings.title': 'Ustawienia', 'settings.lang': 'Język', 'settings.sound': 'Dźwięki', 'settings.eco': 'Tryb eko (oszczędza baterię)', 'settings.gfx': 'Grafika', 'settings.gfx.auto': 'Auto', 'settings.gfx.high': 'Wysoka', 'settings.gfx.low': 'Niska', 'settings.sky': 'Pora dnia', 'settings.sky.day': 'Dzień', 'settings.sky.clock': 'Zegar', 'settings.sky.night': 'Noc','settings.save': 'Zapis', 'settings.export': 'Kopiuj kod zapisu', 'settings.import': 'Wczytaj kod zapisu', 'settings.reset': 'Zresetuj postęp', 'settings.reset.confirm': 'Usunąć postęp i zacząć od Świata 1? Zakupy zostają, a kopia przez chwilę go przywróci.', 'settings.reset.do': 'Zresetuj','settings.copied': 'Kod zapisu skopiowany', 'settings.loaded': 'Zapis wczytany', 'settings.bad': 'To nie jest prawidłowy kod zapisu', 'settings.cloud': 'Zapis w chmurze: włączony', 'settings.local': 'Zapisano na tym urządzeniu',
+      'on': 'Wł.', 'off': 'Wył.', 'confirm': 'Potwierdź',
       // counts: the word follows the number (i18n.tn picks the form by the language's plural rules)
       'n.crystals.one': '{n} kryształ', 'n.crystals.few': '{n} kryształy', 'n.crystals.many': '{n} kryształów', 'n.crystals.other': '{n} kryształu',
-      'n.clovers.one': '{n} koniczyna', 'n.clovers.few': '{n} koniczyny', 'n.clovers.many': '{n} koniczyn', 'n.clovers.other': '{n} koniczyny',
+      'n.clovers.one': '{n} koniczyna', 'n.clovers.few': '{n} koniczyny', 'n.clovers.many': '{n} koniczyn', 'n.clovers.other': '{n} koniczyny', 'n.coins.one': '{n} moneta', 'n.coins.few': '{n} monety', 'n.coins.many': '{n} monet', 'n.coins.other': '{n} monety', 'n.rp.one': '{n} kamień księżycowy', 'n.rp.few': '{n} kamienie księżycowe', 'n.rp.many': '{n} kamieni księżycowych', 'n.rp.other': '{n} kamienia księżycowego', 'n.rebirths.one': '{n} odrodzenie', 'n.rebirths.few': '{n} odrodzenia', 'n.rebirths.many': '{n} odrodzeń', 'n.rebirths.other': '{n} odrodzenia', 'n.days.one': '{n} dzień', 'n.days.few': '{n} dni', 'n.days.many': '{n} dni', 'n.days.other': '{n} dnia',
       'time.d': '{n} d',
       'toast.nocoins': 'Za mało monet', 'toast.nocrystals': 'Za mało kryształów', 'toast.noclovers': 'Za mało koniczyn', 'toast.saved': 'Zapisano',
       'auto.on': 'Auto-ulepszanie włączone', 'auto.off': 'Auto-ulepszanie wyłączone', 'auto.locked': 'Auto-ulepszanie jest w Sklepie. Wypróbować przez 10 min za reklamę?', 'auto.trial': 'Wypróbuj 10 min', 'auto.notrial': 'Dwie darmowe próby na dziś już wykorzystane. Auto-ulepszanie jest w Sklepie.',
@@ -4581,6 +4584,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     pending: (id) => !!(native() && native().pending && native().pending(id)),
     // Can anything be bought here? The store app, or a test build with its test purchases; not the game as a website.
     available: () => !!(native() && native().purchase) || dev(),
+    // Which words the shop shows about paying (it decides nothing): 'store' the real Google Play / App Store (the
+    // release app), 'test' a test build's free test purchases (debug APK, local builds), 'web' the game in a browser
+    // (no store at all), 'off' an app without a store connection.
+    mode: () => (native() && native().purchase ? 'store' : dev() ? 'test' : native() ? 'off' : 'web'),
     // One purchase at a time: a second tap while the store dialog is up does nothing (the shop also greys the button).
     busy: false,
     async buy(id) {
@@ -7151,7 +7158,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     }
     ctx.globalAlpha = 1;
     if (comboOn) {
-      const lb = label('x' + combo, combo >= 21 ? '#ffb020' : '#9ae8ff', Math.round(9 * K * TEXT));
+      const lb = label('×' + combo, combo >= 21 ? '#ffb020' : '#9ae8ff', Math.round(9 * K * TEXT));
       const x = Math.round((W / 2) * K - lb.cx), y = Math.round((fieldTop + (rainPhase ? 40 : 10)) * K - lb.cy);
       ctx.globalAlpha = Math.min(1, comboT / 0.25);
       ctx.drawImage(lb.c, x, y);
@@ -7429,7 +7436,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     if (!best) return plant(x, y);
     tapT = tick; lastHitTap = tick;
     if (focus !== best) { focus = best; focusT = 0; }
-    // Taps that keep landing build a combo: up to x2 damage at 21 in a row, gone after 0.7 s without one.
+    // Taps that keep landing build a combo: up to ×2 damage at 21 in a row, gone after 0.7 s without one.
     combo = comboT > 0 ? combo + 1 : 1; comboT = 0.7;
     chargeRain(RAIN.perTap);
     const gun = st.guns.reduce((a, b) => (b.dmg > a.dmg ? b : a), st.guns[0]);
@@ -8200,9 +8207,19 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     return id;
   }
 
-  // "100 crystals" / "100 кристалів": the word follows the number (i18n.tn).
-  const gems = (n) => i18n.tn('n.crystals', n, fmt.num(n));
-  const clovers = (n) => i18n.tn('n.clovers', n, fmt.num(n));
+  // "100 crystals" / "100 кристалів": the word follows the number (i18n.tn). Every count with a noun goes through one
+  // of these, never "{n} crystals" in a string ("1 rebirths", "21 кристалів").
+  // The form follows the number as shown ("523" for 523.7 coins of income).
+  const count = (key, n) => { const shown = fmt.num(n); return i18n.tn(key, /^\d+$/.test(shown) ? Number(shown) : n, shown); };
+  const gems = (n) => count('n.crystals', n);
+  const clovers = (n) => count('n.clovers', n);
+  const coins = (n) => count('n.coins', n);
+  const stones = (n) => count('n.rp', n);
+  const rebirths = (n) => count('n.rebirths', n);
+  // What the shop says about paying, by build (BB.iap.mode): the store's own terms in the store app, a test note in a
+  // test build, and in a browser plainly that nothing can be bought there. Never "test mode" in the store app.
+  const payNote = () => ({ test: t('shop.test'), web: t('shop.web'), off: t('shop.unavailable') }[BB.iap.mode()] || '');
+  const clubFine = (p) => (BB.iap.mode() === 'store' ? t('club.fine.store', { p }) : BB.iap.mode() === 'test' ? t('club.fine') : payNote());
 
   // ---------- binding helper ----------
   function bind(el, map) {
@@ -8404,7 +8421,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   const UPS = [['power', 'power'], ['speed', 'speed'], ['money', 'money']];
   function buildUpgrades() {
     const el = $('#drawer');
-    el.innerHTML = `<div class="drawer-top"><b>${t('up.title')}</b><div class="seg sm" role="radiogroup" aria-label="${t('up.title')}">${[1, 10, 'max'].map((m) => `<button role="radio" data-mult="${m}">${m === 'max' ? t('buy.max') : 'x' + m}</button>`).join('')}</div></div>
+    el.innerHTML = `<div class="drawer-top"><b>${t('up.title')}</b><div class="seg sm" role="radiogroup" aria-label="${t('up.title')}">${[1, 10, 'max'].map((m) => `<button role="radio" data-mult="${m}">${m === 'max' ? t('buy.max') : t('buy.x' + m)}</button>`).join('')}</div></div>
       ${UPS.map(([k, icon]) => `<button class="up-row" id="up-${k}" data-up="${k}">
         <span class="up-ico">${ico(icon)}</span>
         <span class="up-info"><span class="up-head"><b class="up-name">${t('up.' + k)}</b><i class="lv up-lv"></i></span><span class="up-stat"><b class="up-val ellip"></b><i class="up-next"></i></span></span>
@@ -8589,8 +8606,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function short(cur, where) { toast(t(cur === 'clovers' ? 'toast.noclovers' : 'toast.nocrystals')); BB.track('short', { cur, where }); }
   async function freeCrystals() {
     const s = S();
-    if (!logic.freeCrystalsLeft(s, now())) { toast(t('shop.freec.d', { n: logic.FREE_CRYSTALS, left: 0 })); return; }
-    if (!s.iap.noAds && !(await confirmDlg(t('shop.freec'), t('shop.freec.d', { n: logic.FREE_CRYSTALS, left: logic.freeCrystalsLeft(s, now()) })))) return;
+    if (!logic.freeCrystalsLeft(s, now())) { toast(t('shop.freec.d', { n: gems(logic.FREE_CRYSTALS), left: 0 })); return; }
+    if (!s.iap.noAds && !(await confirmDlg(t('shop.freec'), t('shop.freec.d', { n: gems(logic.FREE_CRYSTALS), left: logic.freeCrystalsLeft(s, now()) })))) return;
     if (await BB.ads.rewarded('free_crystals')) {
       const r = logic.claimFreeCrystals(S(), now());
       if (r.ok) { toast(`${ico('crystal', 'ico sm')} +${r.n}`); BB.sound.play('coin'); G().changed(); }
@@ -8679,31 +8696,31 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         const waiting = Object.keys(logic.PRODUCTS).some((id) => BB.iap.pending(id));
         el.innerHTML = `
           ${waiting ? row({ cls: 'sky', media: ico('info', 'ico lg'), title: t('shop.pending'), sub: t('shop.pending.d') }) : ''}
-          ${BB.iap.available() ? '' : `<p class="hint web-only">${t('shop.web')}</p>`}
+          ${BB.iap.available() ? '' : `<p class="hint web-only">${payNote()}</p>`}
           ${sec(t('shop.free'))}
           ${row({ media: ico('crystal', 'ico lg'), title: t('shop.freec'), sub: t('shop.freec.d', { n: logic.FREE_CRYSTALS, left: free }), act: `<button class="btn sky" data-act="free" ${free ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}+${logic.FREE_CRYSTALS}</button>` })}
           ${row({ media: ico('calendar', 'ico lg'), title: t('shop.daily'), sub: t('shop.daily.d'), act: `<button class="btn" data-act="daily">${t('open')}</button>` })}
-          ${club || sprout ? row({ cls: 'gold', media: ico('club', 'ico lg'), title: t('club.daily'), sub: t('club.daily.d', { n: logic.perkGems(s, T) }), act: `<button class="btn green" data-act="perks" ${perk ? '' : 'disabled'}>${perk ? '+' + logic.perkGems(s, T) : ico('check', 'ico xs')}</button>` }) : ''}
+          ${club || sprout ? row({ cls: 'gold', media: ico('club', 'ico lg'), title: t('club.daily'), sub: t('club.daily.d', { n: gems(logic.perkGems(s, T)) }), act: `<button class="btn green" data-act="perks" ${perk ? '' : 'disabled'}>${perk ? '+' + logic.perkGems(s, T) : ico('check', 'ico xs')}</button>` }) : ''}
           ${row({ tag: 'button', attrs: 'data-act="pass"', cls: 'lilac pass-card', media: ico('pass', 'ico lg'), title: t('pass.title', { n: pv.season }), sub: `${t('pass.tier', { n: pv.tier, max: BB.pass.TIERS })}\u00a0· ${timer(T + pv.endsIn, 'pass.ends')}`, act: pv.premium ? ico('check', 'ico sm') : paid('pass') ? `<span class="btn green sm">${price('pass')}</span>` : `<span class="btn sm">${t('open')}</span>` })}
           ${s.iap.starter || !paid('starter') ? '' : row({ cls: 'gold', media: spr('pet_3', 'ico lg'), title: t('shop.starter'), sub: t('shop.starter.d'), act: buyBtn('starter') })}
           ${!paid('club') && !club ? '' : `${sec(t('club.title'), club ? timer(s.club.until, 'vip.active') : '', 'sec-club')}
           <div class="card plum">
             <div class="perks">
-              ${perk1('crystal', t('club.p.gems', { n: logic.CLUB_GEMS }), ico('check', 'ico xs'))}
+              ${perk1('crystal', t('club.p.gems', { n: gems(logic.CLUB_GEMS) }), ico('check', 'ico xs'))}
               ${perk1('ad', t('club.p.noads'), ico('check', 'ico xs'))}
-              ${perk1('power', t('vip.boss'), 'x2')}
+              ${perk1('power', t('vip.boss'), '×2')}
               ${perk1('ticket', t('club.p.cave'), '6')}
-              ${perk1('clover', t('club.p.rewards'), 'x2')}
+              ${perk1('clover', t('club.p.rewards'), '×2')}
               ${perk1('calendar', t('vip.offline'), '+4h')}
               ${perk1('magnet', t('club.p.conv'), ico('check', 'ico xs'))}
             </div>
             ${club ? `<a class="btn wide" href="${CLUB_MANAGE_URL}" target="_blank" rel="noopener" id="club-manage">${t('club.manage')}</a>` : `<button class="btn wide green" data-act="buy" data-arg="club">${t('club.price', { p: price('club') })}</button>`}
-            <small class="fine">${BB.DEV !== false ? t('club.fine') : t('club.fine.store', { p: price('club') })}</small>
+            <small class="fine">${clubFine(price('club'))}</small>
           </div>`}
-          ${!paid('shop') ? '' : row({ cls: 'mint', media: spr('pet_0', 'ico lg'), title: t('shop.sprout'), sub: t('shop.sprout.d', { now: 100, n: logic.SPROUT_GEMS }), extra: sprout ? `<span><span class="tag">${timer(s.sprout.until, 'vip.active')}</span></span>` : '', act: buyBtn('sprout') })}
-          ${logic.piggyOn(s) && paid('piggy') ? row({ cls: 'gold', media: ico('piggy', 'ico lg'), title: t('piggy.title'), sub: t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX }), extra: pbar(pig / logic.PIGGY_MAX, `${pig} / ${logic.PIGGY_MAX}`, 'gold'), act: logic.piggyReady(s) ? buyBtn('piggy') : `<button class="btn" disabled>${ico('lock', 'ico xs')}</button>` }) : ''}
+          ${!paid('shop') ? '' : row({ cls: 'mint', media: spr('pet_0', 'ico lg'), title: t('shop.sprout'), sub: t('shop.sprout.d', { now: gems(100), n: logic.SPROUT_GEMS }), extra: sprout ? `<span><span class="tag">${timer(s.sprout.until, 'vip.active')}</span></span>` : '', act: buyBtn('sprout') })}
+          ${logic.piggyOn(s) && paid('piggy') ? row({ cls: 'gold', media: ico('piggy', 'ico lg'), title: t('piggy.title'), sub: t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX }), extra: pbar(pig / logic.PIGGY_MAX, `${pig}/${logic.PIGGY_MAX}`, 'gold'), act: logic.piggyReady(s) ? buyBtn('piggy') : `<button class="btn" disabled>${ico('lock', 'ico xs')}</button>` }) : ''}
           ${sec(t('warp.title'))}
-          <p class="hint">${t('warp.d', { c: fmt.num(eco.incomePerSec(s, T) * 3600) })}</p>
+          <p class="hint">${t('warp.d', { c: coins(eco.incomePerSec(s, T) * 3600) })}</p>
           <div class="draws">${warp(1)}${warp(4)}${warp(12)}</div>
           ${!paid('shop') ? `<p class="hint">${t('shop.soon')}</p>` : `${sec(t('shop.ads'))}
           ${group([
@@ -8722,7 +8739,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
             return `<button class="gem-card skinc" data-act="${has ? '' : 'buy'}" data-arg="${id}"><span class="gart">${spr('bunny_' + sk.id, 'ico lg')}</span><b class="ellip">${esc(i18n.name('skin', sk.id))}</b><small class="bonus">${Object.entries(sk.bonus).map(([k, v]) => `<span class="cost">${ico(k, 'ico xs')}+${v}%</span>`).join('')}</small><span class="btn ${has ? '' : 'green'} sm">${has ? t('owned') : price(id)}</span></button>`;
           }).join('')}</div>`}
           ${BB.iap.canRestore() ? `<button class="btn wide" data-act="restore">${t('shop.restore')}</button>` : ''}
-          ${BB.DEV !== false ? `<p class="hint" style="margin-top:12px">${t('shop.test')}</p>` : ''}`;
+          ${BB.iap.mode() === 'test' ? `<p class="hint" style="margin-top:12px">${payNote()}</p>` : ''}`;
         bind(el, {
           buy: async (id, b) => { await buy(id, b); G().statsChanged(); rerender(); },
           free: () => freeCrystals(), daily: () => openDaily(), pass: () => openQuests('pass'),
@@ -8730,7 +8747,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           warp: async (h) => {
             const c = logic.WARP[h];
             if (S().crystals < c) { short('crystals', 'warp'); return; }
-            if (!(await confirmDlg(t('warp.title'), t('warp.confirm', { n: h, c: fmt.num(eco.incomePerSec(S(), now()) * h * 3600) }), { cls: 'yellow' }))) return;
+            if (!(await confirmDlg(t('warp.title'), t('warp.confirm', { n: h, c: coins(eco.incomePerSec(S(), now()) * h * 3600) }), { cls: 'yellow' }))) return;
             const r = logic.timeWarp(S(), Number(h), now());
             if (r.ok) { BB.fx.reward({ coins: r.coins }); G().statsChanged(); rerender(); }
           },
@@ -8766,12 +8783,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const s = S(), T = now();
     const body = {
       starter: () => `${spr('pet_3', 'ico huge')}<p class="inline">${gradeBadge(3)} <b>${esc(i18n.name('pet', 3))}</b></p><p>${t('shop.starter.d')}</p>`,
-      piggy: () => `${ico('piggy', 'ico xl')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt} / ${logic.PIGGY_MAX}`, 'gold')}`,
+      piggy: () => `${ico('piggy', 'ico xl')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt}/${logic.PIGGY_MAX}`, 'gold')}`,
       gems: () => `${ico('crystal', 'ico xl')}<p class="reward-line">${cost('crystal', o.value.crystals)}</p>${o.ref ? `<p>${t('offer.gems.first', { n: fmt.num(o.ref.crystals) })}</p>` : ''}`,
       noads: () => `${ico('skip', 'ico xl')}<p>${t('shop.noads.d')}</p>`,
-      club: () => `${ico('club', 'ico xl')}<p>${t('offer.club.d', { n: logic.CLUB_GEMS })}</p><small class="fine">${t('club.fine')}</small>`,
+      club: () => `${ico('club', 'ico xl')}<p>${t('offer.club.d', { n: gems(logic.CLUB_GEMS) })}</p><small class="fine">${clubFine(BB.iap.price('club'))}</small>`,
       pass: () => `${ico('pass', 'ico xl')}<p>${t('pass.premium.d')}</p><p>${seasonLine('pass.premium.season', T)}</p>`,
-      warp: () => `${ico('warp', 'ico xl')}<p>${t('offer.warp.d', { n: o.hours, c: fmt.num(eco.incomePerSec(s, T) * o.hours * 3600) })}</p>`,
+      warp: () => `${ico('warp', 'ico xl')}<p>${t('offer.warp.d', { n: o.hours, c: coins(eco.incomePerSec(s, T) * o.hours * 3600) })}</p>`,
       boost: () => `${ico('power', 'ico xl')}<p>${t('offer.boost.d')}</p>`,
     }[o.id]();
     // A time limit is shown only when it is real and the same for everyone (a pass season, a configured window).
@@ -8867,7 +8884,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           mergeall: () => {
             const n = logic.mergeAll(S(), kind);
             if (!n) { toast(t('mergeall.none')); return; }
-            BB.sound.play('merge'); BB.haptics.play('medium'); toast(t('mergeall.done', { n }));
+            BB.sound.play('merge'); BB.haptics.play('medium'); toast(i18n.tn('mergeall.done', n));
             if (BB.tutorial) BB.tutorial.event('merge');
             G().statsChanged(); rerender();
           },
@@ -8935,7 +8952,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   function pityLine(kind) {
     const left = eco.PITY.ssAt - (S().pity[kind] || 0);
-    return `<span class="pity">${t('pity.left', { n: left, g: eco.C.GRADES[eco.PITY.ssGrade] })}</span>`;
+    return `<span class="pity">${i18n.tn('pity.left', left, left, { g: eco.C.GRADES[eco.PITY.ssGrade] })}</span>`;
   }
   function showOdds(kind) {
     const table = kind === 'fly' ? eco.ODDS.fly : eco.ODDS[kind];
@@ -9104,13 +9121,13 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   // ---------- rebirth ----------
-  // Moonstones are spent like coins: x1 / x10 / MAX, and holding the button keeps buying. Right after a rebirth
+  // Moonstones are spent like coins: ×1 / ×10 / MAX, and holding the button keeps buying. Right after a rebirth
   // the panel scrolls to these upgrades and they pulse, so a fresh pile of moonstones isn't 70 single taps.
   let rbMult = 1, rbFresh = false;
   const RB = ['power', 'speed', 'money'];
   function rbPlan(s, k) {
     const L = s.rb[k], n = rbMult === 'max' ? Math.max(1, eco.rbMaxAffordable(L, s.rp).n) : rbMult;
-    return { L, n, c: eco.rbCostN(L, n), can: eco.REBIRTH.cost(L) <= s.rp, sub: `x${fmt.num(eco.REBIRTH.mult(L))} > x${fmt.num(eco.REBIRTH.mult(L + n))}` };
+    return { L, n, c: eco.rbCostN(L, n), can: eco.REBIRTH.cost(L) <= s.rp, from: '×' + fmt.num(eco.REBIRTH.mult(L)), to: '×' + fmt.num(eco.REBIRTH.mult(L + n)) };
   }
   function openRebirth(seg) {
     openSheet({
@@ -9123,17 +9140,17 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         const near = (s2, L) => Math.floor(Math.min(1, s2.rp / eco.REBIRTH.cost(L)) * 10) / 10;
         const up = (k) => {
           const p = rbPlan(s, k);
-          return row({ cls: 'rb-up', attrs: `data-k="${k}"`, media: ico(k, 'ico md'), title: `${t('rb.' + k)} <span class="lv-t rb-lv">${t('tower.lvl', { n: p.L })}</span>`, sub: `<span class="rb-sub">${esc(p.sub)}</span>`, act: `<button class="btn tall plum rb-buy ${p.can ? '' : 'poor'}" style="--k:${near(s, p.L)}"><span class="lbl">${t('rb.upgrade')}<i class="rb-n">${p.n > 1 ? ' +' + p.n : ''}</i></span><span class="cost">${ico('moon', 'ico sm')}<b class="rb-c">${fmt.num(p.c)}</b></span><i class="meter"></i></button>` });
+          return row({ cls: 'rb-up', attrs: `data-k="${k}"`, media: ico(k, 'ico md'), title: `${t('rb.' + k)} <span class="lv-t rb-lv">${t('tower.lvl', { n: p.L })}</span>`, sub: `<span class="rb-sub cost"><span class="rb-from">${p.from}</span>${ico('arrow', 'ico xs')}<span class="rb-to">${p.to}</span></span>`, act: `<button class="btn tall plum rb-buy ${p.can ? '' : 'poor'}" style="--k:${near(s, p.L)}"><span class="lbl">${t('rb.upgrade')}<i class="rb-n">${p.n > 1 ? ' +' + p.n : ''}</i></span><span class="cost">${ico('moon', 'ico sm')}<b class="rb-c">${fmt.num(p.c)}</b></span><i class="meter"></i></button>` });
         };
         // The angel bunny is the card's picture (a hero of its own pushed the upgrades below the fold on a 360 phone).
         el.innerHTML = `${row({ cls: 'lilac rb-gain', media: spr('bunny_angel', 'rb-art'), title: t('rb.avail'), sub: pts > 0 ? `${t('rb.super')}: ${fmt.num(pts * 3)}` : '', extra: `<b class="big-num">${fmt.num(pts)}</b>` })}
           ${BB.fx.rbNext(s, pts)}
           ${pts > 0 ? '' : `<p class="hint">${t('rb.need')}</p>`}
-          ${sec(t('rb.title'), '', 'rb-ups')}
-          <div class="rb-bar"><div class="seg sm" role="radiogroup" aria-label="${t('rb.title')}">${[1, 10, 'max'].map((m) => `<button data-act="rbm" data-arg="${m}" class="${String(m) === String(rbMult) ? 'on' : ''}">${m === 'max' ? t('buy.max') : 'x' + m}</button>`).join('')}</div></div>
+          ${sec(t('rb.ups'), '', 'rb-ups')}
+          <div class="rb-bar"><div class="seg sm" role="radiogroup" aria-label="${t('rb.ups')}">${[1, 10, 'max'].map((m) => `<button data-act="rbm" data-arg="${m}" class="${String(m) === String(rbMult) ? 'on' : ''}">${m === 'max' ? t('buy.max') : t('buy.x' + m)}</button>`).join('')}</div></div>
           ${group(RB.map(up), 'rb-list')}`;
-        // The footer: x3 for an ad (blue) beside the purple Rebirth key.
-        foot.innerHTML = `<div class="foot-row"><button class="btn sky fit" data-act="super" ${pts > 0 && !superUsed ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}x3 · ${superUsed ? '0/1' : '1/1'}</button><button class="btn plum big" data-act="rb" ${pts > 0 ? '' : 'disabled'}>${t('rb.do')}</button></div>`;
+        // The footer: ×3 for an ad (blue) beside the purple Rebirth key.
+        foot.innerHTML = `<div class="foot-row"><button class="btn sky fit" data-act="super" ${pts > 0 && !superUsed ? '' : 'disabled'}>${s.iap.noAds ? '' : ico('ad', 'ico sm')}×3 · ${superUsed ? '0/1' : '1/1'}</button><button class="btn plum big" data-act="rb" ${pts > 0 ? '' : 'disabled'}>${t('rb.do')}</button></div>`;
         bind(foot, { rb: () => doRebirth(1), super: async () => { if (await BB.ads.rewarded('super_rebirth')) doRebirth(3); } });
         // Buying repaints the rows in place: a rebuild would let go of a button that is being held.
         const paint = () => {
@@ -9141,7 +9158,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
           if (sheet) sheet.money();
           for (const k of RB) {
             const p = rbPlan(s2, k), r = $(`.rb-up[data-k="${k}"]`, el), b = $('.rb-buy', r);
-            $('.rb-lv', r).textContent = t('tower.lvl', { n: p.L }); $('.rb-sub', r).textContent = p.sub; $('.rb-n', r).textContent = p.n > 1 ? ' +' + p.n : '';
+            $('.rb-lv', r).textContent = t('tower.lvl', { n: p.L }); $('.rb-from', r).textContent = p.from; $('.rb-to', r).textContent = p.to; $('.rb-n', r).textContent = p.n > 1 ? ' +' + p.n : '';
             $('.rb-c', r).textContent = fmt.num(p.c); b.classList.toggle('poor', !p.can); b.style.setProperty('--k', near(s2, p.L));
           }
         };
@@ -9160,7 +9177,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   async function doRebirth(mult) {
     const pts = eco.REBIRTH.pts(S().stage.maxN) * mult * (S().rb.count === 0 ? 2 : 1);
-    if (!(await confirmDlg(t('rb.title'), t('rb.confirm', { n: fmt.num(pts) }), { cls: 'plum', label: t('rb.do') }))) return;
+    if (!(await confirmDlg(t('rb.title'), t('rb.confirm', { n: stones(pts) }), { cls: 'plum', label: t('rb.do') }))) return;
     const r = logic.rebirth(S(), mult, now());
     if (!r.ok) return;
     BB.track('rebirth', { n: S().rb.count, world: S().stats.maxWorld, stones: r.pts, super: mult > 1 });
@@ -9180,7 +9197,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       render(el) {
         const s = S(), T = now();
         const bs = eco.buffState(s, T);
-        el.innerHTML = `${row({ media: ico('power', 'ico lg'), title: t('buff.all'), act: `<b class="big-num">x3</b>` })}
+        el.innerHTML = `${row({ media: ico('power', 'ico lg'), title: t('buff.all'), act: `<b class="big-num">×3</b>` })}
           <div class="buff-row">${['power', 'speed', 'money'].map((k) => {
             const left = Math.max(0, (s.buffs[k] || 0) - T);
             return `<div class="buff ${left > 0 ? 'on' : ''}">${ico(k, 'ico lg')}<b>${t('buff.' + k)}</b><small>${t('buff.' + k + '.d', { x: bs.all ? 3 : 2 })}</small><span class="timer">${left > 0 ? timer(s.buffs[k]) : timeLeft(0)}</span><button class="btn sky" data-act="add" data-arg="${k}">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${t('buff.add')}</button></div>`;
@@ -9225,7 +9242,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   const goalRow = (x, act) => row({
     cls: x.claimed ? 'got' : x.done ? 'done' : '', media: `<span class="qicon">${x.stat === 'flowers' ? spr('flower_meadow_3', 'ico sm') : ico(QICON[x.stat] || 'star', 'ico sm')}</span>`, title: x.title,
-    extra: `${pbar(x.progress / x.n, '', x.done ? '' : 'gold')}<span class="pmeta"><span>${fmt.num(x.progress)} / ${fmt.num(x.n)}</span></span>`, act,
+    extra: `${pbar(x.progress / x.n, '', x.done ? '' : 'gold')}<span class="pmeta"><span>${fmt.num(x.progress)}/${fmt.num(x.n)}</span></span>`, act,
   });
   function renderQuests(el) {
     const s = S(), T = now();
@@ -9234,7 +9251,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const qa = (x) => `<button class="btn ${x.done && !x.claimed ? 'green' : ''}" data-act="q" data-arg="${x.kind}:${x.id}" ${x.done && !x.claimed ? '' : 'disabled'}>${x.claimed ? ico('check', 'ico sm') : rewardHtml({ xp: x.xp })}</button>`;
     const dayLeft = new Date(new Date(T).setHours(24, 0, 0, 0)) - T;
     el.innerHTML = `${sec(t('mission.title'))}
-      ${row({ cls: m.done ? 'done' : 'gold', media: `<span class="qicon">${ico('star', 'ico sm')}</span>`, title: missionText(m), extra: `${pbar(m.progress / m.target, '', 'gold')}<span class="pmeta"><span>${fmt.num(m.progress)} / ${fmt.num(m.target)}</span>${logic.canSkipMission(s, T) ? `<button class="link" data-act="skip">${t('mission.skip')}</button>` : ''}</span>`, act: `<button class="btn ${m.done ? 'green' : ''}" data-act="claim" ${m.done ? '' : 'disabled'}>${cost('crystal', m.reward)}</button>` })}
+      ${row({ cls: m.done ? 'done' : 'gold', media: `<span class="qicon">${ico('star', 'ico sm')}</span>`, title: missionText(m), extra: `${pbar(m.progress / m.target, '', 'gold')}<span class="pmeta"><span>${fmt.num(m.progress)}/${fmt.num(m.target)}</span>${logic.canSkipMission(s, T) ? `<button class="link" data-act="skip">${t('mission.skip')}</button>` : ''}</span>`, act: `<button class="btn ${m.done ? 'green' : ''}" data-act="claim" ${m.done ? '' : 'disabled'}>${cost('crystal', m.reward)}</button>` })}
       ${sec(t('quests.daily'), timer(T + dayLeft))}
       ${group(q.daily.map((x) => goalRow({ ...x, title: t('q.' + x.id, { n: fmt.num(x.n) }) }, qa(x))))}
       ${sec(t('quests.weekly'))}
@@ -9255,7 +9272,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   // never says "28 days" next to a countdown of 30.
   function seasonLine(key, T) {
     const ends = BB.pass.seasonEnds(T), last = new Date(ends - 1).toLocaleDateString(i18n.getLang(), { day: 'numeric', month: 'long' });
-    return t(ends - T > BB.pass.SEASON_DAYS * 86400000 ? key + '.long' : key, { d: BB.pass.SEASON_DAYS, date: last });
+    return t(ends - T > BB.pass.SEASON_DAYS * 86400000 ? key + '.long' : key, { d: count('n.days', BB.pass.SEASON_DAYS), date: last });
   }
   function renderPass(el, foot) {
     const s = S(), T = now();
@@ -9271,7 +9288,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const rows = [];
     for (let tier = 1; tier <= P.TIERS; tier++) rows.push(`<div class="prow ${tier <= v.tier ? 'reached' : ''}"><span class="pnum">${tier}</span>${cell('free', tier)}${cell('prem', tier)}</div>`);
     const ready = P.claimable(s, T);
-    el.innerHTML = `${row({ cls: 'lilac', media: ico('pass', 'ico lg'), title: t('pass.title', { n: v.season }), sub: `${seasonLine('pass.season', T)}\u00a0· ${timer(T + v.endsIn, 'pass.ends')}`, extra: `${pbar(v.tier >= P.TIERS ? 1 : v.inTier / P.XP_TIER, '', 'plum')}<span class="pmeta"><span>${t('pass.tier', { n: v.tier, max: P.TIERS })}</span><span>${v.tier >= P.TIERS ? 'MAX' : v.inTier + ' / ' + P.XP_TIER + ' XP'}</span></span>` })}
+    el.innerHTML = `${row({ cls: 'lilac', media: ico('pass', 'ico lg'), title: t('pass.title', { n: v.season }), sub: `${seasonLine('pass.season', T)}\u00a0· ${timer(T + v.endsIn, 'pass.ends')}`, extra: `${pbar(v.tier >= P.TIERS ? 1 : v.inTier / P.XP_TIER, '', 'plum')}<span class="pmeta"><span>${t('pass.tier', { n: v.tier, max: P.TIERS })}</span><span>${v.tier >= P.TIERS ? t('buy.max') : v.inTier + '/' + P.XP_TIER + ' XP'}</span></span>` })}
       <div class="btn-row" style="margin-bottom:12px">
         <button class="btn tall sky" data-act="adxp" ${P.adXpLeft(s, T) ? '' : 'disabled'}><span class="lbl">+${P.XP.ad} XP</span><span class="cost">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${P.adXpLeft(s, T)}/${P.XP.adPerDay}</span></button>
         <button class="btn tall yellow ${s.crystals < P.TIER_COST ? 'poor' : ''}" data-act="tier" ${v.tier < P.TIERS ? '' : 'disabled'}><span class="lbl">${t('pass.buytier')}</span>${cost('crystal', P.TIER_COST)}</button>
@@ -9375,7 +9392,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       ${albumGroup === 'collection' ? squadRows(s) : ''}
       ${pages.filter((p) => group[1].includes(p.id)).map((p) => `
         ${sec(t('album.p.' + p.id), p.claimed ? `+${Math.round(eco.ALBUM_PAGE_BONUS * 100)}% ${ico('coin', 'ico xs')}` : `${p.found}/${p.total}`)}
-        ${p.done && !p.claimed ? row({ cls: 'gold', media: ico('star', 'ico lg'), title: t('album.page.done'), sub: t('album.page.reward', { g: p.gems, p: Math.round(eco.ALBUM_PAGE_BONUS * 100) }), act: `<button class="btn green" data-act="claim" data-arg="${p.id}">${t('claim')}</button>` }) : ''}
+        ${p.done && !p.claimed ? row({ cls: 'gold', media: ico('star', 'ico lg'), title: t('album.page.done'), sub: t('album.page.reward', { g: gems(p.gems), p: Math.round(eco.ALBUM_PAGE_BONUS * 100) }), act: `<button class="btn green" data-act="claim" data-arg="${p.id}">${t('claim')}</button>` }) : ''}
         <div class="album-grid">${p.entries.map((e) => `<button class="atile ${e.seen ? '' : 'unseen'} ${e.shiny ? 'shiny' : ''}" data-act="entry" data-arg="${e.id}" aria-label="${e.seen ? esc(entryName(e.id)) : '?'}">${spr(e.art, 'atile-art')}${albumFresh.has(e.id) ? `<i class="newtag">${t('album.newtag')}</i>` : ''}</button>`).join('')}</div>`).join('')}`;
     bind(el, {
       group: (g) => { albumGroup = g; BB.sound.play('tap'); rerender(); el.scrollTop = 0; },
@@ -9396,7 +9413,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         const d = logic.dailyState(S(), now());
         const got = (i) => i < d.day || (!d.canClaim && i === d.day);
         const today = logic.DAILY[d.day];
-        el.innerHTML = `${row({ cls: d.canClaim ? 'mint' : '', media: ico('gift', 'ico lg'), title: t('daily.day', { n: d.day + 1 }) + ' / ' + logic.DAILY.length, sub: t('daily.pause'), extra: `<span class="reward-line" style="justify-content:flex-start;font-size:var(--fs-m)">${rewardHtml(today)}</span>` })}
+        el.innerHTML = `${row({ cls: d.canClaim ? 'mint' : '', media: ico('gift', 'ico lg'), title: t('daily.day', { n: d.day + 1 }) + '/' + logic.DAILY.length, sub: t('daily.pause'), extra: `<span class="reward-line" style="justify-content:flex-start;font-size:var(--fs-m)">${rewardHtml(today)}</span>` })}
           <div class="cal">${logic.DAILY.map((r, i) => `<div class="day ${got(i) ? 'got' : ''} ${i === d.day && d.canClaim ? 'today' : ''} ${(i + 1) % 7 === 0 ? 'big' : ''}"><span class="dn">${i + 1}</span>${got(i) ? `<span class="gotm">${ico('check', 'ico md')}</span>` : rewardMini(r)}</div>`).join('')}</div>`;
         foot.innerHTML = `<button class="btn green wide big" data-act="claim" ${d.canClaim ? '' : 'disabled'}>${d.canClaim ? t('claim') : t('daily.claimed')}</button>`;
         bind(foot, { claim: () => { const r = logic.claimDaily(S(), now()); if (r.ok) { BB.fx.reward(r.reward, t('daily.day', { n: r.day + 1 })); G().statsChanged(); rerender(); } } });
@@ -9409,7 +9426,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const s = S();
     dialog({
       title: t('piggy.title'),
-      html: `<div class="center">${ico('piggy', 'ico xl')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt} / ${logic.PIGGY_MAX}`, 'gold')}</div>`,
+      html: `<div class="center">${ico('piggy', 'ico xl')}<p>${t('piggy.text2', { n: logic.PIGGY_OPEN, max: logic.PIGGY_MAX })}</p>${pbar(s.piggy.amt / logic.PIGGY_MAX, `${s.piggy.amt}/${logic.PIGGY_MAX}`, 'gold')}</div>`,
       buttons: [{ label: t('close'), value: false }, { label: logic.piggyReady(s) ? BB.iap.price('piggy') : t('btn.shop'), value: true, cls: logic.piggyReady(s) ? 'green' : '' }],
     }).then(async (v) => { if (!v) return; if (logic.piggyReady(S())) { await BB.iap.buy('piggy'); G().changed(); } else openShop(); });
   }
@@ -9474,12 +9491,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         } else if (kind === 'tower') {
           const kinds = ['cabbage', 'pumpkin', 'tomato', 'mushroom', 'corn', 'turnip', 'eggplant', 'onion'];
           hero = spr('boss_' + kinds[lvl % kinds.length], 'mode-art');
-          lines = [`<b class="lvl">${t('tower.lvl', { n: lvl })}</b>`, meta(fights, `${ico('heart', 'ico xs')}${fmt.num(eco.bossTowerHp(lvl))}`), `<p>${t('tower.text', { s: logic.towerTime(s, T) })}</p>`];
+          lines = [`<b class="lvl">${t('tower.lvl', { n: lvl })}</b>`, meta(fights, `${ico('heart', 'ico xs')}${fmt.num(eco.bossTowerHp(lvl))}`), `<p>${i18n.tn('tower.text', logic.towerTime(s, T))}</p>`];
           reward = cost('crystal', logic.towerReward(s, lvl, T));
         } else {
           hero = spr('rock_geode', 'mode-art');
           const left = logic.caveLeft(s, T);
-          lines = [meta(`${ico('ticket', 'ico xs')}${t('cave.entries')}: ${left}/${logic.cavePass(s, T) ? eco.CAVE.ticketsPass : eco.CAVE.tickets}`), `<p>${t('cave.text', { s: logic.caveTime(s, T) })}</p>`, `<p class="muted">${t('cave.tip')} ${t('cave.best', { n: s.modes.caveBest })}</p>`];
+          lines = [meta(`${ico('ticket', 'ico xs')}${t('cave.entries')}: ${left}/${logic.cavePass(s, T) ? eco.CAVE.ticketsPass : eco.CAVE.tickets}`), `<p>${i18n.tn('cave.text', logic.caveTime(s, T))}</p>`, `<p class="muted">${t('cave.tip')} ${t('cave.best', { n: s.modes.caveBest })}</p>`];
           // The same 20-px icon as the Raid and Tower rewards (a 40-px crystal here made the three cards differ).
           reward = `<span class="cost">${ico('crystal', 'ico sm')}?</span>`;
           if (!logic.cavePass(s, T) && paid('club')) extra = row({ cls: 'sky', media: ico('ticket', 'ico lg'), title: t('cave.more'), sub: t('cave.passd'), act: `<button class="btn green" data-act="pass">${t('club.title')}</button>` });
@@ -9548,7 +9565,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
 
   // ---------- settings ----------
-  const saveLine = (sv) => t('save.pick.line', { w: sv.stats.maxWorld || 1, r: sv.rb.count || 0, h: timeLeft((sv.stats.playSec || 0) * 1000) });
+  const saveLine = (sv) => t('save.pick.line', { w: sv.stats.maxWorld || 1, r: rebirths(sv.rb.count || 0), h: timeLeft((sv.stats.playSec || 0) * 1000) });
   function backupRows() {
     const list = BB.store.backups();
     if (!list.length) return `<small class="muted">${t('settings.backup.none')}</small>`;
@@ -9596,8 +9613,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       title: t('settings.title'), cls: 'settings',
       render(el) {
         const s = S();
-        // Grouped by topic. The first group (language, reminders) needs no label: each row says what it is.
+        // Grouped by topic, every group under its label (the first, General: language and reminders).
         el.innerHTML = `
+          ${sec(t('settings.g.general'))}
           ${group([
             `<div class="set-row col"><span>${t('settings.lang')}</span><div class="seg langs">${i18n.languages().map((l) => `<button class="${i18n.getLang() === l.code ? 'on' : ''}" data-act="lang" data-arg="${l.code}">${esc(l.name)}</button>`).join('')}</div></div>`,
             toggleRow('notify', t('settings.notify'), !!s.settings.notify),
@@ -9736,6 +9754,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   const BB = root.BB;
   const { art, i18n, eco } = BB;
   const t = (k, v) => i18n.t(k, v);
+  // '120 moonstones' / '120 місячних каменів' (i18n.tn picks the form).
+  const stones = (n) => i18n.tn('n.rp', n, BB.fmt.num(n));
   const app = () => document.getElementById('app');
   const calm = () => app().classList.contains('calm');
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -9877,7 +9897,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const ov = document.createElement('div');
     ov.className = 'overlay rb-cel';
     ov.setAttribute('role', 'dialog');
-    ov.setAttribute('aria-label', t('rb.done', { n: BB.fmt.num(pts) }));
+    ov.setAttribute('aria-label', t('rb.done', { n: stones(pts) }));
     ov.innerHTML = `<div class="rb-cel-box"><div class="rb-cel-stage"><div class="rb-cel-rays"></div>${art.tag('bunny_angel', 'rb-cel-art')}</div>
       <h3 class="rb-cel-title">${t('rb.reborn')}</h3>
       <p class="rb-cel-gain">${art.icon('moon')}<span>+<span class="rb-cel-n">0</span></span></p>
@@ -9944,7 +9964,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const R = eco.REBIRTH, L = s.rb.power;
     const k0 = eco.rbMaxAffordable(L, s.rp).n, k1 = eco.rbMaxAffordable(L, s.rp + pts).n;
     const x = k1 > k0 ? ' · ' + t('rb.next.x', { x: BB.fmt.num(R.mult(L + k1) / R.mult(L + k0)) }) : '';
-    return `<p class="hint rb-next">${t('rb.next', { n: BB.fmt.num(pts) })}${x}</p>`;
+    return `<p class="hint rb-next">${t('rb.next', { n: stones(pts) })}${x}</p>`;
   }
 
   BB.fx = { reward, pop, fly, eggReveal, tierOf, rebirth, rbNext };
@@ -10779,7 +10799,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       x.fillStyle = col; x.fillText(str, W * K / 2, y);
     };
     text('BUNNY BOOM', 84, 100, '#ffe07a');
-    text(kind === 'rebirth' ? t('share.rebirth', { n: s.rb.count }) : t('share.world', { n: logic.maxWorld(s) }), 196, 72, '#ffffff');
+    text(kind === 'rebirth' ? t('share.rebirth', { n: i18n.tn('n.rebirths', s.rb.count) }) : t('share.world', { n: logic.maxWorld(s) }), 196, 72, '#ffffff');
     text(t('share.code', { c: playerCode() }), H * K - 166, 52, '#ffffff');
     text(t('share.cta'), H * K - 96, 52, '#ffe07a');
     return c;
