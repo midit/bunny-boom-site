@@ -375,7 +375,7 @@ a.btn { text-decoration: none; }
 .gem-card { position: relative; background: #d8eefb; box-shadow: var(--edge), var(--bevel); padding: var(--s3) var(--s1) var(--s2); display: flex; flex-direction: column; align-items: center; gap: var(--s1); min-width: 0; }
 .gem-card b { font-size: var(--fs-m); text-align: center; }
 .gem-card .btn { width: 100%; min-width: 0; margin-top: auto; }
-.gem-card .first { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); font-style: normal; font-size: var(--fs-xs); background: var(--red); color: var(--white); padding: 2px 5px; box-shadow: var(--edge); white-space: nowrap; text-shadow: var(--sh1); }
+.gem-card .first { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); width: max-content; max-width: 100%; box-sizing: border-box; text-align: center; font-style: normal; font-size: var(--fs-xs); background: var(--red); color: var(--white); padding: 2px 5px; box-shadow: var(--edge); text-shadow: var(--sh1); }
 .gem-card .gart { height: 52px; display: grid; place-items: center; }
 .gem-card .bonus { font-size: var(--fs-xs); display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; color: var(--ink2); }
 .gem-card.skinc { background: var(--parch3); }
@@ -499,6 +499,9 @@ a.btn { text-decoration: none; }
 .seg { display: flex; gap: var(--s1); flex: none; }
 .seg button { height: 36px; padding: 0 var(--s2); border: calc(5 * var(--p)) solid transparent; border-image: var(--ui-btn-cream) 5 fill / calc(5 * var(--p)); image-rendering: pixelated; font-size: var(--fs-s); box-sizing: border-box; white-space: nowrap; }
 .seg button.on { border-image-source: var(--ui-btn-yellow); }
+/* The language picker gets a line of its own; with more languages its buttons wrap. */
+.seg.langs { flex-wrap: wrap; }
+.seg.langs button { flex: 1 1 auto; }
 .toggle { flex: none; min-width: 64px; height: 36px; padding: 0 var(--s2); border: calc(5 * var(--p)) solid transparent; border-image: var(--ui-btn-grey) 5 fill / calc(5 * var(--p)); image-rendering: pixelated; font-size: var(--fs-s); color: var(--white); text-shadow: var(--sh1); box-sizing: border-box; }
 .toggle.on { border-image-source: var(--ui-btn-green); }
 textarea, input, select { font: inherit; font-size: var(--fs-s); border: 0; box-shadow: var(--edge); padding: 8px; background: var(--white); color: var(--ink); -webkit-user-select: text; user-select: text; box-sizing: border-box; border-radius: 0; min-height: 36px; }
@@ -1633,6 +1636,200 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       biome: ['Морквяна галявина', 'Гарбузова грядка', 'Теплиця', 'Грибний ліс', 'Динна пустеля', 'Морозний сад', 'Болотяні грядки', 'Місячний сад'],
       boss: { cabbage: 'Король Капуста', pumpkin: 'Бабця Гарбуз', tomato: 'Сер Помідор', mushroom: 'Дід Гриб', corn: 'Генерал Качан', turnip: 'Барон Ріпа', eggplant: 'Граф Баклажан', onion: 'Королева Цибуля' },
       skin: { classic: 'Класичний', farmer: 'Фермер', scout: 'Скаут', chef: 'Шеф', sailor: 'Моряк', knight: 'Лицар', nurse: 'Медсестра', police: 'Офіцер', detective: 'Детектив', witch: 'Відьма', ballerina: 'Балерина', pirate: 'Пірат', astronaut: 'Астронавт', ninja: 'Ніндзя', samurai: 'Самурай', wizard: 'Чарівник', angel: 'Ангел', devil: 'Чортик', king: 'Король', queen: 'Королева', golden: 'Золотий', moon: 'Місяць', dragon: 'Дракон', carrot: 'Морквинка' },
+    },
+  };
+});
+
+// ---- locales/pl.js
+// Polish translation. To add a language: copy en.js to <code>.js, translate the values (keep the
+// keys and the {placeholders}), add the file to ORDER in tools/build.js. Missing keys
+// fall back to English; `npm test` lists them.
+// Polish past tense says whether "you" are a he or a she, so lines speak to the player in the present,
+// the future or the imperative. Counts are written "×{n}" or "Label: {n}", or with a short unit ("{v} obr.",
+// "{h} godz."), so no plural form is needed; where the word must follow the number, the n.* keys give Polish
+// its one / few / many forms (i18n.tn: 1 kryształ, 2 kryształy, 5 kryształów).
+(function (root, factory) {
+  const L = factory();
+  if (typeof module === 'object' && module.exports) module.exports = L;
+  else root.BB.i18n.register(L.code, L);
+})(typeof self !== 'undefined' ? self : this, function () {
+  return {
+    code: 'pl',
+    name: 'Polski',
+    strings: {
+      'game.title': 'Bunny Boom',
+      'world': 'Świat {w}-{s}',
+      'farming': 'Farma {w}-{s}',
+      'stage.clear': 'Etap zaliczony!',
+      'boss.down': 'Boss pokonany!',
+      'boss.fail': 'Za wolno! Wzmocnij się i spróbuj znowu',
+      'boss.challenge': 'Wyzwij bossa',
+      'boss.ready': 'Teraz dasz radę!',
+      'stage.tough': 'Za trudno! Cofamy się o etap', 'stage.retry': 'Spróbuj znowu',
+      'hopping': 'Króliczek kica dalej…',
+      'end.title': 'Tu kończy się ogród!',
+      'end.text': 'Nowe światy dopiero kiełkują. Do tego czasu odradzaj się i rośnij w siłę.',
+      'up.power': 'Siła', 'up.speed': 'Szybkość', 'up.money': 'Zysk', 'up.v.power': '{v} obr.', 'up.v.speed': '{v} strz./s', 'up.v.money': '{v} za warzywo', 'up.title': 'Ulepszenia',
+      'tab.up': 'Ulepsz', 'tab.bunny': 'Królik', 'tab.gear': 'Blastery', 'tab.pets': 'Pupile', 'tab.adv': 'Przygody', 'tab.shop': 'Sklep',
+      'buy.x1': 'x1', 'buy.x10': 'x10', 'buy.max': 'MAKS',
+      'btn.shop': 'Sklep', 'btn.rebirth': 'Odrodzenie', 'btn.pet': 'Pupile', 'btn.fly': 'Motyle', 'btn.skin': 'Stroje', 'btn.gun': 'Blastery',
+      'btn.free': 'Za reklamę', 'btn.auto': 'Auto', 'btn.trip': 'Wyprawa', 'btn.raid': 'Inwazja', 'btn.boss': 'Boss', 'btn.cave': 'Jaskinia', 'btn.buffs': 'Buffy', 'btn.mission': 'Misja', 'btn.daily': 'Prezent', 'btn.piggy': 'Świnka',
+      'close': 'Zamknij', 'ok': 'OK', 'cancel': 'Anuluj', 'claim': 'Odbierz', 'locked': 'Zablokowane', 'equip': 'Załóż', 'equipped': 'Założone', 'owned': 'Masz', 'buy': 'Kup', 'back': 'Wróć', 'start': 'Start', 'challenge': 'Do boju', 'retry': 'Jeszcze raz', 'exit': 'Wyjdź', 'done': 'Gotowe', 'reward': 'Nagroda', 'free': 'ZA DARMO', 'or': 'lub',
+      'res.coins': 'Monety', 'res.crystals': 'Kryształy', 'res.clovers': 'Koniczyny', 'res.rp': 'Kamienie księżycowe', 'res.tickets': 'Bilety',
+      'gun.title': 'Blastery', 'gun.drag': 'Przeciągnij blaster do slotu, żeby go założyć.', 'gun.merge': 'Przeciągnij dwa o tej samej randze na siebie, a się połączą. Przytrzymaj jeden, żeby zobaczyć jego kartę.',
+      'pet.title': 'Pupile', 'pet.drag': 'Przeciągnij pupila do slotu, żeby ruszył do walki.', 'fly.title': 'Motyle', 'fly.tip': 'Motyle wzmacniają Siłę i trafienia krytyczne. Łącz te same rangi; przytrzymaj, żeby zobaczyć kartę.',
+      'draw': 'Losuj', 'draw10': 'Losuj x10', 'draw.free': 'Za darmo', 'draw.ad': 'Reklama', 'draw.epic': 'Epickie', 'draw.full': 'Brak miejsca. Najpierw coś połącz!', 'draw.got': 'Masz: {name}!', 'draw.result': 'Nowość!',
+      'equipbest': 'Załóż najlepsze', 'slot.locked': 'Od Świata {w}', 'auto.merge': 'Auto', 'auto.need': 'Auto-łączenie masz w Klubie Ogrodowym',
+      'odds': 'Szanse', 'odds.title': 'Szanse losowania', 'odds.text': 'Każde losowanie daje jeden przedmiot. Wyższe rangi zdobędziesz tylko przez łączenie.',
+      'stat.dmg': 'Obrażenia', 'stat.rate': 'Strzały/s', 'stat.money': 'Zysk', 'stat.speed': 'Szybkość', 'stat.power': 'Siła', 'stat.crit': 'Szansa kryt.', 'stat.critdmg': 'Obr. kryt.',
+      'skin.title': 'Stroje', 'skin.tip': 'Bonus ze stroju działa, nawet gdy nosisz inny.',
+      'skin.u.world': 'Dotrzyj do Świata {w}', 'skin.u.rebirths': 'Odródź się ×{n}', 'skin.u.iap': 'W Sklepie',
+      'rb.title': 'Odrodzenie', 'rb.avail': 'Kamieni do zdobycia', 'rb.do': 'Odródź się', 'rb.super': 'Super x3', 'rb.need': 'Dotrzyj do Świata 5, żeby się odrodzić',
+      'rb.confirm': 'Zacząć od Świata 1? Kamienie księżycowe: +{n}. Kryształy, blastery, pupile, motyle i stroje zostają z tobą.',
+      'rb.power': 'Wzmocnienie siły', 'rb.speed': 'Wzmocnienie szybkości', 'rb.money': 'Wzmocnienie zysku', 'rb.upgrade': 'Ulepsz', 'rb.done': 'Odrodzenie! Kamienie księżycowe: +{n}',
+      'rb.reborn': 'Odrodzenie!', 'rb.fresh': 'Nowy start w Świecie 1', 'rb.next': 'Następne odrodzenie: Kamienie księżycowe +{n}', 'rb.next.x': 'do x{x} siły',
+      'buff.title': 'Buffy', 'buff.all': 'Włącz wszystkie trzy, a każdy da x3!', 'buff.power': 'Buff siły', 'buff.speed': 'Buff szybkości', 'buff.money': 'Buff zysku',
+      'buff.power.d': 'Obrażenia x{x}', 'buff.speed.d': 'Szybkość x{x}', 'buff.money.d': 'Zysk x{x}', 'buff.add': '+30 min', 'buff.max': 'Każdy do 4 godzin',
+      'raid.title': 'Inwazja ślimaków', 'raid.text': 'Ślimaki idą po marchewki! Zatrzymaj każdego z nich.', 'raid.lvl': 'Fala {n}', 'raid.tip': 'Od fali {w} część ślimaków ma czapki z żołędzi: stuknij, by je strącić!',
+      'tower.title': 'Wieża bossów', 'tower.text': 'Pokonaj bossa w {s} sekund!', 'tower.lvl': 'Poz. {n}',
+      'cave.title': 'Kryształowa jaskinia', 'cave.text': 'Wykop jak najwięcej kryształów w {s} sekund!', 'cave.tip': 'Każde uderzenie to 1, bez względu na blaster. Stukaj w skały, by kopać szybciej!', 'cave.entries': 'Wejścia', 'cave.best': 'Rekord: {n}',
+      'mode.noup': 'Ulepszenia za monety i Odrodzenie tu nie działają.', 'mode.win': 'Zwycięstwo!', 'mode.timeup': 'Koniec czasu!', 'mode.lose': 'Porażka', 'mode.left': 'Zostało: {n}', 'mode.time': 'Czas',
+      'mode.sweep': 'Szybkie przejście', 'mode.sweep.d': 'Odbierz jeszcze raz nagrodę za najlepszy poziom (raz dziennie)', 'mode.sweep.used': 'Użyte dzisiaj', 'mode.noticket': 'Na dziś koniec wejść',
+      'cave.more': 'Więcej wejść', 'cave.passd': 'Codziennie 6 wejść do Kryształowej jaskini',
+      'trip.title': 'Wyprawa', 'trip.text': 'Wyślij króliczka na wyprawę, a wróci ze skarbami.', 'trip.go': 'W drogę ({t})', 'trip.away': 'Wróci za {t}', 'trip.ad': 'Przyspiesz o 1 h', 'trip.ad.none': 'Na dziś koniec przyspieszeń','trip.back': 'Króliczek wrócił!', 'trip.unlock': 'Odblokujesz w Świecie 5',
+      'shop.title': 'Sklep', 'shop.free': 'Prezenty i nagrody za reklamy', 'shop.freec': 'Kryształy za reklamę', 'shop.freec.d': 'Obejrzyj krótką reklamę: +{n} kryształów (dziś zostało: {left})',
+      'shop.daily': 'Codzienny prezent', 'shop.daily.d': 'Wpadaj codziennie po coraz większe prezenty',
+      'shop.starter': 'Jajo startowe', 'shop.starter.d': 'Pupil rangi S, 300 kryształów i 2 godziny każdego buffa. Tylko raz!',
+      'shop.ads': 'Bez reklam', 'shop.noforced': 'Bez wymuszonych reklam', 'shop.noforced.d': 'Koniec z reklamami między bossami. Reklamy za nagrody zostają dobrowolne.',
+      'shop.noads': 'Bez żadnych reklam', 'shop.noads.d': 'Zero reklam: każda nagroda za reklamę od razu i na zawsze.',
+      'shop.special': 'Specjalne', 'shop.autoup': 'Auto-ulepszanie', 'shop.autoup.d': 'Siła, Szybkość i Zysk ulepszają się same. +300 kryształów.',
+
+
+      'vip.boss': 'Czas na bossa', 'vip.offline': 'Zarobki offline',
+      'vip.sweep': 'Szybkie przejście', 'vip.active': 'Aktywne: {t}',
+      'shop.crystals': 'Kryształy', 'shop.first': '1. zakup x2', 'shop.skins': 'Stroje',
+      'shop.test': 'Tryb testowy: nie ma prawdziwej płatności. W wersji ze sklepu otworzy się tu płatność Apple / Google.',
+      'shop.locked': 'Jeszcze niedostępne', 'shop.unavailable': 'Sklep jest teraz niedostępny. Spróbuj później.', 'shop.web': 'Zakupy są tylko w aplikacji Bunny Boom. Wszystko inne jest tu za darmo.', 'ad.web': 'Filmy za nagrody są tylko w aplikacji Bunny Boom.', 'save.failed': 'Nie można zapisać: pamięć urządzenia jest pełna. Zwolnij trochę miejsca, by nie stracić postępu.', 'shop.restore': 'Przywróć zakupy', 'shop.restored': 'Zakupy przywrócone', 'ad.none': 'Teraz nie ma reklamy, ale nic nie przepadło. Spróbuj za minutę.', 'save.pick.title': 'Są dwa zapisy', 'save.pick.text': 'Na tym urządzeniu i w chmurze jest inny postęp. Który zapis zostawić?', 'save.pick.local': 'To urządzenie', 'save.pick.remote': 'Chmura', 'save.pick.line': 'Świat {w} · odrodzenia: {r} · w grze {h}', 'settings.backups': 'Kopie zapasowe', 'settings.backup.none': 'Na razie brak kopii', 'settings.backup.load': 'Przywróć', 'settings.backup.confirm': 'Wrócić do tej kopii? Postęp od tamtej chwili przepadnie.', 'settings.edited': 'Ten zapis zmieniono poza grą.',
+      'leap.title': 'Księżycowy skok!', 'boss.intro': 'BOSS!', 'rebirth.ready': 'Można się odrodzić!',
+      'pity.left': '{g} lub lepszy w ciągu {n} losowań', 'pity.text': 'Tylko płatne losowania: x10 zawsze zawiera {a} lub lepszy, a najpóźniej {n}. losowanie daje {g} lub lepszy.',
+      'tut.new': 'Nowość: {name}!', 'tut.power': 'Monety! Wydawaj je tu, by szybciej rozbijać warzywa', 'tut.hold': 'Każdy poziom bije mocniej. Przytrzymaj, by kupować szybko', 'tut.stage': 'Rozbij 10 warzyw, by zaliczyć to pole', 'tut.boss': 'Pokonaj w {s} s!', 'tut.retry': 'Ulepsz się i spróbuj znowu', 'tut.gear': 'Nowość: blastery! Stuknij, by otworzyć', 'tut.freedraw': 'Darmowy blaster dla ciebie!', 'tut.merge': 'Przeciągnij na bliźniaka, by połączyć', 'tut.equip': 'Przeciągnij tutaj, by założyć', 'pass.tierup': 'Przepustka Ogrodowa: poziom {n}!',
+      'tut.opens.stage': 'Otworzy się na etapie {s}',
+      'open': 'Otwórz', 'club.title': 'Klub Ogrodowy', 'club.daily': 'Codzienny prezent klubowy', 'club.daily.d': '+{n} kryształów codziennie, póki trwa', 'club.p.gems': 'Odbieraj {n} kryształów codziennie', 'club.p.noads': 'Bez wymuszonych reklam', 'club.p.cave': 'Wejścia do Kryształowej jaskini dziennie', 'club.p.rewards': 'Nagrody z Inwazji i Wieży', 'club.p.conv': 'Auto-łączenie, szybkie przejście, krótkie wyprawy', 'club.price': '{p} / miesiąc', 'club.manage': 'Zarządzaj', 'club.fine.store': 'Odnawia się co miesiąc za {p}, dopóki nie anulujesz. Anulujesz kiedy chcesz w Google Play > Płatności i subskrypcje.','club.fine': 'Tryb testowy: 30 dni. W aplikacji ze sklepu odnawia się co miesiąc, dopóki nie anulujesz w Google Play / App Store.', 'shop.sprout': 'Tydzień Kiełka', 'shop.sprout.d': '{now} kryształów od razu i po {n} więcej codziennie przez 7 dni.', 'piggy.text2': 'Każdy pokonany boss wrzuca tu 10 kryształów. Rozbij świnkę, gdy uzbiera {n} (maks. {max}).', 'warp.title': 'Skok w czasie', 'warp.d': 'Zgarnij od razu dochód z kilku godzin. Teraz 1 godzina = {c} monet.', 'warp.h': '{n} h', 'warp.confirm': 'Skoczyć {n} h do przodu za {c} monet?', 'pass.title': 'Przepustka Ogrodowa · Sezon {n}', 'pass.short': 'Przepustka', 'pass.tier': 'Poziom {n}/{max}', 'pass.ends': 'koniec za {t}', 'pass.premium': 'Premium', 'pass.plus': 'Premium+', 'pass.premium.d': 'Odblokuj złotą ścieżkę: 30 nagród więcej, pupil SS i motyl SS. Premium+ od razu przeskakuje 10 poziomów i daje +20% XP.', 'pass.buytier': '+1 poziom', 'pass.claimall': 'Odbierz wszystko ({n})', 'pass.free': 'Za darmo', 'pass.xp.hint': 'XP: zadanie dzienne {d}, tygodniowe {w}, boss {b} (pierwszych 10 dziennie).', 'egg.tap': 'Stuknij, by pominąć', 'egg.close': 'Stuknij, by zamknąć', 'quests.title': 'Zadania', 'quests.daily': 'Dzienne', 'quests.weekly': 'Tygodniowe', 'quests.hint': 'Zadania dają XP do Przepustki Ogrodowej. Nowe codziennie i w każdy poniedziałek.', 'q.kills': 'Rozbij warzywa ×{n}', 'q.bosses': 'Pokonaj bossów ×{n}', 'q.upgrades': 'Kup ulepszenia ×{n}', 'q.draws': 'Losuj ×{n}', 'q.merges': 'Połącz ×{n}', 'q.golden': 'Złap złote marchewki ×{n}', 'q.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'q.caves': 'Kop w Kryształowej jaskini ×{n}', 'q.towers': 'Wygraj walki w Wieży ×{n}', 'q.rebirths': 'Odródź się ×{n}', 'goals.title': 'Cele', 'goals.hint': 'Cele jednorazowe. Każdy daje kryształy tylko raz.', 'goal.kills': 'Rozbij warzywa ×{n}', 'goal.bosses': 'Pokonaj bossów ×{n}', 'goal.maxWorld': 'Dotrzyj do Świata {n}', 'goal.rebirths': 'Odródź się ×{n}', 'goal.merges': 'Połącz ×{n}', 'goal.draws': 'Losuj ×{n}', 'goal.golden': 'Złap złote marchewki ×{n}', 'goal.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'goal.towers': 'Wygraj walki w Wieży ×{n}', 'goal.caves': 'Odwiedź Kryształową jaskinię ×{n}', 'daily.pause': '28 dni prezentów. Ominął cię dzień? Kalendarz po prostu poczeka.',
+      // Seed pick before a Raid or Tower run (seeds.js)
+      'seed.title': 'Wybierz nasionko', 'seed.sub': 'Jeden bonus tylko na tę rundę',
+      'seed.sharp': 'Ostre nasionka', 'seed.sharp.d': '+35% obrażeń', 'seed.quick': 'Szybkie nasionka', 'seed.quick.d': '+30% strzałów na sekundę',
+      'seed.lucky': 'Szczęśliwe nasionka', 'seed.lucky.d': '+15% szansy na kryt, +50% obr. kryt.', 'seed.time': 'Leniwe nasionka', 'seed.time.d': '+12 sekund',
+      'seed.sticky': 'Lepkie nasionka', 'seed.sticky.d': 'Ślimaki pełzną o 30% wolniej', 'seed.thorny': 'Kolczaste nasionka', 'seed.thorny.d': '+20% obrażeń, +6 sekund',
+      'draw.nofree':'Darmowe losowania na dziś się skończyły. Jutro będą nowe!', 'mergeall': 'Połącz', 'mergeall.none': 'Na razie nie ma czego łączyć', 'mergeall.done': 'Połączenia: {n}!', 'mode.fights': 'Walki dzisiaj', 'mode.nofights': 'Na dziś koniec walk. Wróć jutro!', 'mission.skip': 'Pomiń', 'mission.skip.d': 'Zamienić tę misję na następną? Bez nagrody. Kolejne pominięcie za 30 minut.',
+      'settings.calm': 'Tryb spokojny (mniej trzęsienia i błysków)', 'settings.haptics': 'Wibracje', 'settings.bigtext': 'Większy tekst', 'settings.skiptips': 'Bez wskazówek i samouczka','settings.notify': 'Przypomnienia', 'promo.title': 'Kod promocyjny', 'promo.go': 'Użyj', 'promo.bad': 'Ten kod nie działa', 'promo.used': 'Ten kod jest już wykorzystany', 'promo.expired': 'Ten kod wygasł', 'promo.ok': 'Kod przyjęty!', 'share.title': 'Pochwal się ogrodem', 'share.btn': 'Udostępnij', 'share.world': 'Świat {n} zdobyty!', 'share.rebirth': 'Odrodzenia: {n}!', 'share.code': 'mój kod: {c}', 'share.cta': 'Zagraj w Bunny Boom!', 'share.text': 'Mój króliczek dotarł do Świata {n} w Bunny Boom! Mój kod: {c}', 'share.record': 'Nowy rekord!', 'notif.trip.t': 'Króliczek wrócił!', 'notif.trip.b': 'Wyprawa skończona. Zobacz, co przyniósł do domu.', 'notif.full.t': 'Worek z monetami jest pełny', 'notif.full.b': 'Ogród zarobił pod twoją nieobecność wszystko, co mógł.', 'notif.gift.t': 'Czeka na ciebie prezent', 'notif.gift.b': 'Dzisiejszy prezent w Bunny Boom już jest gotowy.', 'notif.app': 'Przypomnienia działają w aplikacji ze sklepu.', 'notif.denied': 'Powiadomienia dla Bunny Boom są wyłączone w ustawieniach telefonu.', 'notif.ask': 'Przypomnieć, gdy króliczek wróci z wyprawy? A także gdy worek z monetami jest pełny i czeka codzienny prezent.', 'notif.yes': 'Przypomnij mi', 'notif.no': 'Nie teraz', 'notif.on': 'Przypomnienia włączone','about.title': 'O grze', 'about.text': 'Bunny Boom to przytulna strzelanka idle, zrobiona wyłącznie darmowymi narzędziami.', 'about.font': 'Czcionka: Handjet od Rosetta Type (SIL Open Font License).', 'about.art': 'Każdy sprite jest narysowany kodem we własnych skryptach graficznych gry.', 'about.skills': 'Narzędzia pikselowe: pixel-art-studio (MIT). Poradniki o wyczuciu gry i UX: awesome-gamedev-agent-skills (Apache-2.0).', 'about.made': 'Zrobione z miłością do królików i warzyw.', 'about.secret': 'Króliczek cię lubi!', 'privacy.title': 'Prywatność', 'privacy.ads': 'Ustawienia reklam', 'privacy.text': 'Twój postęp jest zapisany na tym telefonie. Gra nie pyta o imię, e-mail ani lokalizację i nie zakłada konta.', 'privacy.more': 'Wersja ze sklepu pokazuje reklamy (Google AdMob), a zakupy przechodzą przez Google Play / App Store; dostają one dane opisane w ich własnych zasadach. Usuń aplikację, żeby usunąć zapis.', 'privacy.full': 'Pełna polityka prywatności', 'egg.sneeze': 'Apsik! Króliczek wykichał monety', 'egg.fluff': '500 pogłaskań! Króliczek cię uwielbia', 'egg.dev': 'Oto sekretny ogródek twórcy gry!', 'egg.goldslug': 'Złoty ślimak!', 'egg.fib': 'Świat {n}: króliczek Fibonacciego!', 'egg.easter': 'Wesołego Alleluja z ogródka!', 'egg.moon': 'Dziś pełnia. Księżycowe króliki patrzą!', 'egg.night': 'Jest 3 w nocy. Króliczek jest śpiący… a ty?',
+      'hb.up': 'Ulepsz', 'hb.bunny': 'Królik', 'hb.gear': 'Blastery', 'hb.pets': 'Pupile', 'hb.adv': 'Przygody', 'hb.shop': 'Sklep',
+      'settings.music': 'Muzyka',
+      'settings.daynight': 'Dzień i noc (wg zegara)', 'goal.flowers': 'Posadź kwiaty ×{n}', 'card.dmg': 'Obrażenia na strzał', 'card.rate': 'Strzały na sekundę', 'card.dps': 'Obrażenia na sekundę', 'card.money': 'Monety', 'card.speed': 'Szybkość blasterów', 'card.power': 'Siła', 'card.crit': 'Szansa na kryt', 'card.critdmg': 'Obrażenia krytyczne', 'card.merge': 'Połącz dwa:', 'card.top': 'Najwyższa ranga. Nic jej nie przebije.', 'card.base': 'Wartości bazowe, przed ulepszeniami i wzmocnieniami.', 'card.flyall': 'Liczy się każdy motyl na łące.', 'card.have': 'Masz: {n}',
+      'card.hold': 'Przytrzymaj strój, żeby mu się przyjrzeć.',
+      'tut.garden': 'Stuknij wolną ziemię, a wyrośnie kwiat',
+      'install.title': 'Zainstaluj na iPhonie', 'install.ios': 'W Safari stuknij „Udostępnij”, a potem „Do ekranu początkowego”. Gra otworzy się na pełnym ekranie, zadziała bez internetu, a twój ogród będzie bezpieczny.', 'install.short': 'Wskazówka: „Udostępnij”, potem „Do ekranu początkowego”, i ogród jest bezpieczny',
+      'album.title': 'Album', 'album.p.veggies': 'Warzywa', 'album.p.shiny': 'Lśniące warzywa', 'album.p.bosses': 'Olbrzymy', 'album.p.flowers': 'Kwiaty', 'album.p.visitors': 'Goście', 'album.p.blasters': 'Blastery', 'album.p.pets': 'Pupile', 'album.p.flies': 'Motyle', 'album.p.costumes': 'Stroje', 'album.g.garden': 'Pole', 'album.g.wild': 'Przyroda', 'album.g.collection': 'Kolekcja', 'album.found': 'Znaleziono {n} z {m}', 'album.bonus': 'Skończone strony: na zawsze +{p}% monet', 'album.intro': 'Trafia tu wszystko, co spotkasz. Skończ stronę, a dostaniesz stały bonus.', 'album.boss': 'Olbrzym: {name}', 'album.shiny': 'Lśniąca odmiana: {name}', 'album.seen': 'Widziano ×{n}', 'album.new': 'Nowość w albumie: {name}', 'album.newn': 'Nowe w albumie: {n}', 'album.newtag': 'NOWE', 'album.page.done': 'Strona skończona!', 'album.page.reward': '+{g} kryształów i na zawsze +{p}% monet', 'album.shiny.got': 'Lśniąca odmiana: {name}! ×10 monet', 'album.h.biome': 'Rośnie tu: {b}', 'album.h.shiny': 'Bardzo rzadkie. Wypatruj tu: {b}', 'album.h.boss': 'Olbrzym tej krainy: {b}', 'album.h.flower': 'Posadź tu: {b}', 'album.h.rare': 'Czasem kwiat rozkwita tu w rzadkim kolorze: {b}', 'album.h.v.lemon': 'Przylatuje za dnia, wszędzie', 'album.h.v.sky': 'Za dnia: na łące, w szklarni i w śniegu', 'album.h.v.peach': 'O świcie i o zmierzchu', 'album.h.v.moth': 'Tylko nocą', 'album.h.v.glow': 'Nocą: w grzybowym lesie, na bagnach i w księżycowym ogrodzie', 'album.h.v.royal': 'Rzadki gość. O każdej porze, wszędzie. Masz szczęście!', 'album.h.gear': 'Z jajka w Blasterach', 'album.h.pet': 'Z jajka w Pupilach', 'album.h.fly': 'Z jajka w Motylach', 'album.h.skin': 'Stroje są w zakładce Królik',
+      'rain.name': 'Marchewkowy deszcz', 'tut.rain': 'Marchewkowy deszcz gotowy: stuknij!',
+      'boss.help': 'Na pomoc, przyjaciele!',
+      'tut.tapveg': 'Blastery strzelają same. Stuknij warzywo, by pomóc!',
+      'tut.speed': 'Nowość: Szybkość. Blastery strzelają szybciej', 'tut.money': 'Nowość: Zysk. Więcej monet z każdego warzywa',
+      'tip.new_bunny': 'Nowość: zakładka Królik. Stroje dają bonus, nawet gdy ich nie nosisz',
+      'tip.new_shop': 'Nowość: Sklep. Kryształy, skoki w czasie i pomocnicy',
+      'tip.new_crystals': 'Kryształy! Wydaj je na nowe blastery i pupile',
+      'tip.new_daily': 'Codzienny prezent: wracaj co dzień, a prezenty rosną',
+      'tip.new_mission': 'Zadania: małe cele za kryształy. Tu jest też Album',
+      'tip.new_free': 'Darmowe kryształy: krótka reklama, kilka razy dziennie',
+      'tip.new_piggy': 'Świnka: każdy pokonany boss wrzuca do niej kryształy',
+      'tip.new_pets': 'Nowość: Pupile! Więcej monet i szybkości. Wykluj tu pierwszego',
+      'tip.new_pets.free': 'Nowość: Pupile! Więcej monet i szybkości, a pierwszy za darmo',
+      'tip.new_clovers': 'Koniczyny: za nie wykluwasz pupile',
+      'tip.new_adv': 'Nowość: Przygody. Walki poboczne o koniczyny i kryształy',
+      'tip.new_buffs': 'Buffy: podwójna siła, szybkość lub monety na jakiś czas',
+      'tip.new_fly': 'Nowość: Motyle, w zakładce Pupile. Każdy dodaje siły',
+      'tip.new_cave': 'Nowość: Kryształowa jaskinia w Przygodach. Skały kryją kryształy',
+      'tip.new_auto': 'Auto-ulepszanie: kupuje ulepszenia za ciebie',
+      'tip.drawGear': 'Starczy kryształów na nowy blaster! Wylosuj go w Blasterach',
+      'tip.drawPets': 'Możesz wykluć nowego pupila! Otwórz Pupile',
+      'tip.mergePets': 'Dwa takie same? Przeciągnij jeden na drugi, a powstanie lepszy',
+      'tip.equipPets': 'Przeciągnij pupila do wolnego slotu, a pójdzie z tobą',
+      'shiny.pop': 'Lśniący! ×10', 'pop.pet': 'Nowy pupil!', 'pop.fly': 'Nowy motyl!',
+      'lang.title': 'Wybierz język', 'lang.later': 'Zmienisz go w każdej chwili w Ustawieniach',
+      'rain.go': 'Stuknij!', 'rain.banner': 'Marchewkowy deszcz!', 'rain.dmg': '{n} obr.',
+      'tip.tapVeg': 'Drużyna celuje, gdzie stukniesz, a stuknięcie to dodatkowy strzał',
+      'tip.tapBoss': 'Stukaj bossa szybko: seria stuknięć to combo, aż do x2 obrażeń',
+      'tip.boss': 'Boss! Pokonaj go, zanim minie czas, a ruszysz do nowego świata',
+      'tip.bossWin': 'Boss pokonany! Nowy świat: twardsze warzywa, ale i więcej monet',
+      'tip.bossFail': 'Zabrakło czasu? Nic nie szkodzi: ulepsz się i wyzwij bossa tutaj',
+      'tip.shiny': 'Lśniące warzywo! Trafia się rzadko i daje ×10 monet',
+      'tip.golden': 'Złota marchewka! Złap ją, gdy przelatuje: monety, kryształy lub buff',
+      'tip.plant': 'Kwiatek! Każdy nowy gatunek trafia do Albumu: +{n} kryształów',
+      'tip.bloom': 'Zakwitł! Motyle lubią kwiaty. Posadź {n}, a w Celach czeka nagroda',
+      'tip.rainReady': 'Marchewkowy deszcz gotowy! Stuknij, by obsypać wszystkie warzywa',
+      'tip.rain': 'Marchewka trafia wszystko pod sobą. Walcz, by deszcz wrócił',
+      'tip.merge': 'Dwa takie same dają jeden wyższej rangi: jeden slot, więcej siły',
+      'tip.offline': 'Drużyna pracuje, gdy cię nie ma: monety nawet za {h} godz.',
+      'tip.rebirth': 'Ani rusz? Odródź się w zakładce Królik: znów Świat 1, ale silniej',
+      // the garden's tricksters (foes.js): first-time tips, event banners, little words over the field
+      'tip.foe_runner': 'Rzodkiewka biegaczka! Rozbij ją, zanim ucieknie: dużo monet',
+      'tip.foe_armor': 'Doniczkowiec! Doniczka łapie strzały, ale stuk lub kryt ją rozbije',
+      'tip.foe_splitter': 'Czosnek rozpada się na dwa ząbki. Rozbij i je!',
+      'tip.foe_shield': 'Pokrywka chroni przód. Boczne blastery i stuknięcia ją omijają',
+      'tip.foe_healer': 'Kiełek leczy przyjaciół. Rozbij go pierwszego!',
+      'tip.foe_digger': 'Kopacz! Stuknij w kopczyk, by go wyciągnąć',
+      'tip.foe_chili': 'Wybuchowe chili rani sąsiadów. Rozbij je w tłumie!',
+      'tip.foe_elite': 'Dwie sztuczki naraz! Twardszy, ale płaci za obie',
+      'tip.ev_rush': 'Szarża warzyw! Rozbij wszystkie, zanim uciekną, a będzie bonus',
+      'tip.ev_treasure': 'Kryształowy ziemniak! Stuknij 3 razy, zanim się zakopie: kryształy',
+      'tip.ev_mini': 'Mini-boss! Pokonaj go, a kryształy masz pewne',
+      'tip.boss_wrap': 'Chowa się w liściach! Stukaj szybko, by je zerwać. Licznik czeka',
+      'tip.boss_summon': 'Pomocnicy go leczą. Najpierw rozbij pomocników!',
+      'tip.boss_boil': 'Wrze! Stuknij go 3 razy, póki świeci, by go ostudzić',
+      'tip.boss_burrow': 'Zakopał się! Stuknij w kopczyk, by go wyciągnąć. Licznik czeka',
+      'ev.rush': 'Szarża warzyw!', 'ev.treasure': 'Kryształowy ziemniak!', 'ev.mini': 'Mini-boss!',
+      'ev.got.rush': 'za odpartą szarżę', 'ev.got.treasure': 'za złapany ziemniak', 'ev.got.mini': 'z mini-bossa',
+      'foe.say.dizzy': 'Ojej!', 'foe.say.crack': 'Trzask!', 'foe.say.gone': 'Pa pa!', 'foe.say.perfect': 'Idealnie!', 'foe.say.grr': 'Grrr!', 'foe.say.splat': 'Plask!', 'foe.say.cool': 'Psss!',
+      // what each garden's boss says once it has landed (its name is in names.boss)
+      'boss.line.cabbage': 'Ręce precz od liści!', 'boss.line.pumpkin': 'Moja grządka, moje zasady!', 'boss.line.tomato': 'Zaraz się zagotuję!', 'boss.line.mushroom': 'Wyrosnę wszędzie!',
+      'boss.line.corn': 'Zaraz wystrzelę!', 'boss.line.turnip': 'Mocno zakorzeniony!', 'boss.line.eggplant': 'Sługi, do mnie!', 'boss.line.onion': 'Obierz mnie, jeśli umiesz!',
+      'shop.thanks': 'Dziękujemy! Zakup zakończony.', 'shop.bought': 'Kupione',
+      'shop.failed': 'Zakup się nie udał. Spróbuj jeszcze raz.', 'shop.restore.none': 'Nie ma czego przywrócić: na tym koncie sklepu nie ma zakupów na zawsze.',
+      'shop.pending': 'Płatność w toku', 'shop.pending.d': 'Sklep jeszcze nie potwierdził tej płatności. Zakup dotrze sam, gdy tylko to zrobi.',
+      'shop.soon': 'Pakiety i przepustki odblokują się w trakcie gry.', 'offer.later': 'Nie teraz', 'offer.gems.first': 'Pierwszy zakup tego pakietu jest podwojony (zwykle {n}).',
+      'offer.club.d': '+{n} kryształów do odebrania codziennie, bez wymuszonych reklam, czas na bossa x2, więcej wejść do jaskini, nagrody z Inwazji i Wieży x2.',
+      'offer.warp.d': 'Skok do przodu: dochód z {n} h od razu, +{c} monet.', 'offer.boost.d': 'Obejrzyj krótką reklamę: obrażenia x2 przez 30 minut. Tylko jeśli chcesz.',
+      'step.title': 'Krok po kroku!', 'step.text': 'Kupuj pupile i rośnij w siłę!', 'step.n': 'KROK {n}', 'step.lock': 'Odblokujesz po Kroku {n}', 'step.value': 'x{n} wartości', 'step.go': 'Do Sklepu',
+      'ad.title': 'Reklama', 'ad.test': 'Testowa reklama. W wersji ze sklepu będzie tu prawdziwe wideo.', 'ad.skip': 'Pomiń za {n}', 'ad.close': 'Odbierz nagrodę', 'ad.vip': 'Reklama pominięta (Bez reklam)', 'ad.broken': 'Reklama się zepsuła, ale nagroda jest twoja.', 'ad.credit': 'Ta reklama jest już obejrzana: nagroda przyjdzie bez niej.', 'ad.recovered': 'Twoja nagroda za reklamę z poprzedniego razu', 'ad.recovered.credit': 'Reklama z poprzedniego razu się liczy: następne losowanie lub odrodzenie x3 bez reklamy.', 'pass.season': 'Ten sezon: {d} dni, do {date} włącznie', 'pass.premium.season': 'Premium tylko na ten sezon: {d} dni, do {date} włącznie. Następny sezon znów zaczyna się za darmo.',
+      'mission.title': 'Misja', 'mission.claim': 'Odbierz',
+      'm.world': 'Dotrzyj do Świata {n}', 'm.upgrades': 'Kup ulepszenia ×{n}', 'm.kills': 'Rozbij warzywa ×{n}', 'm.draws': 'Losuj ×{n}', 'm.merges': 'Połącz ×{n}', 'm.raid': 'Przejdź falę inwazji {n}', 'm.tower': 'Pokonaj Wieżę, poz. {n}', 'm.caves': 'Odwiedź jaskinię ×{n}', 'm.rebirths': 'Odródź się ×{n}', 'm.bosses': 'Pokonaj bossów ×{n}', 'm.golden': 'Złap złote marchewki ×{n}',
+      'daily.title': 'Codzienny prezent', 'daily.day': 'Dzień {n}', 'daily.claimed': 'Wróć jutro!',
+      'piggy.title': 'Kryształowa świnka',
+      'offline.title': 'Witaj z powrotem!', 'offline.text': 'Króliczek rozbijał warzywa jeszcze przez {t}.', 'offline.x2': 'x2 (reklama)',
+      'golden.title': 'Złota marchewka!', 'golden.coins': '+{n} monet', 'golden.crystals': '+{n} kryształów', 'golden.buff': '{b} na 2 min',
+      'settings.g.sound': 'Dźwięk', 'settings.g.comfort': 'Wygoda', 'settings.g.more': 'Więcej',
+      'settings.title': 'Ustawienia', 'settings.lang': 'Język', 'settings.sound': 'Dźwięki', 'settings.eco': 'Tryb eko (oszczędza baterię)', 'settings.gfx': 'Grafika', 'settings.gfx.auto': 'Auto', 'settings.gfx.high': 'Wysoka', 'settings.gfx.low': 'Niska', 'settings.sky': 'Pora dnia', 'settings.sky.day': 'Dzień', 'settings.sky.clock': 'Zegar', 'settings.sky.night': 'Noc','settings.save': 'Zapis', 'settings.export': 'Kopiuj kod zapisu', 'settings.import': 'Wczytaj kod zapisu', 'settings.reset': 'Zresetuj postęp', 'settings.reset.confirm': 'Usunąć cały postęp i zacząć od Świata 1? Zakupy zostają. Kopie zapasowe powyżej mogą go przywrócić, ale tylko dopóki nie zostaną zastąpione (od 10 min do doby).', 'settings.reset.do': 'Zresetuj','settings.copied': 'Kod zapisu skopiowany', 'settings.loaded': 'Zapis wczytany', 'settings.bad': 'To nie jest prawidłowy kod zapisu', 'settings.cloud': 'Zapis w chmurze: włączony', 'settings.local': 'Zapisano na tym urządzeniu',
+      'on': 'WŁ.', 'off': 'WYŁ.', 'confirm': 'Potwierdź',
+      // counts: the word follows the number (i18n.tn picks the form by the language's plural rules)
+      'n.crystals.one': '{n} kryształ', 'n.crystals.few': '{n} kryształy', 'n.crystals.many': '{n} kryształów', 'n.crystals.other': '{n} kryształu',
+      'n.clovers.one': '{n} koniczyna', 'n.clovers.few': '{n} koniczyny', 'n.clovers.many': '{n} koniczyn', 'n.clovers.other': '{n} koniczyny',
+      'time.d': '{n} d',
+      'toast.nocoins': 'Za mało monet', 'toast.nocrystals': 'Za mało kryształów', 'toast.noclovers': 'Za mało koniczyn', 'toast.saved': 'Zapisano',
+      'auto.on': 'Auto-ulepszanie włączone', 'auto.off': 'Auto-ulepszanie wyłączone', 'auto.locked': 'Auto-ulepszanie jest w Sklepie. Wypróbować przez 10 min za reklamę?', 'auto.trial': 'Wypróbuj 10 min', 'auto.notrial': 'Dwie darmowe próby na dziś już wykorzystane. Auto-ulepszanie jest w Sklepie.',
+
+    },
+    names: {
+      veg: {"cabbage": "Kapusta", "tomato": "Pomidor", "potato": "Ziemniak", "turnip": "Rzepa", "pumpkin": "Dynia", "corn": "Kukurydza", "onion": "Cebula", "beet": "Burak", "pepper": "Papryka", "eggplant": "Bakłażan", "broccoli": "Brokuł", "mushroom": "Grzyb"},
+      flower: {"meadow": "Stokrotka", "pumpkin": "Aksamitka", "greenhouse": "Tulipan", "mushroom": "Muchomor", "desert": "Kwiat kaktusa", "frost": "Przebiśnieg", "swamp": "Pałka wodna", "moon": "Księżycowy kwiat"},
+      rareflower: {"meadow": "Różowa stokrotka", "pumpkin": "Czerwona aksamitka", "greenhouse": "Fioletowy tulipan", "mushroom": "Niebieski muchomor", "desert": "Biały kwiat kaktusa", "frost": "Błękitny przebiśnieg", "swamp": "Srebrna pałka wodna", "moon": "Złoty księżycowy kwiat"},
+      visitor: {"lemon": "Cytrynek", "sky": "Modraszek", "peach": "Brzoskwiniowy motylek", "moth": "Zmierzchowa ćma", "glow": "Świecący motylek", "royal": "Królewski motyl"},
+      gunlore: ["Strzela groszkiem. Uprzejmie.", "Garść nasion, wszystkie naraz.", "Strzela jak popcorn, wali jak kolba kukurydzy.", "Marchewki od babci, tyle że w pośpiechu.", "Mydlane, lśniące i zaskakująco twarde.", "Jesień dostarczona jednym wielkim łupnięciem.", "Chrupiący, zielony i idealnie wycelowany.", "Pachnie burzą i ostrą rzodkiewką.", "Pożyczony od królika z innej planety.", "Strzela światłem księżyca. Warzywa najpierw zasypiają."],
+      petlore: ["Mały, głośny, wierzy w ciebie.", "Znajduje monety w trawie. Kilka zostawia sobie.", "Mieszka w żołędziu. Czynsz: jeden uśmiech dziennie.", "Uśmiecha się do wszystkiego. Nikt nie wie czemu.", "Cały dzień śpi, całą noc liczy monety.", "Znosi złote jajka. Tylko w niedziele.", "Nosi listy i zapach deszczu.", "Wie, gdzie zakopana jest każda marchewka.", "Ciepły jak ognisko, dwa razy szybszy.", "Strzeże księżycowego ogrodu. Mruczy, gdy go głaszczesz."],
+      flylore: ["Złożona ze starej torebki po nasionach.", "Ciepłe skrzydła, jeszcze cieplejsze towarzystwo.", "Chowa się na widoku. Ale nie przed tobą.", "Kawałeczek pogodnego poranka.", "Słodkie z zewnątrz, odważne w środku.", "Szczęśliwe kropki: policz je i pomyśl życzenie.", "Świeci jak zorza polarna.", "Przylatuje tuż przed tym, jak zaśniesz.", "Każda kropka to gwiazda, do której ktoś szeptał życzenie.", "Lata tylko wtedy, gdy patrzy księżyc."],
+      gun: ['Groszkowy pistolet', 'Nasienna strzelba', 'Kukurydziany blaster', 'Marchewkowy gatling', 'Bańkowe działo', 'Dyniowa bazooka', 'Sałatowy laser', 'Gromowa rzodkiewka', 'Galaktyczny blaster', 'Księżycowe działo'],
+      pet: ['Kurczaczek', 'Jeżyk', 'Żołędziowy duszek', 'Aksolotl', 'Nocny kot', 'Królewska kura', 'Obłoczny gołąbek', 'Mądra sowa', 'Ognisty lis', 'Księżycowy smok'],
+      fly: ['Papierowa ćma', 'Słoneczne skrzydło', 'Liściaste skrzydło', 'Podniebne skrzydło', 'Cukierkowe skrzydło', 'Biedronkowe skrzydło', 'Skrzydło zorzy', 'Skrzydło snów', 'Gwiezdne skrzydło', 'Księżycowe skrzydło'],
+      biome: ['Marchewkowa Łąka', 'Dyniowa Grządka', 'Szklarnia', 'Grzybowy Las', 'Melonowa Pustynia', 'Mroźny Ogród', 'Bagienne Grządki', 'Księżycowy Ogród'],
+      boss: { cabbage: 'Król Kapusta', pumpkin: 'Babcia Dynia', tomato: 'Sir Pomidor', mushroom: 'Dziadek Grzyb', corn: 'Generał Kolba', turnip: 'Baron Rzepa', eggplant: 'Hrabia Bakłażan', onion: 'Królowa Cebula' },
+      skin: { classic: 'Klasyczny', farmer: 'Farmer', scout: 'Harcerz', chef: 'Kucharz', sailor: 'Marynarz', knight: 'Rycerz', nurse: 'Pielęgniarka', police: 'Policjant', detective: 'Detektyw', witch: 'Czarownica', ballerina: 'Baletnica', pirate: 'Pirat', astronaut: 'Astronauta', ninja: 'Ninja', samurai: 'Samuraj', wizard: 'Czarodziej', angel: 'Anioł', devil: 'Diabełek', king: 'Król', queen: 'Królowa', golden: 'Złoty', moon: 'Księżycowy', dragon: 'Smok', carrot: 'Marchewka' },
     },
   };
 });
@@ -9025,7 +9222,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         // Grouped by topic. The first group (language, reminders) needs no label: each row says what it is.
         el.innerHTML = `
           ${group([
-            `<div class="set-row"><span>${t('settings.lang')}</span><div class="seg">${i18n.languages().map((l) => `<button class="${i18n.getLang() === l.code ? 'on' : ''}" data-act="lang" data-arg="${l.code}">${esc(l.name)}</button>`).join('')}</div></div>`,
+            `<div class="set-row col"><span>${t('settings.lang')}</span><div class="seg langs">${i18n.languages().map((l) => `<button class="${i18n.getLang() === l.code ? 'on' : ''}" data-act="lang" data-arg="${l.code}">${esc(l.name)}</button>`).join('')}</div></div>`,
             toggleRow('notify', t('settings.notify'), !!s.settings.notify),
           ])}
           ${sec(t('settings.g.sound'))}
