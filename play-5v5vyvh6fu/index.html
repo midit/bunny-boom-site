@@ -3386,6 +3386,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   // BB.DEV (every build but the store release) has test ads and test purchases. Without it and
   // without the native bridge nothing is given away: the store simply says it's unavailable.
   const dev = () => BB.DEV !== false;
+  // The game goes quiet while an ad plays (the phone's own ads do this in native.js); the duck is released however
+  // the ad ends, a rejection or a break included.
+  async function quietly(fn) {
+    if (BB.sound) BB.sound.setHidden(true);
+    try { return await fn(); } finally { if (BB.sound) BB.sound.setHidden(false); }
+  }
   // A bridge call that throws or rejects (a plugin error, no network) counts as "nothing happened", never as an exception.
   const safely = async (fn, fallback) => { try { return await fn(); } catch (e) { console.warn('native call failed', e && e.message); return fallback; } };
   // Without the app (the game as a website) there is no store and no ads: the player is told they are in the app.
@@ -3410,7 +3416,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       try {
         // undefined: no ad to show (not loaded, offline, no consent). 'broken': it started and failed.
         if (native() && native().showRewarded) r = await native().showRewarded(placement);
-        if (r === undefined && dev()) r = await BB.ui.testAd();
+        if (r === undefined && dev()) r = await quietly(() => BB.ui.testAd());
       } catch (e) { r = 'broken'; } finally { this.showing = false; this.lastEnd = Date.now(); }
       L.adEnd(s);
       if (r === undefined) { track('ad_nofill', { placement }); noApp('ad.none'); BB.game.changed(); return false; }
@@ -3435,7 +3441,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       try {
         track('ad_inter', {});
         if (native() && native().showInterstitial) await safely(() => native().showInterstitial());
-        else if (dev()) await BB.ui.testAd(true);
+        else if (dev()) await quietly(() => BB.ui.testAd(true));
       } finally { this.showing = false; this.lastEnd = Date.now(); }
     },
     // EU/UK players can change their ad consent from Settings (Google's consent form).
@@ -3504,7 +3510,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       if (txId && store.hasTx(txId)) return true;
       const r = BB.logic.grant(BB.game.save, id, BB.state.gameNow(BB.game.save));
       if (txId) store.addTx(txId);
-      if (r.ok) { if (!quiet) BB.ui.toast(BB.i18n.t('shop.thanks')); BB.game.changed(); }
+      if (r.ok) { if (!quiet) { BB.ui.toast(BB.i18n.t('shop.thanks')); if (BB.sound && BB.sound.play) BB.sound.play('purchase'); } BB.game.changed(); }
       BB.game.persistNow();
       return r.ok;
     },
@@ -3750,15 +3756,61 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 })(typeof self !== 'undefined' ? self : this);
 
 // ---- audio.js
-// Sound and music, synthesised: no files, nothing to license. Everything goes through one soft bus
-// (a gentle low-pass and a compressor), so a hundred shots a minute never get sharp or loud.
-// The music is a little garden band that writes itself: a warm pad, a round bass and a marimba
-// that keeps to the pentatonic scale, in a key and mood per biome. Bosses add a heartbeat, not a siren.
+// Sound and music, synthesised by our own code: no sample files, nothing to license.
+//
+// The mix. Every sound plays into a bus; bus levels are in dB (MIX) and become gains only at the edge.
+//   effects ─── sfx ── tone (soft low-pass) ──┐
+//   buttons ─── ui ───────────────────────────┤
+//   the band ── layers ─ music ─ tone ─ duck ─┼── master ── glue compressor ── limiter ── out ── speakers
+//   victory sting ── sting ───────────────────┘
+// The duck lowers the band under an open panel and dips it under big moments (boss, rebirth, rewards); `out`
+// fades everything to silence before the context sleeps (app hidden, an ad playing).
+//
+// Effects that can come thirty times a second (hits, crits, pops, coins, shots, plops, taps) are drawn once into a
+// small bank of takes when sound starts (22 kHz mono, about 0.1 s each, ~300 KB in all); playing one is a buffer
+// source and a gain. Each play picks a take other than the last, drifts a little in pitch, level and time, and waits
+// its turn under a voice limit per event, so a crowd stays a patter and never clips. Rarer, musical effects (merge,
+// reveal, boss, rebirth, purchase) are synthesised live, in the key the band is playing.
+//
+// The band writes itself, in layers that share one clock: a warm pad and round bass (bed), a pentatonic marimba
+// motif (melody), a kick, shaker and answering chord tone while you fight (drive), a heartbeat and ostinato under a
+// boss (tension). Layers crossfade on a downbeat and never restart; a boss turns the harmony to the relative minor on
+// the next bar; night closes the tone and drops the drive. Nothing changes per frame: the engine reports its phase,
+// the band reads it once a bar. With the music off or the app hidden the scheduler stops altogether.
 (function (root) {
   const BB = root.BB;
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
+  const dB = (x) => (x <= -90 ? 0 : Math.pow(10, x / 20));
+  const cents = (c) => Math.pow(2, c / 1200);
+  const quiet = (p) => { if (p && p.catch) p.catch(() => {}); };
+  const C5 = 523.25, E6 = 1318.51;
 
-  // Moods. key = MIDI root, prog = chord roots in semitones over the key with their quality, bpm.
+  // ---------- the mix ----------
+  // Bus levels in dB. The whole mix sits near -21 LUFS in a busy fight (test/audio.e2e.js measures it): the
+  // cosy side of the -18 LUFS handheld reference, peaks held under -1 dBFS by the limiter.
+  const MIX = { master: 8, sfx: 2, ui: -3, music: -9, sting: -6 };
+  const PANEL = -5;   // the band under an open panel
+  // Big moments dip the band: [dB, seconds held]; it comes back over about a second.
+  const MOMENT = { boss: [-9, 1.3], bossdie: [-9, 2.4], rebirth: [-12, 3.2], purchase: [-8, 2], win: [-7, 1.6], reveal: [-6, 1.4], reward: [-5, 1.1], leap: [-4, 1.2], rain: [-3, 1.2], shiny: [-3, 0.8] };
+  // Voice limits: [at most this many sounding at once, seconds between two starts].
+  const GATE = {
+    def: [2, 0.05], hit: [2, 0.07], crit: [2, 0.09], pop: [4, 0.05], pickup: [4, 0.055], shot: [3, 0.11], plop: [3, 0.07],
+    tap: [2, 0.03], up: [3, 0.045], bonk: [1, 0.15], buy: [2, 0.08], coin: [2, 0.12], merge: [2, 0.15], bloom: [2, 0.2], yawn: [3, 0.3],
+    plant: [2, 0.08], tip: [1, 0.3], boss: [1, 0.5], bossdie: [1, 0.5], rebirth: [1, 1], reveal: [1, 0.25], win: [1, 0.3], lose: [1, 0.3],
+    reward: [1, 0.3], purchase: [1, 0.5], rain: [1, 0.5], leap: [1, 0.5], shiny: [1, 0.25], draw: [1, 0.2],
+  };
+  // The patter shares a budget: at most PATTER_RATE a second, PATTER_BURST at once. Hits and shots leave the last two
+  // to pops, crits and coins, so a crowd stays a patter, the big moments always come through and the CPU stays flat.
+  const PATTER = new Set(['hit', 'crit', 'pop', 'pickup', 'shot', 'plop']);
+  const LOW = new Set(['hit', 'shot']);
+  const PATTER_RATE = 36, PATTER_BURST = 6;
+  const FANFARE = new Set(['win', 'bossdie', 'rebirth', 'purchase', 'reveal', 'coin', 'merge', 'shiny', 'lose']);
+  // Bank takes are drawn at full scale; this is each one's peak in dB, and its drift: [± cents, ± dB, max delay s].
+  const LEVEL = { hit: -31, crit: -27, pop: -22, pickup: -27, shot: -28, plop: -25, tap: -29 };
+  const DRIFT = { def: [40, 1, 0.004], hit: [80, 2, 0.008], crit: [10, 1.5, 0.004], pop: [90, 2, 0.006], pickup: [5, 1, 0.002], shot: [70, 1.5, 0.006], plop: [90, 2, 0.006], tap: [45, 1, 0] };
+
+  // ---------- the band's moods ----------
+  // key = MIDI root, prog = chord roots in semitones over the key with their quality, bpm.
   const MAJ7 = [0, 4, 7, 11], MIN7 = [0, 3, 7, 10], ADD9 = [0, 4, 7, 14], SUS = [0, 5, 7, 10], MIN9 = [0, 3, 7, 14];
   const PENTA = [0, 2, 4, 7, 9];
   const MOODS = {
@@ -3770,50 +3822,421 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     frost: { key: 64, bpm: 72, prog: [[0, ADD9], [5, MAJ7], [9, MIN7], [5, ADD9]] },
     swamp: { key: 62, bpm: 74, prog: [[0, MIN7], [5, MIN7], [10, MAJ7], [7, SUS]], scale: [0, 3, 5, 7, 10] },
     moon: { key: 63, bpm: 68, prog: [[0, MAJ7], [5, ADD9], [9, MIN9], [5, MAJ7]] },
-    boss: { key: 57, bpm: 84, prog: [[0, MIN7], [8, MAJ7], [3, MAJ7], [10, SUS]], scale: [0, 3, 5, 7, 10], pulse: true },
     mode: { key: 62, bpm: 90, prog: [[0, ADD9], [7, SUS], [9, MIN7], [5, MAJ7]], shaker: true },
+  };
+  // A boss plays over the garden's own relative minor (its own key when the garden is minor already), a touch faster.
+  const BOSS = { prog: [[0, MIN7], [8, MAJ7], [3, MAJ7], [10, SUS]], scale: [0, 3, 5, 7, 10] };
+  // Layers per scene in dB (null: out). Night and Calm mode soften on top.
+  const LAYERS = ['bed', 'melody', 'drive', 'tension'];
+  const SCENES = { calm: [0, 0, null, null], fight: [0, 0, 0, null], boss: [-1, -6, -1, 0] };
+  const NIGHT = [-2, -3, -6, -3], CALMED = [0, 0, -4, -5];
+
+  // ---------- the bank ----------
+  const BANK_RATE = 22050;   // the effects bus is low-passed at 4.8 kHz: nothing above 11 kHz is lost
+  function lcg(seed) { let s = seed >>> 0; return () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296; }
+  const DSP = {
+    // A note added into d: sine or triangle, gliding exponentially from f to `to`, soft attack, -60 dB at the end.
+    tone(d, sr, { f, to = f, at = 0, dur, vol, attack = 0.002, tri = false }) {
+      const i0 = Math.round(at * sr), n = Math.min(d.length - i0, Math.round((attack + dur) * sr));
+      const k = Math.log(to / f), span = attack + dur, tau = dur / 6.9;
+      let ph = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        ph += (f * Math.exp(k * Math.min(1, t / span))) / sr;
+        const p = ph - Math.floor(ph);
+        const w = tri ? 1 - 4 * Math.abs(p - 0.5) : Math.sin(6.283185307 * p);
+        d[i0 + i] += w * vol * (t < attack ? t / attack : Math.exp(-(t - attack) / tau));
+      }
+    },
+    // Noise through a moving state-variable filter (band, low or high), added into d.
+    noise(d, sr, rnd, { at = 0, dur, vol, from, to = from, q = 1, mode = 'band', attack = 0.002 }) {
+      const i0 = Math.round(at * sr), n = Math.min(d.length - i0, Math.round((attack + dur) * sr));
+      const k = 1 / q, lf = Math.log(to / from), span = attack + dur, tau = dur / 6.9;
+      let ic1 = 0, ic2 = 0, g = 0;
+      for (let i = 0; i < n; i++) {
+        const t = i / sr;
+        if ((i & 15) === 0) g = Math.tan((Math.PI * Math.min(0.45 * sr, from * Math.exp(lf * Math.min(1, t / span)))) / sr);
+        const x = rnd() * 2 - 1;
+        const a1 = 1 / (1 + g * (g + k)), a2 = g * a1, a3 = g * a2;
+        const v3 = x - ic2, v1 = a1 * ic1 + a2 * v3, v2 = ic2 + a2 * ic1 + a3 * v3;
+        ic1 = 2 * v1 - ic1; ic2 = 2 * v2 - ic2;
+        const y = mode === 'low' ? v2 : mode === 'high' ? x - k * v1 - v2 : k * v1;
+        d[i0 + i] += y * vol * (t < attack ? t / attack : Math.exp(-(t - attack) / tau));
+      }
+    },
+  };
+  // name: [takes, seconds, draw(d, sampleRate, take, rnd)]. Takes differ in pitch, colour and shape.
+  const BANK = {
+    // An impact: a round little body and a puff of air. Low and short, so thirty a second stay a patter.
+    hit: [4, 0.08, (d, sr, v, r) => {
+      const f = [200, 230, 175, 255][v];
+      DSP.tone(d, sr, { f: f * 1.6, to: f * 0.75, dur: 0.055, vol: 0.8 });
+      DSP.noise(d, sr, r, { dur: 0.03, vol: 0.5, from: [2400, 3000, 2000, 3400][v], to: 900, q: 1.2 });
+    }],
+    // A crit: a glassy tink over a firmer knock. Drawn on E6; the scale of the moment retunes it.
+    crit: [3, 0.16, (d, sr, v, r) => {
+      DSP.tone(d, sr, { f: 260, to: 150, dur: 0.06, vol: 0.6 });
+      DSP.noise(d, sr, r, { dur: 0.02, vol: 0.45, from: 4000, to: 2000 });
+      DSP.tone(d, sr, { f: E6, at: 0.004, dur: [0.14, 0.11, 0.15][v], vol: 0.5 });
+      DSP.tone(d, sr, { f: E6 * [2.76, 2, 3.01][v], at: 0.004, dur: 0.05, vol: [0.14, 0.1, 0.08][v] });
+    }],
+    // A veggie pops: a round bloop that rises, a soft squelch, a crumb of air.
+    pop: [4, 0.16, (d, sr, v, r) => {
+      const [f, up] = [[360, 2.2], [320, 2.6], [420, 1.9], [300, 2.4]][v];
+      DSP.tone(d, sr, { f, to: f * up, dur: 0.09, vol: 0.8 });
+      DSP.noise(d, sr, r, { dur: 0.07, vol: 0.45, from: 1400, to: 500, q: 0.8, mode: 'low' });
+      DSP.noise(d, sr, r, { at: 0.01, dur: 0.05, vol: 0.18, from: 900 + v * 150, q: 1.5 });
+    }],
+    // A coin arriving: a marimba-ish pluck on C5 (a sine and a quiet octave that dies first); ladders retune it.
+    pickup: [3, 0.26, (d, sr, v) => {
+      DSP.tone(d, sr, { f: C5, dur: 0.22, vol: 0.7, attack: 0.003 });
+      DSP.tone(d, sr, { f: C5 * 2, dur: 0.08, vol: [0.25, 0.32, 0.18][v] });
+      DSP.tone(d, sr, { f: C5 * [3.98, 3, 5.4][v], dur: 0.03, vol: 0.09, attack: 0.001 });
+    }],
+    // A shot: a puff of filtered air and a round blip, not a laser.
+    shot: [4, 0.08, (d, sr, v, r) => {
+      DSP.noise(d, sr, r, { dur: 0.05, vol: 0.7, from: [1500, 1750, 1900, 1350][v], q: 1.2 });
+      DSP.tone(d, sr, { f: [330, 360, 385, 345][v], to: [200, 215, 230, 205][v], dur: 0.06, vol: 0.45, tri: true });
+    }],
+    // A carrot lands: a soft plop into soil.
+    plop: [4, 0.13, (d, sr, v, r) => {
+      const f = [190, 215, 240, 175][v];
+      DSP.tone(d, sr, { f, to: f * 0.6, dur: 0.09, vol: 0.8 });
+      DSP.noise(d, sr, r, { dur: 0.06, vol: 0.4, from: 800, to: 300, q: 0.7, mode: 'low' });
+    }],
+    // A button: a short wooden tick.
+    tap: [3, 0.05, (d, sr, v, r) => {
+      DSP.tone(d, sr, { f: [1180, 1250, 1110][v], dur: 0.03, vol: 0.7, tri: true, attack: 0.001 });
+      DSP.noise(d, sr, r, { dur: 0.01, vol: 0.25, from: 5000 });
+    }],
+  };
+  // The button tick is drawn at once (the first tap wants it); the rest one event per task, so the first tap on a
+  // slow phone doesn't hitch (about 25 ms in all at a 4x slower CPU). An offline render draws everything at once.
+  function buildBank(ctx, all) {
+    const bank = { tap: drawTakes(ctx, 'tap') }, names = Object.keys(BANK).filter((n) => n !== 'tap');
+    const next = () => {
+      const name = names.shift();
+      if (!name) return;
+      bank[name] = drawTakes(ctx, name);
+      if (all) next(); else setTimeout(next, 0);
+    };
+    next();
+    return bank;
+  }
+  // Each take normalised to full scale (LEVEL sets its loudness), with a 4 ms fade at the end.
+  function drawTakes(ctx, name) {
+    const sr = BANK_RATE, rnd = lcg(20240611 + name.length * 977), [n, dur, draw] = BANK[name], takes = [];
+    for (let v = 0; v < n; v++) {
+      const buf = ctx.createBuffer(1, Math.ceil(sr * dur), sr), d = buf.getChannelData(0);
+      draw(d, sr, v, rnd);
+      let peak = 0;
+      for (let i = 0; i < d.length; i++) peak = Math.max(peak, Math.abs(d[i]));
+      const fade = Math.round(sr * 0.004);
+      for (let i = 0; i < d.length; i++) d[i] = (d[i] / (peak || 1)) * Math.min(1, (d.length - 1 - i) / fade);
+      takes.push(buf);
+    }
+    return takes;
+  }
+
+  // ---------- the effects ----------
+  // Each runs with `this` = the sound object and returns roughly how long it sounds (for the voice limits).
+  const SFX = {
+    hit(type) { return this.sample('hit', { rate: type === 'boss' ? 0.75 : type === 'rock' ? 1.4 : 1 }); },
+    crit() { return this.sample('crit', { rate: this.note(7 + Math.floor(Math.random() * 3)) / E6, vol: this.calm ? -4 : 0 }); },
+    pop() { return this.sample('pop'); },
+    // Coins arriving climb the scale and start over after a short pause.
+    pickup(_, T) {
+      this.ladder = T - this.lastPick > 0.45 ? 0 : Math.min(9, this.ladder + 1);
+      this.lastPick = T;
+      return this.sample('pickup', { rate: this.note(this.ladder) / C5 });
+    },
+    shot() { return this.sample('shot'); },
+    plop() { return this.sample('plop'); },
+    tap() { return this.sample('tap', { bus: this.uiBus }); },
+    // Holding an upgrade climbs the scale.
+    up(n) { return this.sample('pickup', { rate: this.note(Math.min(12, n || 0) + 2) / C5, vol: 2, bus: this.uiBus }); },
+    bonk() { const v = this.pickVar('bonk', 2); this.voice([190, 165][v], 0.12, { vol: 0.08, slide: [0.7, 0.62][v], type: 'triangle', filter: 900, bus: this.uiBus }); return 0.15; },
+    buy(_, T) {
+      const [x, y] = this.pickOf('buy', [[4, 7], [4, 6], [2, 5]]);
+      this.pluck(this.note(x), { vol: 0.05, dur: 0.3, bus: this.uiBus });
+      this.pluck(this.note(y), { vol: 0.035, dur: 0.35, at: T + 0.06 + this.jit(0.01), bus: this.uiBus });
+      return 0.45;
+    },
+    tip(_, T) {
+      const [x, y] = this.pickOf('tip', [[4, 7], [4, 8], [5, 7]]);
+      this.pluck(this.note(x), { vol: 0.03, dur: 0.25, bus: this.uiBus });
+      this.pluck(this.note(y), { vol: 0.03, dur: 0.35, at: T + 0.09, bus: this.uiBus });
+      return 0.5;
+    },
+    coin(_, T) {
+      const [x, y] = this.pickOf('coin', [[7, 8], [6, 8], [8, 10]]);
+      this.bell(this.note(x), { vol: 0.035 });
+      this.bell(this.note(y), { vol: 0.035, at: T + 0.07 + this.jit(0.01) });
+      return 1;
+    },
+    // Two things become one: a soft whoomp of air, bells running up.
+    merge(_, T) {
+      const run = this.pickOf('merge', [[0, 2, 4, 5], [0, 2, 4, 7], [1, 2, 4, 6]]);
+      this.hiss(0.22, { vol: 0.025, from: 300, to: 1400, type: 'lowpass' });
+      run.forEach((n, i) => this.bell(this.note(n + 2), { vol: 0.045, at: T + 0.04 + i * 0.07 + this.jit(0.008) }));
+      return 1.2;
+    },
+    win(_, T) {
+      const run = this.pickOf('win', [[0, 2, 4, 5, 7], [0, 1, 2, 4, 7], [2, 4, 5, 7, 9]]), k = this.music.keyNow();
+      run.forEach((n, i) => this.pluck(this.note(n), { vol: 0.05, dur: 0.5, at: T + i * 0.09 + this.jit(0.01) }));
+      this.chord(midi(k.key), k.minor ? MIN9 : MAJ7, 1.4, this.calm ? 0.02 : 0.03, T + 0.3, this.sfxPad);
+      return 1.8;
+    },
+    lose(_, T) {
+      this.pickOf('lose', [[4, 2, 0], [3, 1, 0]]).forEach((n, i) => this.pluck(this.note(n) / 2, { vol: 0.05, dur: 0.6, at: T + i * 0.16 }));
+      return 1;
+    },
+    // A boss arrives: a low drop, a swell of air that crests as it lands (0.45 s, with the landing shake), a thud
+    // there and a minor chord. Calm mode keeps the swell and the chord, softer, without the drop.
+    boss(_, T) {
+      const v = this.pickVar('boss', 2), k = this.music.keyNow(), c = this.calm ? 0.5 : 1;
+      if (!this.calm) this.voice([98, 92][v], 0.5, { vol: 0.13, slide: 0.55 });
+      this.hiss(0.5, { vol: 0.04 * c, from: 300, to: 2400, type: 'lowpass' });
+      this.voice(140, 0.25, { vol: 0.12 * c, slide: 0.4, at: T + 0.45 });
+      this.hiss(0.18, { vol: 0.03 * c, from: 900, to: 200, type: 'lowpass', at: T + 0.45 });
+      this.chord(midi(k.minor ? k.key : k.key - 3), [MIN7, MIN9][v], 1.2, 0.035 * c, T + 0.15, this.sfxPad);
+      return 1.4;
+    },
+    // The boss is beaten: a crunch and a thump now, the big burst when it pops (after the freeze and the shrink,
+    // about 0.9 s on), then the band's victory sting on the beat. Without music a run of bells takes its place.
+    bossdie(_, T) {
+      const v = this.pickVar('bossdie', 2);
+      this.hiss(0.35, { vol: 0.05, from: [2400, 2000][v], to: 300, type: 'lowpass' });
+      if (!this.calm) this.voice(110, 0.3, { vol: 0.12, slide: 0.42 });
+      this.sample('pop', { rate: 0.55, vol: 4, at: T + 0.9 });
+      this.hiss(0.3, { vol: 0.035, from: 3000, to: 600, type: 'lowpass', at: T + 0.9 });
+      if (!this.music.sting(T + 0.95)) [0, 2, 4, 7].forEach((n, i) => this.bell(this.note(n + 2), { vol: 0.04, at: T + 0.95 + i * 0.07 }));
+      return 2.2;
+    },
+    // Rebirth: a long rise of air, bells climbing two octaves and a warm chord that blooms at the top.
+    rebirth(_, T) {
+      const k = this.music.keyNow();
+      this.hiss(1.3, { vol: 0.035, from: 200, to: 4200, q: 0.9 });
+      for (let i = 0; i < 10; i++) this.bell(this.note(i), { vol: 0.03 + i * 0.002, at: T + i * 0.075 + this.jit(0.01) });
+      this.chord(midi(k.key), k.minor ? MIN9 : ADD9, 2.6, this.calm ? 0.025 : 0.04, T + 0.75, this.sfxPad);
+      if (!this.calm) this.voice(midi(k.key - 12), 2.2, { vol: 0.05, attack: 0.6, at: T + 0.6 });
+      return 3.2;
+    },
+    // A purchase: a warm chord and a few bells, a thank-you rather than a jackpot.
+    purchase(_, T) {
+      const k = this.music.keyNow();
+      this.chord(midi(k.key), k.minor ? MIN9 : MAJ7, 1.6, 0.03, T, this.sfxPad);
+      [4, 7, 9, 11].forEach((n, i) => this.bell(this.note(n), { vol: 0.035, at: T + 0.08 + i * 0.08 }));
+      return 1.8;
+    },
+    // A reward flying in: a soft two-bell chime, unless a fanfare has just played (the band still dips).
+    reward(_, T) {
+      if (T - this.lastFanfare < 0.6) return 0.1;
+      const [x, y] = this.pickOf('reward', [[5, 7], [4, 7], [5, 9]]);
+      this.bell(this.note(x), { vol: 0.03 });
+      this.bell(this.note(y), { vol: 0.03, at: T + 0.09 });
+      return 1;
+    },
+    // The egg opens: more bells the better the pull, a sparkle from A up, a chord for the very best.
+    reveal(g, T) {
+      g = g || 0;
+      const n = 2 + Math.min(4, Math.floor(g / 2)), shape = this.pickOf('reveal', [[0, 2, 4, 6, 8, 10], [0, 2, 1, 3, 5, 7]]), k = this.music.keyNow();
+      for (let i = 0; i < n; i++) this.bell(this.note(shape[i]), { vol: 0.045, at: T + i * 0.085 + this.jit(0.008) });
+      if (g >= 3) [12, 14].forEach((d, i) => this.bell(this.note(d), { vol: 0.02, at: T + n * 0.085 + i * 0.05 }));
+      if (g >= 5) this.chord(midi(k.key), k.minor ? MIN9 : ADD9, 1.6, this.calm ? 0.022 : 0.035, T + n * 0.085, this.sfxPad);
+      return 1.2 + n * 0.085;
+    },
+    draw() { const v = this.pickVar('draw', 2); this.hiss(0.45, { vol: 0.05, from: [400, 520][v], to: [3200, 2600][v], q: 1.5 }); return 0.5; },
+    leap(_, T) {
+      this.hiss(0.35, { vol: 0.035, from: 600, to: 2600 });
+      this.pickOf('leap', [[0, 2, 4, 7], [0, 2, 5, 7]]).forEach((n, i) => this.pluck(this.note(n + 2), { vol: 0.035, dur: 0.2, at: T + i * 0.05 }));
+      return 0.6;
+    },
+    // Carrot Rain: a rising whoosh and a cheerful run; each carrot then lands with a plop.
+    rain(_, T) {
+      this.lastRain = T;
+      this.hiss(0.7, { vol: 0.05, from: 300, to: 3000, q: 1 });
+      this.pickOf('rain', [[0, 2, 4, 7, 9], [0, 1, 2, 4, 7], [2, 4, 5, 7, 9]]).forEach((n, i) => this.pluck(this.note(n + 2), { vol: 0.04, dur: 0.2, at: T + 0.15 + i * 0.06 + this.jit(0.006) }));
+      return 0.9;
+    },
+    // Something rare: a quick sparkle running up the scale.
+    shiny(_, T) { this.pickOf('shiny', [[7, 9, 10, 12, 14], [8, 9, 11, 12, 14]]).forEach((n, i) => this.bell(this.note(n), { vol: 0.035, at: T + i * 0.055 })); return 0.9; },
+    // The flower patch: a soft dig; a little bell when it opens.
+    plant() { this.voice(240 * cents((Math.random() - 0.5) * 160), 0.08, { vol: 0.06, slide: 1.5 }); this.hiss(0.09, { vol: 0.025, from: 700, type: 'lowpass' }); return 0.15; },
+    bloom() { this.bell(this.note(5 + Math.floor(Math.random() * 5)), { vol: 0.03 }); return 0.9; },
+    // A yawn: a breath in, a sleepy slide down. Buddies yawn a little higher.
+    yawn(arg, T) {
+      const k = (1 + (arg || 0) * 0.14) * cents((Math.random() - 0.5) * 60);
+      this.hiss(0.9, { vol: 0.022, from: 900, to: 380, q: 0.7 });
+      this.voice(300 * k, 0.28, { vol: 0.03, slide: 1.3, type: 'triangle', attack: 0.12, filter: 1200 });
+      this.voice(400 * k, 0.6, { vol: 0.035, slide: 0.55, type: 'triangle', attack: 0.08, at: T + 0.3, filter: 1200 });
+      return 1;
+    },
   };
 
   const A = {
-    ctx: null, on: true, musicOn: true, master: null, sfxBus: null, musicBus: null, noise: null,
-    ducked: false, hidden: false, lastShot: 0, ladder: 0, lastPick: 0,
+    ctx: null, on: true, musicOn: true, calm: false, ducked: false, hidden: false, hideN: 0, offline: false, noGate: false,
+    master: null, sfxBus: null, uiBus: null, musicBus: null, stingBus: null, noise: null, bank: null,
+    lastInput: -1e9, lastFight: -1e9, lastRain: -1e9, lastFanfare: -1e9, lastPick: -1e9, ladder: 0,
+    dipDb: 0, dipEnd: 0, sounding: {}, started: {}, tokens: PATTER_BURST, tokT: 0, lastTake: {}, sleepT: 0,
 
+    // Every tap: the context starts on the first one (iOS wants a tap that ends) and is woken if the phone paused it.
     unlock() {
-      if (this.ctx) { if (this.ctx.state !== 'running' && !this.hidden && this.ctx.resume) this.ctx.resume().catch(() => {}); return; }
-      try { this.attach(new (root.AudioContext || root.webkitAudioContext)()); } catch (e) { this.ctx = null; }
+      if (this.ctx) {
+        this.lastInput = this.ctx.currentTime;
+        if (this.ctx.state !== 'running' && !this.hidden && this.ctx.resume) quiet(this.ctx.resume());
+        return;
+      }
+      try { this.attach(new (root.AudioContext || root.webkitAudioContext)()); this.lastInput = 0; } catch (e) { this.ctx = null; }
     },
-    // Any context works, an OfflineAudioContext too (the audio test renders a minute and checks the levels).
+    // Any context works, an OfflineAudioContext too (the audio test renders the mix and measures it).
     attach(ctx) {
       this.ctx = ctx;
-      const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -18; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.25;
-      this.master = ctx.createGain(); this.master.gain.value = 0.9;
-      this.master.connect(comp); comp.connect(ctx.destination);
-      const soft = ctx.createBiquadFilter(); soft.type = 'lowpass'; soft.frequency.value = 4800; soft.Q.value = 0.3;
-      this.sfxBus = ctx.createGain(); this.sfxBus.gain.value = this.on ? 0.8 : 0;
-      this.sfxBus.connect(soft); soft.connect(this.master);
-      this.musicBus = ctx.createGain(); this.musicBus.gain.value = 0;
-      this.musicBus.connect(this.master);
+      this.offline = !!(root.OfflineAudioContext && ctx instanceof root.OfflineAudioContext);
+      this.sounding = {}; this.started = {}; this.lastTake = {}; this.dipEnd = 0; this.ladder = 0; this.tokens = PATTER_BURST; this.tokT = 0;
+      this.lastInput = this.lastFight = this.lastRain = this.lastFanfare = this.lastPick = -1e9;
+      const gain = (v, to) => { const g = ctx.createGain(); g.gain.value = v; if (to) g.connect(to); return g; };
+      const filter = (type, f, q, to) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q; if (to) n.connect(to); return n; };
+      const comp = (o, to) => { const c = ctx.createDynamicsCompressor(); for (const k of Object.keys(o)) c[k].value = o[k]; c.connect(to); return c; };
+      this.make = { gain, filter };
+      this.out = gain(this.hidden ? 0 : 1, ctx.destination);
+      const limit = comp({ threshold: -3, knee: 0, ratio: 20, attack: 0.001, release: 0.12 }, this.out);
+      const glue = comp({ threshold: -16, knee: 8, ratio: 2, attack: 0.008, release: 0.25 }, limit);
+      this.master = gain(dB(MIX.master), glue);
+      this.sfxTone = filter('lowpass', this.calm ? 3400 : 4800, 0.3, this.master);
+      this.sfxBus = gain(this.on ? dB(MIX.sfx + (this.calm ? -2 : 0)) : 0, this.sfxTone);
+      this.uiBus = gain(this.on ? dB(MIX.ui + (this.calm ? -2 : 0)) : 0, this.master);
+      this.sfxPad = filter('lowpass', 1400, 1, this.sfxBus);
+      this.musicDuck = gain(dB(this.ducked ? PANEL : 0), this.master);
+      this.musicTone = filter('lowpass', 9000, 0.5, this.musicDuck);
+      this.musicBus = gain(0, this.musicTone);
+      this.stingBus = gain(0, this.master);
+      this.stingTone = filter('lowpass', 2400, 1, this.stingBus);
       const len = ctx.sampleRate;
       this.noise = ctx.createBuffer(1, len, ctx.sampleRate);
-      const d = this.noise.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const d = this.noise.getChannelData(0), rnd = lcg(99);
+      for (let i = 0; i < len; i++) d[i] = rnd() * 2 - 1;
+      this.bank = buildBank(ctx, this.offline);
       this.music.start(this);
     },
-    setSound(on) { this.on = on; this.fade(this.sfxBus, on ? 0.8 : 0, 0.05); },
-    setMusic(on) { this.musicOn = on; this.levelMusic(); },
+
+    // ---------- levels ----------
+    setSound(on) { this.on = on; this.levelSfx(); },
+    setMusic(on) { this.musicOn = on; this.levelMusic(); this.music.sync(); },
+    // Calm mode: the effects a little softer and darker, no drop under the boss, gentler stings, a quieter drive.
+    setCalm(on) { on = !!on; if (this.calm === on) return; this.calm = on; this.levelSfx(); },
     // Panels open over the garden: the band plays on, a little further away.
-    duck(on) { if (this.ducked !== on) { this.ducked = on; this.levelMusic(); } },
+    duck(on) { if (this.ducked !== on) { this.ducked = on; this.levelDuck(); } },
+    // The app hidden or an ad playing (calls nest: each true is matched by a false). Everything fades out, then the
+    // context and the band's scheduler sleep; coming back wakes them and fades in.
     setHidden(h) {
-      this.hidden = h;
-      if (!this.ctx) return;
-      if (h) this.ctx.suspend && this.ctx.suspend(); else this.ctx.resume && this.ctx.resume();
+      this.hideN = Math.max(0, this.hideN + (h ? 1 : -1));
+      const was = this.hidden;
+      this.hidden = this.hideN > 0;
+      if (!this.ctx || was === this.hidden) return;
+      const ctx = this.ctx;
+      clearTimeout(this.sleepT);
+      this.ramp(this.out, this.hidden ? 0 : 1, this.hidden ? 0.015 : 0.12);
+      if (this.hidden && !this.offline) this.sleepT = setTimeout(() => { if (this.hidden && ctx.suspend) quiet(ctx.suspend()); }, 150);
+      if (!this.hidden && !this.offline && ctx.state !== 'running' && ctx.resume) quiet(ctx.resume());
+      this.music.sync();
     },
-    levelMusic() { this.fade(this.musicBus, this.musicOn ? (this.ducked ? 0.3 : 0.55) : 0, 0.6); },
-    fade(node, to, sec) {
+    levelSfx() {
+      const c = this.calm ? -2 : 0;
+      this.ramp(this.sfxBus, this.on ? dB(MIX.sfx + c) : 0, 0.02);
+      this.ramp(this.uiBus, this.on ? dB(MIX.ui + c) : 0, 0.02);
+      if (this.sfxTone) this.sfxTone.frequency.setTargetAtTime(this.calm ? 3400 : 4800, this.ctx.currentTime, 0.1);
+    },
+    levelMusic() {
+      this.ramp(this.musicBus, this.musicOn ? dB(MIX.music) : 0, 0.25);
+      this.ramp(this.stingBus, this.musicOn ? dB(MIX.sting) : 0, 0.25);
+    },
+    // A dip under a big moment: it only ever deepens or lengthens the one already under way.
+    dip(db, hold) {
+      if (!this.ctx) return;
+      const T = this.ctx.currentTime;
+      if (T < this.dipEnd && this.dipDb <= db) { if (T + hold <= this.dipEnd) return; db = this.dipDb; }
+      this.dipDb = db; this.dipEnd = T + hold;
+      this.levelDuck();
+    },
+    levelDuck() {
+      const g = this.musicDuck && this.musicDuck.gain;
+      if (!g) return;
+      const T = this.ctx.currentTime, base = this.ducked ? PANEL : 0;
+      g.cancelScheduledValues(T);
+      if (T < this.dipEnd) { g.setTargetAtTime(dB(base + this.dipDb), T, 0.04); g.setTargetAtTime(dB(base), this.dipEnd, 0.35); }
+      else g.setTargetAtTime(dB(base), T, 0.25);
+    },
+    ramp(node, to, tc) {
       if (!node || !this.ctx) return;
-      const t = this.ctx.currentTime, g = node.gain;
-      g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(to, t + sec);
+      const g = node.gain, T = this.ctx.currentTime;
+      g.cancelScheduledValues(T); g.setTargetAtTime(to, T, tc);
+    },
+
+    // ---------- playing ----------
+    play(name, arg) {
+      if (!this.on || !this.ctx || this.hidden) return;
+      const fn = SFX[name];
+      if (!fn || !this.gate(name)) return;
+      const T = this.ctx.currentTime;
+      if (name === 'hit' || name === 'crit' || name === 'pop') this.lastFight = T;
+      const dur = fn.call(this, arg, T) || 0.2;
+      if (!this.noGate) this.hold(name, dur);
+      if (FANFARE.has(name)) this.lastFanfare = T;
+      const m = MOMENT[name];
+      if (m && (name !== 'reveal' || (arg || 0) >= 3)) this.dip(this.calm ? m[0] * 0.7 : m[0], m[1]);
+    },
+    gate(name) {
+      if (this.noGate) return true;
+      const T = this.ctx.currentTime, g = GATE[name] || GATE.def;
+      const q = this.sounding[name] || (this.sounding[name] = []);
+      while (q.length && q[0] <= T) q.shift();
+      const last = this.started[name];
+      if (q.length >= g[0] || (last != null && T - last < g[1])) return false;
+      if (PATTER.has(name)) {
+        this.tokens = Math.min(PATTER_BURST, this.tokens + (T - this.tokT) * PATTER_RATE);
+        this.tokT = T;
+        if (this.tokens < (LOW.has(name) ? 3 : 1)) return false;
+        this.tokens -= 1;
+      }
+      this.started[name] = T;
+      return true;
+    },
+    hold(name, dur) {
+      const end = this.ctx.currentTime + dur, q = this.sounding[name];
+      let i = q.length;
+      while (i && q[i - 1] > end) i--;
+      q.splice(i, 0, end);
+    },
+    // One take from the bank: never the take played last, a little pitch, level and time drift, onto its bus.
+    sample(name, { rate = 1, vol = 0, at = 0, bus } = {}) {
+      const takes = this.bank && this.bank[name];
+      if (!takes) return 0;
+      const ctx = this.ctx, V = DRIFT[name] || DRIFT.def, v = this.pickVar(name, takes.length);
+      const r = rate * cents((Math.random() * 2 - 1) * V[0]);
+      const src = ctx.createBufferSource(), g = ctx.createGain();
+      src.buffer = takes[v];
+      src.playbackRate.value = r;
+      g.gain.value = dB((LEVEL[name] || -26) + vol + (Math.random() * 2 - 1) * V[1]);
+      src.connect(g); g.connect(bus || this.sfxBus);
+      src.start(Math.max(at, ctx.currentTime) + 0.002 + Math.random() * V[2]);
+      return takes[v].duration / r;
+    },
+    // A variant other than the one played last time.
+    pickVar(name, n) {
+      let v = Math.floor(Math.random() * n);
+      if (n > 1 && v === this.lastTake[name]) v = (v + 1 + Math.floor(Math.random() * (n - 1))) % n;
+      this.lastTake[name] = v;
+      return v;
+    },
+    pickOf(name, list) { return list[this.pickVar(name, list.length)]; },
+    jit(s) { return Math.random() * s; },
+    // Degree i of the scale the band is in, from about C5 up: jingles and coin ladders always fit the music.
+    note(i) {
+      const k = this.music.keyNow();
+      let base = 72 + (((k.key % 12) + 12) % 12);
+      if (base > 77) base -= 12;
+      return midi(base + k.scale[((i % 5) + 5) % 5] + 12 * Math.floor(i / 5));
     },
 
     // ---------- voices ----------
@@ -3821,7 +4244,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     voice(freq, dur, { type = 'sine', vol = 0.05, slide = 0, at = 0, attack = 0.006, bus, detune = 0, filter = 0 } = {}) {
       const ctx = this.ctx;
       if (!ctx) return;
-      const t = (at || ctx.currentTime) + 0.002;
+      const t = Math.max(at, ctx.currentTime) + 0.002;
       const o = ctx.createOscillator(), g = ctx.createGain();
       o.type = type; o.frequency.setValueAtTime(freq, t); if (detune) o.detune.value = detune;
       if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq * slide), t + dur);
@@ -3839,101 +4262,66 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       this.voice(freq * 3.98, dur * 0.12, { vol: vol * 0.12, at, bus, attack: 0.002 });
     },
     bell(freq, opt = {}) { this.pluck(freq, { dur: 0.9, ...opt }); this.voice(freq * 2.76, 0.4, { vol: (opt.vol || 0.05) * 0.18, at: opt.at, bus: opt.bus }); },
-    hiss(dur, { vol = 0.04, at = 0, from = 1200, to = 0, type = 'bandpass', q = 0.8, bus } = {}) {
+    // Noise: through its own filter, or straight into `out` when that is a shared filter already.
+    hiss(dur, { vol = 0.04, at = 0, from = 1200, to = 0, type = 'bandpass', q = 0.8, bus, out } = {}) {
       const ctx = this.ctx;
       if (!ctx) return;
-      const t = (at || ctx.currentTime) + 0.002;
+      const t = Math.max(at, ctx.currentTime) + 0.002;
       const s = ctx.createBufferSource(); s.buffer = this.noise; s.loop = true;
-      const f = ctx.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(from, t); f.Q.value = q;
-      if (to) f.frequency.exponentialRampToValueAtTime(to, t + dur);
       const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + Math.min(0.02, dur / 3)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      s.connect(f); f.connect(g); g.connect(bus || this.sfxBus);
+      if (out) { s.connect(g); g.connect(out); }
+      else {
+        const f = ctx.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(from, t); f.Q.value = q;
+        if (to) f.frequency.exponentialRampToValueAtTime(to, t + dur);
+        s.connect(f); f.connect(g); g.connect(bus || this.sfxBus);
+      }
       s.start(t, Math.random() * 0.5); s.stop(t + dur + 0.05);
     },
-
-    // ---------- sound effects ----------
-    play(name, arg) {
-      if (!this.on || !this.ctx || this.hidden) return;
-      const now = performance.now(), T = this.ctx.currentTime;
-      const P = (i) => midi(72 + PENTA[i % 5] + 12 * Math.floor(i / 5));   // C5 pentatonic, upwards
-      switch (name) {
-        // Coins arriving climb the pentatonic scale and start over after a short pause.
-        case 'pickup': {
-          if (now - this.lastPick < 55) return;
-          this.ladder = now - this.lastPick > 450 ? 0 : Math.min(9, this.ladder + 1);
-          this.lastPick = now;
-          this.pluck(P(this.ladder), { vol: 0.035, dur: 0.25 });
-          break;
-        }
-        // A soft "puff", not a laser: filtered air and a round blip, a little different every time.
-        case 'shot': {
-          if (now - this.lastShot < 110) return;
-          this.lastShot = now;
-          this.hiss(0.05, { vol: 0.03, from: 1400 + Math.random() * 500, q: 1.2 });
-          this.voice(330 + Math.random() * 60, 0.06, { vol: 0.02, slide: 0.6, type: 'triangle' });
-          break;
-        }
-        case 'pop': this.voice(380, 0.09, { vol: 0.07, slide: 2.2 }); this.hiss(0.06, { vol: 0.02, from: 900 }); break;
-        case 'tap': this.voice(1180, 0.03, { vol: 0.025, type: 'triangle' }); break;
-        case 'bonk': this.voice(190, 0.12, { vol: 0.08, slide: 0.7, type: 'triangle', filter: 900 }); break;
-        case 'up': this.pluck(P(Math.min(12, arg || 0) + 2), { vol: 0.045, dur: 0.22 }); break;
-        case 'buy': this.pluck(P(4), { vol: 0.05, dur: 0.3 }); this.pluck(P(7), { vol: 0.035, dur: 0.35, at: T + 0.06 }); break;
-        case 'coin': this.bell(midi(88), { vol: 0.035 }); this.bell(midi(91), { vol: 0.035, at: T + 0.07 }); break;
-        case 'merge': [0, 2, 4, 5].forEach((n, i) => this.bell(P(n + 2), { vol: 0.045, at: T + i * 0.07 })); break;
-        case 'win': [0, 2, 4, 5, 7].forEach((n, i) => this.pluck(P(n), { vol: 0.05, dur: 0.5, at: T + i * 0.09 })); this.chord(midi(60), MAJ7, 1.4, 0.03, T + 0.3); break;
-        case 'lose': [4, 2, 0].forEach((n, i) => this.pluck(P(n) / 2, { vol: 0.05, dur: 0.6, at: T + i * 0.16 })); break;
-        case 'boss': this.voice(98, 0.5, { vol: 0.14, slide: 0.55 }); this.hiss(0.6, { vol: 0.04, from: 300, to: 2400, type: 'lowpass' }); this.chord(midi(57), MIN7, 1.2, 0.035, T + 0.15); break;
-        // The flower patch: a soft dig, then a little bell when it opens.
-        case 'plant': this.voice(240, 0.08, { vol: 0.06, slide: 1.5 }); this.hiss(0.09, { vol: 0.025, from: 700, type: 'lowpass' }); break;
-        // Something rare: a quick sparkle running up the scale.
-        case 'shiny': [7, 9, 10, 12, 14].forEach((n, i) => this.bell(P(n), { vol: 0.035, at: T + i * 0.055 })); break;
-        // Carrot Rain: a rising whoosh and a cheerful run; each carrot lands with a soft plop.
-        case 'rain': this.hiss(0.7, { vol: 0.05, from: 300, to: 3000, q: 1 }); [0, 2, 4, 7, 9].forEach((n, i) => this.pluck(P(n + 2), { vol: 0.04, dur: 0.2, at: T + 0.15 + i * 0.06 })); break;
-        case 'plop': if (now - (this.lastPlop || 0) < 70) return; this.lastPlop = now; this.voice(180 + Math.random() * 60, 0.09, { vol: 0.05, slide: 0.6, type: 'triangle', filter: 900 }); break;
-        case 'bloom': this.bell(P(5 + Math.floor(Math.random() * 5)), { vol: 0.03 }); break;
-        // A first-time tip: two soft notes going up, like "oh, look".
-        case 'tip': this.pluck(P(4), { vol: 0.03, dur: 0.25 }); this.pluck(P(7), { vol: 0.03, dur: 0.35, at: T + 0.09 }); break;
-        // A yawn: a breath in, a sleepy slide down. Buddies yawn a little higher.
-        case 'yawn': {
-          const k = 1 + (arg || 0) * 0.14;
-          this.hiss(0.9, { vol: 0.022, from: 900, to: 380, q: 0.7 });
-          this.voice(300 * k, 0.28, { vol: 0.03, slide: 1.3, type: 'triangle', attack: 0.12, filter: 1200 });
-          this.voice(400 * k, 0.6, { vol: 0.035, slide: 0.55, type: 'triangle', attack: 0.08, at: T + 0.3, filter: 1200 });
-          break;
-        }
-        case 'draw': this.hiss(0.45, { vol: 0.05, from: 400, to: 3200, q: 1.5 }); break;
-        case 'leap': this.hiss(0.35, { vol: 0.035, from: 600, to: 2600 }); [0, 2, 4, 7].forEach((n, i) => this.pluck(P(n + 2), { vol: 0.035, dur: 0.2, at: T + i * 0.05 })); break;
-        case 'reveal': {
-          const g = arg || 0, n = 2 + Math.min(4, Math.floor(g / 2));
-          for (let i = 0; i < n; i++) this.bell(P(i * 2), { vol: 0.045, at: T + i * 0.085 });
-          if (g >= 6) this.chord(midi(60), ADD9, 1.6, 0.035, T + n * 0.085);
-          break;
-        }
-        default: break;
-      }
-    },
-    chord(rootHz, shape, dur, vol, at, bus) {
-      for (const iv of shape) for (const d of [-7, 7]) this.voice(rootHz * Math.pow(2, iv / 12), dur, { type: 'triangle', vol: vol / 2, at, attack: dur * 0.3, detune: d, bus, filter: 1400 });
+    // A pad chord: two detuned triangles a note, into a filter that is already there (`out`).
+    chord(rootHz, shape, dur, vol, at, out) {
+      for (const iv of shape) for (const d of [-7, 7]) this.voice(rootHz * Math.pow(2, iv / 12), dur, { type: 'triangle', vol: vol / 2, at, attack: dur * 0.3, detune: d, bus: out });
     },
   };
 
   // ---------- the garden band ----------
-  // Bars of 8 eighth notes. A two-bar marimba motif is written per chord cycle and repeated with small
-  // changes, so it sounds composed rather than random; the pad and bass follow the chords.
+  // Bars of 8 eighth notes, scheduled 0.35 s ahead on the audio clock. A two-bar marimba motif (scale degrees) is
+  // written per mood and varied a little, so it sounds composed rather than random, and it follows the harmony when
+  // a boss turns it minor. The engine says the mood (or 'boss') and whether it is night; each downbeat reads that,
+  // with how busy the fight is, and sets the layers.
   A.music = {
-    a: null, timer: 0, next: 0, step: 0, bar: 0, mood: 'meadow', want: 'meadow', motif: null, seed: 1,
+    a: null, timer: 0, next: 0, step: 0, bar: 0, mood: '', want: 'meadow', boss: false, inBoss: false, night: false,
+    motif: null, seed: 1, H: null, eighth: 0.38, scene: 'calm', forced: null, layer: {}, target: {}, alive: {}, tone: 0,
     start(a) {
       this.a = a;
-      this.next = a.ctx.currentTime + 0.3;
+      const { gain, filter } = a.make;
+      for (const k of LAYERS) { this.layer[k] = gain(0, a.musicBus); this.target[k] = 0; this.alive[k] = -1; }
+      this.padTone = filter('lowpass', 1400, 1, this.layer.bed);
+      this.hatTone = filter('highpass', 7000, 0.7, this.layer.drive);
+      this.lowTone = filter('lowpass', 320, 1, this.layer.tension);
+      this.tickTone = filter('highpass', 5000, 0.7, this.layer.tension);
+      Object.assign(this, { next: a.ctx.currentTime + 0.3, step: 0, bar: 0, mood: '', motif: null, H: null, inBoss: false, tone: 0 });
       a.levelMusic();
-      if (root.OfflineAudioContext && a.ctx instanceof root.OfflineAudioContext) return;   // offline renders drive tick() themselves
-      clearInterval(this.timer);
-      this.timer = setInterval(() => this.tick(0.35), 90);
+      this.stop();
+      this.sync();
     },
-    setMood(m) { if (MOODS[m]) this.want = m; },
+    // The scheduler runs only while there is music to hear.
+    sync() {
+      const a = this.a, on = !!(a && a.ctx && !a.offline && a.musicOn && !a.hidden);
+      if (on && !this.timer) this.timer = setInterval(() => this.tick(0.35), 90);
+      else if (!on) this.stop();
+    },
+    stop() { clearInterval(this.timer); this.timer = 0; },
+    setMood(m) { if (m === 'boss') this.boss = true; else { this.boss = false; if (MOODS[m]) this.want = m; } },
+    // The key and scale playing now (C pentatonic while the music is off).
+    keyNow() {
+      const H = this.a && this.a.musicOn && this.H;
+      if (!H) return { key: 60, scale: PENTA, minor: false };
+      const scale = H.scale || PENTA;
+      return { key: H.key, scale, minor: scale.includes(3) };
+    },
     rnd() { this.seed = (this.seed * 16807) % 2147483647; return this.seed / 2147483647; },
-    writeMotif() {
-      const m = MOODS[this.mood], sc = m.scale || PENTA;
+    newMotif() {
+      this.seed = 7 + this.mood.length * 131;
       const notes = [];
       let deg = 2 + Math.floor(this.rnd() * 3);
       for (let i = 0; i < 16; i++) {
@@ -3942,54 +4330,115 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         if (!play) { notes.push(null); continue; }
         deg += [-2, -1, -1, 0, 1, 1, 2][Math.floor(this.rnd() * 7)];
         deg = Math.max(0, Math.min(9, deg));
-        notes.push(sc[deg % 5] + 12 * Math.floor(deg / 5));
+        notes.push(deg);
       }
       notes[15] = null;
       this.motif = notes;
     },
+    deg: (d, sc) => sc[((d % 5) + 5) % 5] + 12 * Math.floor(d / 5),
+    harmony() {
+      const m = MOODS[this.mood];
+      if (!this.inBoss) return m;
+      const minor = (m.scale || PENTA).includes(3);
+      return { key: minor ? m.key : m.key - 3, bpm: m.bpm + 6, prog: BOSS.prog, scale: BOSS.scale };
+    },
     tick(ahead) {
       const a = this.a, ctx = a && a.ctx;
-      if (!ctx || a.hidden) return;
-      if (this.next < ctx.currentTime - 0.5) this.next = ctx.currentTime + 0.05;
-      while (this.next < ctx.currentTime + ahead) { this.note(this.next); }
+      if (!ctx || a.hidden || !a.musicOn) return;
+      if (this.next < ctx.currentTime - 0.5) { this.next = ctx.currentTime + 0.05; this.step = 0; }
+      while (this.next < ctx.currentTime + ahead) this.note(this.next);
+    },
+    // A boss turns the harmony on the next bar (and back when it's over); a new garden waits for a phrase.
+    downbeat(t) {
+      if (!MOODS[this.mood]) { this.mood = this.want; this.newMotif(); }
+      if (this.boss !== this.inBoss) { this.inBoss = this.boss; this.bar = 0; }
+      if (!this.inBoss && this.bar % 4 === 0 && this.want !== this.mood) { this.mood = this.want; this.newMotif(); }
+      else if (this.bar && this.bar % 8 === 0 && this.rnd() < 0.5) {
+        const i = 1 + Math.floor(this.rnd() * 14);
+        if (this.motif[i] != null) this.motif[i] = Math.max(0, Math.min(11, this.motif[i] + [-1, 1, 2][Math.floor(this.rnd() * 3)]));
+      }
+      this.H = this.harmony();
+      this.eighth = 60 / (this.H.bpm * (this.night ? 0.9 : 1)) / 2;   // the band slows a touch at night
+      this.applyScene(t);
+    },
+    // calm: pad, bass, marimba. fight: + drive (the player is at it and veggies are falling, or Carrot Rain).
+    // boss: + tension, the marimba steps back. Menus are calm. Side modes are a fight.
+    pick() {
+      const a = this.a, T = a.ctx.currentTime;
+      if (this.inBoss) return 'boss';
+      if (this.mood === 'mode') return 'fight';
+      if (a.ducked) return 'calm';
+      return (T - a.lastFight < 4 && T - a.lastInput < 25) || T - a.lastRain < 12 ? 'fight' : 'calm';
+    },
+    // Layer levels change only when the scene does, gliding from the downbeat; a layer faded out stops being played.
+    applyScene(t) {
+      const a = this.a, sc = this.forced || this.pick();
+      this.scene = sc;
+      SCENES[sc].forEach((v, i) => {
+        const k = LAYERS[i];
+        const lin = v == null ? 0 : dB(v + (this.night ? NIGHT[i] : 0) + (a.calm ? CALMED[i] : 0));
+        if (lin !== this.target[k]) {
+          this.layer[k].gain.setTargetAtTime(lin, t, k === 'tension' && lin > this.target[k] ? 0.25 : 0.8);
+          this.target[k] = lin;
+        }
+        if (lin > 0) this.alive[k] = Infinity;
+        else if (this.alive[k] === Infinity) this.alive[k] = t + 4;
+      });
+      const tone = this.night ? 2400 : 9000;
+      if (tone !== this.tone) { a.musicTone.frequency.setTargetAtTime(tone, t, this.tone ? 1.5 : 0.01); this.tone = tone; }
     },
     note(t) {
       const a = this.a;
-      if (!MOODS[this.mood]) { this.step = 0; this.bar = 0; }
-      if (this.step === 0 && this.bar % 4 === 0) {
-        // Mood changes land on the start of a phrase.
-        if (this.want !== this.mood || !this.motif) { this.mood = this.want; this.seed = 7 + this.mood.length * 131; this.writeMotif(); }
-        else if (this.bar % 8 === 0 && this.rnd() < 0.5) {
-          const i = 1 + Math.floor(this.rnd() * 14);
-          if (this.motif[i] != null) this.motif[i] += [-2, 2, 3][Math.floor(this.rnd() * 3)];
-        }
+      if (this.step === 0) this.downbeat(t);
+      const H = this.H, e = this.eighth, s = this.step, L = this.layer, sc = H.scale || PENTA;
+      const [off, shape] = H.prog[this.bar % H.prog.length];
+      const r = H.key + off;
+      const tt = t + (s % 2 ? e * 0.12 : 0);   // a gentle swing: off-beats arrive a touch late
+      // bed: the pad holds the chord, the bass plays root and fifth
+      if (s === 0) {
+        a.chord(midi(r - 12), shape, e * 8.5, 0.045, t, this.padTone);
+        a.voice(midi(r - 24), e * 3, { vol: 0.09, at: t, bus: L.bed, attack: 0.02 });
       }
-      const m = MOODS[this.mood], bus = a.musicBus;
-      // At night the band slows down a touch.
-      const eighth = 60 / (m.bpm * (this.night ? 0.9 : 1)) / 2;
-      const [off, shape] = m.prog[this.bar % m.prog.length];
-      const root = m.key + off;
-      // A gentle swing: off-beats arrive a touch late.
-      const tt = t + (this.step % 2 ? eighth * 0.12 : 0);
-      if (this.step === 0) {
-        a.chord(midi(root - 12), shape, eighth * 8.5, 0.045, t, bus);
-        a.voice(midi(root - 24), eighth * 3, { vol: 0.09, at: t, bus, attack: 0.02 });
+      if (s === 4) a.voice(midi(r - 17), e * 2.5, { vol: 0.06, at: t, bus: L.bed, attack: 0.02 });
+      // melody: the motif, and now and then a high bell answering an octave up
+      if (t < this.alive.melody) {
+        const d = this.motif[(this.bar % 2) * 8 + s];
+        if (d != null) a.pluck(midi(H.key + 12 + this.deg(d, sc)), { vol: 0.05, dur: e * 3.2, at: tt, bus: L.melody });
+        if (s === 6 && this.bar % 4 === 3 && this.rnd() < 0.6) a.bell(midi(H.key + 24 + sc[Math.floor(this.rnd() * 5)]), { vol: 0.02, at: tt, bus: L.melody });
       }
-      if (this.step === 4) a.voice(midi(root - 17), eighth * 2.5, { vol: 0.06, at: t, bus, attack: 0.02 });
-      if (m.pulse && this.step % 2 === 0) a.voice(midi(root - 24), eighth * 0.8, { vol: 0.05, at: tt, bus, attack: 0.01, filter: 300 });
-      if (this.step % 2 === 1 && (m.shaker || this.bar % 2)) a.hiss(eighth * 0.5, { vol: m.shaker ? 0.012 : 0.007, at: tt, from: 7000, type: 'highpass', bus });
-      if (this.step === 0 && this.bar % 2 === 0) a.voice(62, 0.18, { vol: 0.07, slide: 0.6, at: t, bus });
-      const n = this.motif[(this.bar % 2) * 8 + this.step];
-      if (n != null) a.pluck(midi(m.key + 12 + n), { vol: 0.05, dur: eighth * 3.2, at: tt, bus });
-      // Now and then a high bell answers, an octave up.
-      if (this.step === 6 && this.bar % 4 === 3 && this.rnd() < 0.6) a.bell(midi(m.key + 24 + (m.scale || PENTA)[Math.floor(this.rnd() * 5)]), { vol: 0.02, at: tt, bus });
-      this.next += eighth;
+      // drive: a soft kick on 1 and 3 (it starts high enough for a phone speaker), a shaker on the off-beats,
+      // a chord tone answering on the "and" of 2 and 4
+      if (t < this.alive.drive) {
+        if (s === 0 || s === 4) a.voice(140, 0.16, { vol: s ? 0.05 : 0.07, slide: 0.4, at: t, bus: L.drive });
+        if (s % 2) a.hiss(e * 0.5, { vol: H.shaker ? 0.018 : 0.014, at: tt, out: this.hatTone });
+        if (s === 3 || s === 7) a.voice(midi(r + shape[1 + ((this.bar + (s >> 2)) % 3)]), e * 1.6, { vol: 0.028, at: tt, bus: L.drive, type: 'triangle', attack: 0.01 });
+      }
+      // tension: a heartbeat (lub-dub) every bar, an ostinato on the chord, a soft tick on 2 and 4 (not in Calm mode)
+      if (t < this.alive.tension) {
+        if (s < 2) a.voice(midi(r - 24), e * 0.9, { vol: s ? 0.08 : 0.12, at: tt, bus: this.lowTone, type: 'triangle', attack: 0.008 });
+        if (s % 2 === 0) a.voice(midi(r + [shape[2], shape[3], shape[2], shape[1]][s >> 1]), e * 0.7, { vol: 0.02, at: t, bus: L.tension, type: 'triangle', attack: 0.004 });
+        if ((s === 2 || s === 6) && !a.calm) a.hiss(0.03, { vol: 0.01, at: t, out: this.tickTone });
+      }
+      this.next += e;
       if (++this.step === 8) { this.step = 0; this.bar++; }
+    },
+    // The victory sting: a quick run up and a bright chord over the band, in the garden's key, on the beat.
+    sting(at) {
+      const a = this.a;
+      if (!a.musicOn || !this.H || a.hidden) return false;
+      const m = MOODS[this.want] || MOODS.meadow, sc = m.scale || PENTA, minor = sc.includes(3), e = this.eighth;
+      const t = this.next + Math.max(0, Math.ceil((at - this.next) / e)) * e, v = a.calm ? 0.6 : 1;
+      [0, 2, 4, 5].forEach((d, i) => a.bell(midi(m.key + 12 + this.deg(d, sc)), { vol: 0.045 * v, at: t + (i * e) / 2, bus: a.stingBus }));
+      a.chord(midi(m.key), minor ? MIN9 : ADD9, 1.8, 0.05 * v, t + 2 * e, a.stingTone);
+      if (!a.calm) a.bell(midi(m.key + 24 + this.deg(2, sc)), { vol: 0.025, at: t + 2 * e, bus: a.stingBus });
+      return true;
     },
   };
 
   BB.sound = A;
   BB.audioMoods = Object.keys(MOODS);
+  BB.audioScenes = Object.keys(SCENES);
+  BB.audioEvents = Object.keys(SFX);
 })(typeof self !== 'undefined' ? self : this);
 
 // ---- engine.js
@@ -4392,6 +4841,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     // One short flash per target at most every 120 ms, a boss under 3 a second: it stays readable and never strobes.
     if (!calm && t.flashCD <= 0) { t.hit = 0.05; t.flashCD = t.type === 'boss' ? 0.35 : 0.12; }
     t.hurt = 0.1; t.nudge = 0.06;
+    hooks.sfx(b.crit ? 'crit' : 'hit', t.type);
     if (t.type !== 'rock') {
       if (b.crit) {
         addFloat(t.x + (rnd() - 0.5) * t.r, t.y - t.r * 0.7, null, '#ffb020', 10, 'crit', dmg);
@@ -4441,7 +4891,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         freeze(0.3); kick(0.6); buzz('heavy');
         phase = 'bossdie'; phaseT = DIE;
         crown = art.has('crown') ? { x: t.x, y: t.y - t.w * 0.45, vx: (rnd() < 0.5 ? -1 : 1) * 40, vy: -120, r: 0, t: 0 } : null;
-        hooks.sfx('win');
+        hooks.sfx('bossdie');
         if (hooks.onFind) hooks.onFind('boss:' + BIOMES[biomeOf(s.stage.world - 1)].boss);
         hooks.onBossWin();
         return;
@@ -6721,7 +7171,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const r = logic.rebirth(S(), mult, now());
     if (!r.ok) return;
     BB.track('rebirth', { n: S().rb.count, world: S().stats.maxWorld, stones: r.pts, super: mult > 1 });
-    BB.sound.play('win');
+    BB.sound.play('rebirth');
     logic.checkSkins(S());
     G().statsChanged();
     BB.engine.startMain();
@@ -7304,6 +7754,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     for (const k of ['coins', 'crystals', 'clovers']) if (r[k]) fly(k, 6, from);
     if (r.pet != null) fly('pet', 1, from, r.pet);
     if (r.fly != null) fly('fly', 1, from, r.fly);
+    BB.sound.play('reward');
     BB.haptics.play('success');
   }
 
@@ -8079,6 +8530,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     BB.haptics.on = st.haptics !== false;
     sound.setSound(st.sound !== false);
     sound.setMusic(st.music !== false);
+    sound.setCalm(calm);
     engine.setSky(st.sky);
     // Night mode also dims the panels a little, for playing in the dark.
     document.getElementById('app').classList.toggle('dim', st.sky === 'night');
