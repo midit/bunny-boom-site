@@ -206,7 +206,10 @@ a.btn { text-decoration: none; }
 /* icon | number (left-aligned after the icon, so it grows to the right and never jumps) | the crystal + */
 .res { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: var(--s1); height: 28px; color: var(--white); font-size: var(--fs-m); text-shadow: var(--sh1); font-variant-numeric: tabular-nums; }
 .res .ri { display: grid; place-items: center; } .res .ico { width: 20px; height: 20px; }
-.res b { text-align: left; white-space: nowrap; }
+/* Room for the widest number of a K/M/B/T step ("8.88M"): fmt.num drops trailing zeros, so a rolling count flips
+   between "1.4K" and "1.42K" every few frames, and the board grew and shrank 8 px with it, pushing the stage sign and
+   its bar left and right while coins came in. */
+.res b { text-align: left; white-space: nowrap; min-width: 1.95em; }
 #res-coins { height: 32px; font-size: var(--fs-l); } #res-coins .ico { width: 24px; height: 24px; }
 #res-clovers { font-size: var(--fs-m); }
 /* The crystal +: a little green key (it opens the Shop), drawn with whole art pixels; a finger gets 48 px. */
@@ -626,7 +629,9 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .calm *, .calm *::before, .calm *::after { animation-duration: 0s !important; animation-iteration-count: 1 !important; transition: none !important; }
 
 .offline { position: relative; }
-.offline .zz { position: absolute; left: 62%; top: 0; font-style: normal; font-size: var(--fs-l); color: var(--sky); text-shadow: var(--sh); animation: zz 2.2s var(--ease-out) infinite; }
+/* The Zz starts as far down as it rises (10 art px): from the very top it rose out of the dialog body and was sliced
+   off under the title. */
+.offline .zz { position: absolute; left: 62%; top: calc(var(--p) * 10); font-style: normal; font-size: var(--fs-l); color: var(--sky); text-shadow: var(--sh); animation: zz 2.2s var(--ease-out) infinite; }
 @keyframes zz { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(calc(var(--p) * 8), calc(var(--p) * -10)); opacity: 0; } }
 .btn.shimmer { animation: afford 2.4s var(--breathe) infinite; }
 .btn.shimmer::after { content: ""; position: absolute; inset: 0; background: #fff8ec; opacity: 0; pointer-events: none; animation: afford-shine 2.4s var(--breathe) infinite; }
@@ -1157,8 +1162,12 @@ label.set-row { cursor: pointer; }
 .btn { transition: transform var(--dur-fast) var(--spring); }
 .btn:active:not(:disabled) { transform: scale(calc(1 - var(--m) * .04)); transition: transform var(--dur-press) var(--ease-out); }
 .tool:active, .hb:active, .bubble:active { transform: translateY(calc(var(--m) * var(--p))); }
+/* The lit tab's icon pops up and settles 2 px higher at its own size: a pixel-art icon never rests at a fractional
+   scale (at 1.08 its art pixels came out 6 and 7 device pixels wide by turns: a lumpy icon for as long as the tab was
+   lit). Going dark it springs back down (the transition); lighting up is the animation. */
 .hb > .ico, .hb > img { transition: transform 300ms var(--spring); }
-.hb.on > .ico, .hb.on > img { transform: translateY(calc(var(--m) * -2px)) scale(calc(1 + var(--m) * .08)); }
+.hb.on > .ico, .hb.on > img { transform: translateY(calc(var(--m) * -2px)); transition: none; animation: hbon 300ms var(--spring); }
+@keyframes hbon { from { transform: none; } 45% { transform: translateY(calc(var(--m) * -2px)) scale(calc(1 + var(--m) * .08)); } }
 /* State feedback: can't afford (a shake, with the bonk), just became affordable (twice, never a loop), bought. */
 @keyframes nope { 33% { transform: translateX(calc(var(--m) * var(--p) * -2)); } 66% { transform: translateX(calc(var(--m) * var(--p) * 2)); } }
 @keyframes afford { 40% { transform: scale(calc(1 + var(--m) * .04)); } }
@@ -1172,6 +1181,16 @@ label.set-row { cursor: pointer; }
 .btn.shimmer::after { content: none; animation: none; }
 /* Bars fill by scale (package B moves them to scaleX / scaleY); the move itself is eased here. */
 #progress-fill, #mode-fill, .pbar i, .btn .meter { transition: transform var(--dur-base) var(--ease-out); }
+/* What moves every second or so keeps its own layer for good (rule 4's exception, §9.2). A short transition that starts
+   again and again made the browser build the element a layer and drop it each time; WebKit (iPhone Safari) draws a
+   fresh layer's first frame empty and Chromium on Android can too: a one-frame blink, each time. The stage bar steps
+   every 5 % (each kill, the boss's health), the side-mode clock every half percent, the price keys' meters every
+   tenth saved, the wallet's numbers hop as coins land and an upgrade's number hops about three times a second while
+   its buy is held. */
+#progress-fill, #mode-fill, .up-cost .meter, .res b, .up-val { will-change: transform; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+/* The banner unfolds and folds away at every cleared stage, and a toast lives only to slide in and out: both leave
+   while fully drawn, which is when a freshly made layer's empty first frame shows. */
+#banner, .toast { will-change: transform, opacity; }
 #rain-btn .rain-fill { transition: transform var(--dur-slow) var(--ease-out); }
 /* The switch knob slides across (a transform on package B's knob; calm: it just jumps). */
 .switch span::after { transition: transform calc(var(--m) * var(--dur-fast)) var(--ease-out); }
@@ -7974,6 +7993,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const el = document.createElement('div');
     el.className = 'toast ' + kind;
     el.innerHTML = text;
+    el.kind = kind; el.born = performance.now();
     box.appendChild(el);
     lowToasts();
     const words = el.textContent.trim().split(/\s+/).length;
@@ -7994,10 +8014,22 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   // toast would float (toasts wait for it), and stays long enough to read; it fades out where it is.
   function banner(text, cls = '', sub = null) {
     const el = $('#banner');
+    // A banner that replaces one still on screen unfolds again (swapped in place, its words, height and colour jumped,
+    // and a garden banner jumped to its own place above the upgrades).
+    if (el.classList.contains('show')) { el.style.transition = 'none'; el.className = 'banner'; void el.offsetWidth; el.style.transition = ''; }
     el.className = 'banner show ' + cls + (sub ? ' sub' : '');
     el.innerHTML = esc(text) + (sub ? `<small class="banner-sub"><b>${esc(sub[0])}</b><span>${esc(sub[1])}</span></small>` : '');
+    // A garden banner lands where toasts float: one already there steps aside (it covered the garden's line) and,
+    // if it had barely been read, comes back after the banner with the others it holds.
+    if (sub) {
+      for (const old of [...$('#toasts').children]) {
+        if (!old.gone && performance.now() - (old.born || 0) < 1000) held.push([old.innerHTML, old.kind || '']);
+        leaveToast(old, true);
+      }
+    }
     clearTimeout(banner.t);
-    banner.t = setTimeout(() => { el.classList.remove('show'); if (sub) toast.flush(); }, sub ? 3400 : 1400);
+    // Toasts held back come out when it goes, also when another banner took a garden banner's place before its end.
+    banner.t = setTimeout(() => { el.classList.remove('show'); toast.flush(); }, sub ? 3400 : 1400);
   }
 
   // ---------- sheets (panels) ----------
@@ -8295,7 +8327,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     $('#mode-hud .bico').innerHTML = ico('close', 'ico sm');
     $('#rain-btn').insertAdjacentHTML('beforeend', ico('carrot') + '<i class="rain-lbl"></i>');
     $('#rain-btn').insertAdjacentHTML('afterend', '<span id="rain-name" data-t="rain.name" hidden></span>');
-    $('#rain-btn').onclick = (e) => { e.stopPropagation(); BB.sound.unlock(); if (BB.engine.useRain()) { restart($('#rain-btn'), 'fire'); if (BB.tutorial) BB.tutorial.event('rain'); } else { BB.sound.play('bonk'); restart($('#rain-btn'), 'nope'); } };
+    $('#rain-btn').onclick = (e) => { e.stopPropagation(); BB.sound.unlock(); if (BB.engine.useRain()) { kick($('#rain-btn'), 'fire', 400); if (BB.tutorial) BB.tutorial.event('rain'); } else { BB.sound.play('bonk'); kick($('#rain-btn'), 'nope', 280); } };
     $('#res-coins .ri').innerHTML = ico('coin');
     $('#res-crystals .ri').innerHTML = ico('crystal');
     $('#res-clovers .ri').innerHTML = ico('clover');
@@ -8399,22 +8431,28 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     BB.sound.play('tap');
   }
   const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+  // One-shot feedback that is left to finish and then taken off (motion.kick).
+  const kick = (el, cls, ms) => BB.motion.kick(el, cls, ms);
+  const boughtAt = {};
   function buyUp(k) {
     const s = S();
     const r = logic.buyUpgrade(s, k, s.settings.buyMult);
     const c = $('#up-' + k);
     if (r.ok) {
+      boughtAt[k] = performance.now();
       // Holding the button climbs a semitone per buy: the more you buy, the higher it sings.
       BB.sound.play('up', holdN); if (holdN % 3 === 0) BB.haptics.play('select');
-      G().statsChanged(); restart(c, 'bump');
+      // A held buy repeats every 60-380 ms: the stat's hop plays out instead of restarting on each buy (it twitched).
+      G().statsChanged(); kick(c, 'bump', 300);
       if (BB.tutorial) BB.tutorial.event('buy', k);
-    } else if (!holdN) { BB.sound.play('bonk'); BB.haptics.play('warning'); restart(c, 'nope'); }
+    } else if (!holdN) { BB.sound.play('bonk'); BB.haptics.play('warning'); kick(c, 'nope', 280); }
   }
   function updateUpgrades(st) {
     const s = S();
     const m = s.settings.buyMult;
     if (hudCache.mult !== m) { hudCache.mult = m; document.querySelectorAll('[data-mult]').forEach((b) => { const on = String(m) === b.dataset.mult; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); }); }
     const n = s.stage.farming ? Math.max(0, eco.stageN(s.stage.world, s.stage.sub) - 1) : eco.stageN(s.stage.world, Math.min(s.stage.sub, 4));
+    const autoOn = !!s.settings.autoUp && logic.autoUpOn(s, now());
     // With a unit each: damage per volley, shots a second, coins per veggie.
     const values = { power: st.guns.reduce((a, g) => a + g.dmg, 0), speed: st.guns.reduce((a, g) => a + g.rate, 0), money: eco.coins(n) * st.money };
     for (const [k] of UPS) {
@@ -8429,8 +8467,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       setText(`#up-${k} .up-n`, '+' + cnt);
       setHidden(`#up-${k} .up-n`, cnt < 2);
       const poor = c > s.coins;
-      // The moment an upgrade becomes affordable its button blinks twice; never a loop.
-      if (hudCache['poor' + k] === true && !poor) restart($('#up-' + k), 'afford');
+      // The moment an upgrade becomes affordable its button blinks twice; never a loop. Not while the player is buying
+      // that row (each buy makes it unaffordable for a moment, so held buys breathed nonstop), not while Auto spends
+      // the coins every second (all three keys breathed every second), and a breath still playing is left to finish.
+      if (hudCache['poor' + k] === true && !poor && !autoOn && performance.now() - (boughtAt[k] || -1e9) > 1500) kick($('#up-' + k), 'afford', 900);
       hudCache['poor' + k] = poor;
       setClass('#up-' + k, 'poor', poor);
       // Saving up: the price key turns grey (still a key) and its meter shows how close, in tenths.
@@ -9107,8 +9147,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         };
         el.querySelectorAll('.rb-up').forEach((r) => holdRepeat($('.rb-buy', r), () => {
           const res = logic.rbUpgrade(S(), r.dataset.k, rbMult === 'max' ? Infinity : rbMult);
-          if (res.ok) { BB.sound.play('up', holdN); if (holdN % 3 === 0) BB.haptics.play('select'); G().statsChanged(); paint(); restart(r, 'bump'); }
-          else if (!holdN) { BB.sound.play('bonk'); restart(r, 'nope'); }
+          if (res.ok) { BB.sound.play('up', holdN); if (holdN % 3 === 0) BB.haptics.play('select'); G().statsChanged(); paint(); kick(r, 'bump', 300); }
+          else if (!holdN) { BB.sound.play('bonk'); kick(r, 'nope', 280); }
         }));
         bind(el, { rbm: (m) => { rbMult = m === 'max' ? 'max' : Number(m); BB.sound.play('tap'); rerender(); } });
         if (rbFresh) {
@@ -9727,7 +9767,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
         { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1)`, opacity: 1, offset: 0.38, easing: 'cubic-bezier(.55,0,.75,.2)' },
         { transform: `translate(calc(-50% + ${x1 - x0}px), calc(-50% + ${y1 - y0}px)) scale(.6)`, opacity: 1 },
       ], { duration: 820 + i * 70, delay: i * 35, fill: 'backwards' });
-      anim.onfinish = () => { im.remove(); BB.sound.play('pickup'); to.classList.remove('bump', 'fx-hit'); void to.offsetWidth; to.classList.add('bump', 'fx-hit'); };
+      // The icons land 70 ms apart: the counter or tab pops once and is left to finish, not restarted by each one.
+      anim.onfinish = () => { im.remove(); BB.sound.play('pickup'); BB.motion.kick(to, 'bump', 300); BB.motion.kick(to, 'fx-hit', 320); };
     }
   }
   // A reward you can't miss: what you got pops up big where it came from (a new pet or butterfly says so), hangs for
@@ -9966,6 +10007,27 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   // Jump every running count inside `box` to its end (a tap that skips a celebration).
   const finishCounts = (box) => [...running].forEach((el) => { if (box.contains(el)) el._done(); });
 
+  // ---------- one-shot feedback (a hop, a shake, a pop) ----------
+  // Plays the class `cls` on `el` (`ms`: its animation's length) and takes it off again once it is over.
+  // - A hop that is still playing is left to finish: coins land ten times a second and a reward's icons 70 ms apart,
+  //   and restarting the hop on each one made the number twitch at the start of its hop forever (and, on WebKit and
+  //   Android, dropped and re-made its layer every time: a one-frame blink).
+  // - The class goes away when it is done, so a one-shot never sits on an element and overrides its next state (the
+  //   Carrot Rain key kept 'fire' after the first rain, and that rule beat the "ready" breathing for good).
+  // An animation starts on the frame after its class, so both waits leave it a little room.
+  function kick(el, cls, ms = 400) {
+    if (!el) return false;
+    const T = performance.now(), k = el._kick || (el._kick = {});
+    if (el.classList.contains(cls) && T - (k[cls] || 0) < ms + 40) return false;
+    el.classList.remove(cls);
+    void el.offsetWidth;   // restart the animation from its first frame
+    el.classList.add(cls);
+    k[cls] = T;
+    clearTimeout(k[cls + '_t']);
+    k[cls + '_t'] = setTimeout(() => el.classList.remove(cls), ms + 150);
+    return true;
+  }
+
   // Numbers that arrive in a dialog or a newly opened panel count up by themselves. A panel redrawn later (a timer
   // tick, a purchase) shows them as they are: counting again on every redraw would be noise.
   const born = new WeakMap();
@@ -10048,7 +10110,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   if (doc) { if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', init); else init(); }
 
-  BB.motion = { countUp, finishCounts, lastPress, ms, calm };
+  BB.motion = { countUp, finishCounts, kick, lastPress, ms, calm };
 })(typeof self !== 'undefined' ? self : this);
 
 // ---- tutorial.js
@@ -11030,7 +11092,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       BB.track('foe_prize', { kind, w: game.save.stage.world });
     },
     onFrame: () => ui.updateHud(),
-    onCoinArrive: () => { sound.play('pickup'); const el = document.getElementById('res-coins'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); },
+    // The counter hops as coins land; a hop still playing is left to finish (motion.kick), so a stream of coins
+    // reads as a steady hop instead of a twitch.
+    onCoinArrive: () => { sound.play('pickup'); BB.motion.kick(document.getElementById('res-coins'), 'bump', 300); },
   };
 
   function everySecond() {
