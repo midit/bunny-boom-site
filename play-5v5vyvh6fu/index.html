@@ -42,7 +42,9 @@
   --white: #fff8ec; --grass: #6f9a4c;
   /* The game font: the one place that names it (files in assets/fonts, canvas text reads it through BB.art.font). */
   --font: "Handjet", "Arial Narrow", sans-serif;
-  /* Outline for big light text; a drop shadow for small text (an outline clogs it). */
+  /* The full outline: light text over the field, on wood and on any mid-tone fill (keys, bars, badges), where it is
+     read against the ink around it (WCAG 4.5:1). The drop: light text on the dark boards, where white already reads
+     at 12:1. */
   --sh: 0 var(--p) 0 var(--ink), var(--p) 0 0 var(--ink), calc(var(--p) * -1) 0 0 var(--ink), 0 calc(var(--p) * -1) 0 var(--ink), var(--p) var(--p) 0 var(--ink), calc(var(--p) * -1) var(--p) 0 var(--ink);
   --sh1: 0 var(--p) 0 var(--ink);
   --edge: 0 0 0 var(--p) var(--ink);
@@ -55,6 +57,8 @@
   --sb: env(safe-area-inset-bottom, 0px);
   --hotbar-h: 70px;
   --fs-xs: 16px; --fs-s: 18px; --fs-m: 21px; --fs-l: 26px; --fs-xl: 32px; --fs-xxl: 40px;
+  /* The normal sizes, also with Bigger text on (ui.snapFonts sets both). */
+  --fs-xs-n: 16px; --fs-s-n: 18px; --fs-m-n: 21px; --fs-l-n: 26px; --fs-xl-n: 32px; --fs-xxl-n: 40px;
 }
 [hidden] { display: none !important; }
 html.standalone { background: var(--grass); }
@@ -87,6 +91,8 @@ img.px, .px { image-rendering: pixelated; image-rendering: crisp-edges; flex: no
 .ellip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
 /* ---------- buttons: raised 9-slice keys with a lip ---------- */
+/* White on the green, blue, purple and red keys is 2.2 to 3.9:1 by itself: their labels sit inside the full ink outline
+   (--sh), which is what they are read against (WCAG 4.5:1). */
 /* A key's colour says what it costs or does (docs/DESIGN_SYSTEM.md 5.1): green get / confirm / pay real money,
    yellow spend crystals or start a fight, sky (blue) watch an ad, plum moonstones and rebirth, red lose something,
    cream secondary. Grey is a state, never a role: .poor (can't afford yet: still a key, with a lip and a meter of
@@ -101,11 +107,11 @@ img.px, .px { image-rendering: pixelated; image-rendering: crisp-edges; flex: no
 .btn:active:not(:disabled) { border-image-source: var(--bon); transform: scale(.97); transition-duration: .05s; }
 .btn:active:not(:disabled) > * { transform: translateY(var(--p)); }
 a.btn { text-decoration: none; }
-.btn.green { --b: var(--ui-btn-green); --bon: var(--ui-btn-green-on); --fg: var(--white); --tsh: var(--sh1); }
+.btn.green { --b: var(--ui-btn-green); --bon: var(--ui-btn-green-on); --fg: var(--white); --tsh: var(--sh); }
 .btn.yellow { --b: var(--ui-btn-yellow); --bon: var(--ui-btn-yellow-on); }
-.btn.red { --b: var(--ui-btn-red); --bon: var(--ui-btn-red-on); --fg: var(--white); --tsh: var(--sh1); }
-.btn.sky { --b: var(--ui-btn-blue); --bon: var(--ui-btn-blue-on); --fg: var(--white); --tsh: var(--sh1); }
-.btn.berry, .btn.plum { --b: var(--ui-btn-purple); --bon: var(--ui-btn-purple-on); --fg: var(--white); --tsh: var(--sh1); }
+.btn.red { --b: var(--ui-btn-red); --bon: var(--ui-btn-red-on); --fg: var(--white); --tsh: var(--sh); }
+.btn.sky { --b: var(--ui-btn-blue); --bon: var(--ui-btn-blue-on); --fg: var(--white); --tsh: var(--sh); }
+.btn.berry, .btn.plum { --b: var(--ui-btn-purple); --bon: var(--ui-btn-purple-on); --fg: var(--white); --tsh: var(--sh); }
 /* States come after the roles so they win over every colour (a disabled green key used to stay green). */
 .btn.poor { --b: var(--ui-btn-grey); --bon: var(--ui-btn-grey-on); --fg: var(--ink); --tsh: none; box-shadow: inset 0 calc(var(--p) * -2) 0 rgba(43, 26, 46, .28); }
 .btn:disabled, .btn[aria-disabled="true"] { --b: var(--ui-btn-grey-on); --bon: var(--ui-btn-grey-on); --fg: rgba(43, 26, 46, .55); --tsh: none; cursor: default; box-shadow: none; }
@@ -132,11 +138,11 @@ a.btn { text-decoration: none; }
 .btn-row > .btn { flex: 1 1 0; min-width: 0; }
 .cost { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: var(--dark); color: var(--white); text-shadow: var(--sh1); box-shadow: var(--edge); font-size: var(--fs-s); white-space: nowrap; }
-.tag { display: inline-block; font-size: var(--fs-xs); background: var(--leaf); color: var(--white); padding: 2px 6px; box-shadow: var(--edge); text-shadow: var(--sh1); white-space: nowrap; }
+.tag { display: inline-block; font-size: var(--fs-xs); background: var(--leaf); color: var(--white); padding: 2px 6px; box-shadow: var(--edge); text-shadow: var(--sh); white-space: nowrap; }
 /* A little number on a corner (levels, counts, "x2"). Sits on the edge on purpose. */
 .badge { position: absolute; z-index: 1; font-style: normal; font-size: var(--fs-xs); line-height: 1; padding: 3px 4px; background: var(--red); color: var(--white); text-shadow: var(--sh1); box-shadow: var(--edge); white-space: nowrap; pointer-events: none; }
 .badge.tl { top: -8px; left: -8px; } .badge.tr { top: -8px; right: -8px; } .badge.br { bottom: -6px; right: -6px; } .badge.bl { bottom: -6px; left: -6px; }
-.badge.dark { background: var(--dark); } .badge.gold { background: var(--gold); color: var(--ink); text-shadow: none; } .badge.green { background: var(--leaf-d); }
+.badge.dark { background: var(--dark); } .badge.gold { background: var(--gold); color: var(--ink); text-shadow: none; } .badge.green { background: var(--leaf-d); text-shadow: var(--sh); }
 .wallet { display: flex; justify-content: center; gap: var(--s2); margin-bottom: var(--s3); flex-wrap: wrap; }
 
 /* ---------- cards and rows ---------- */
@@ -182,7 +188,7 @@ a.btn { text-decoration: none; }
 .pbar i { position: absolute; inset: 0 auto 0 0; background: var(--leaf); box-shadow: inset 0 var(--p) 0 #9ae88a, inset 0 calc(var(--p) * -1) 0 var(--leaf-d); }
 .pbar.gold i { background: var(--gold); box-shadow: inset 0 var(--p) 0 #fff3a8, inset 0 calc(var(--p) * -1) 0 #c98f1e; }
 .pbar.plum i { background: var(--plum); box-shadow: inset 0 var(--p) 0 #c9a6f2; }
-.pbar span { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pbar span { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pmeta { display: flex; justify-content: space-between; gap: var(--s2); font-size: var(--fs-xs); color: var(--ink2); font-variant-numeric: tabular-nums; }
 
 /* ---------- HUD ---------- */
@@ -224,7 +230,7 @@ a.btn { text-decoration: none; }
 .progress.urgent::after { content: ""; position: absolute; inset: 0; background: #ff3a2a; opacity: 0; pointer-events: none; animation: fadepulse .8s var(--breathe) infinite; }
 .progress.boss #progress-label { font-size: var(--fs-m); }
 .progress.urgent #progress-label { color: var(--gold-t, #ffe07a); }
-#progress-label { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); white-space: nowrap; }
+#progress-label { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh); white-space: nowrap; }
 .pips { display: flex; gap: 6px; align-items: center; }
 .pips i { position: relative; width: 8px; height: 8px; background: #6d5a52; box-shadow: var(--edge); }
 .pips i.on { background: var(--gold); }
@@ -284,8 +290,11 @@ a.btn { text-decoration: none; }
 .up-name { font-size: var(--fs-m); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 /* The level is words after the name ("Lv.12"), not a box. */
 .lv { flex: none; font-style: normal; font-size: var(--fs-s); line-height: 1; color: var(--ink2); white-space: nowrap; }
-/* Clipped so a long line can't spill, with room inside the clip (padding, cancelled by the margin) for the buy hop. */
-.up-stat { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--fs-s); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow: hidden; padding: var(--s2) 0; margin: calc(var(--s2) * -1) 0; }
+/* A gain that doesn't fit beside its value (a long unit on a 360 px phone) goes under it, never under the price key.
+   The 568-px phones have no room for a second line: there the value's unit gives way ("1.22ac per ve…", .ellip).
+   Clipped so a long line can't spill, with room inside the clip (padding, cancelled by the margin) for the buy hop. */
+.up-stat { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--s2); font-size: var(--fs-s); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow: hidden; padding: var(--s2) 0; margin: calc(var(--s2) * -1) 0; }
+@media (max-height: 600px) { .up-stat { flex-wrap: nowrap; } }
 .up-next { font-style: normal; color: var(--leaf-t, #2f7a2f); }
 .up-row.poor .up-next { color: var(--ink2); }
 /* The price key: green (coins buy it); grey with its lip and a meter while you save up (.btn.poor). */
@@ -327,7 +336,7 @@ a.btn { text-decoration: none; }
 .mode-track { position: relative; height: 24px; margin-top: var(--s2); border: calc(3 * var(--p)) solid transparent; border-image: var(--ui-bar) 3 fill / calc(3 * var(--p)); image-rendering: pixelated; }
 /* The clock drains by scaleX (--k = time left / total, set by ui.updateModeHud). */
 #mode-fill { position: absolute; inset: 0 auto 0 0; width: 100%; transform-origin: left; transform: scaleX(var(--k, 1)); background: var(--gold); box-shadow: inset 0 var(--p) 0 #fff3a8; }
-#mode-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-xs); text-shadow: var(--sh1); font-variant-numeric: tabular-nums; }
+#mode-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-xs); text-shadow: var(--sh); font-variant-numeric: tabular-nums; }
 .mode-progress { text-align: center; font-size: var(--fs-xl); margin-top: var(--s1); text-shadow: var(--sh); }
 
 /* ---------- banner & toasts ---------- */
@@ -379,7 +388,7 @@ a.btn { text-decoration: none; }
 .gem-card { position: relative; background: #d8eefb; box-shadow: var(--edge), var(--bevel); padding: var(--s3) var(--s1) var(--s2); display: flex; flex-direction: column; align-items: center; gap: var(--s1); min-width: 0; }
 .gem-card b { font-size: var(--fs-m); text-align: center; }
 .gem-card .btn { width: 100%; min-width: 0; margin-top: auto; }
-.gem-card .first { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); width: max-content; max-width: 100%; box-sizing: border-box; text-align: center; font-style: normal; font-size: var(--fs-xs); background: var(--red); color: var(--white); padding: 2px 5px; box-shadow: var(--edge); text-shadow: var(--sh1); }
+.gem-card .first { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); width: max-content; max-width: 100%; box-sizing: border-box; text-align: center; font-style: normal; font-size: var(--fs-xs); background: var(--red); color: var(--white); padding: 2px 5px; box-shadow: var(--edge); text-shadow: var(--sh); }
 .gem-card .gart { height: 52px; display: grid; place-items: center; }
 .gem-card .bonus { font-size: var(--fs-xs); display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; color: var(--ink2); }
 .gem-card.skinc { background: var(--parch3); }
@@ -387,6 +396,10 @@ a.btn { text-decoration: none; }
 
 /* ---------- gacha / merge ---------- */
 .grade { position: absolute; top: -6px; left: -6px; z-index: 1; min-width: 20px; padding: 2px 3px; background: var(--gc); font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); box-shadow: var(--edge); text-align: center; box-sizing: border-box; line-height: 1; }
+/* The letter reads at 4.5:1 on every grade colour (art.js GRADE_TEXT): ink on the light ones, white on the dark ones,
+   white with the full outline on A. With colour blindness the letter is what tells grades apart. */
+.grade.ink { color: var(--ink); text-shadow: none; }
+.grade.halo { text-shadow: var(--sh); }
 .toast .grade, .center .grade, .odds .grade, .dlg-body .grade, .reward-line .grade, .inline .grade, .row-title .grade, .egg-name .grade { position: static; display: inline-block; vertical-align: middle; }
 .tile { position: relative; aspect-ratio: 1; display: grid; place-items: center; touch-action: none; max-width: 100%; min-width: 0; background: color-mix(in srgb, var(--gc, #d9c296) 40%, #fbeec9); box-shadow: var(--edge), var(--bevel); }
 .tile.empty { background: rgba(120, 80, 40, .14); box-shadow: inset 0 0 0 var(--p) rgba(43, 26, 46, .25); }
@@ -399,8 +412,8 @@ a.btn { text-decoration: none; }
 .eq-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); padding: var(--s2); background: var(--wood); box-shadow: var(--edge), var(--bevel); }
 .eq { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: var(--s1); min-width: 0; }
 .eq .tile { aspect-ratio: 1.5; }
-.eq-name { font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); text-align: center; line-height: 1.25; min-height: 2.5em; display: grid; place-items: center; overflow-wrap: anywhere; }
-.eq-stats { display: flex; flex-direction: column; gap: 2px; align-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); }
+.eq-name { font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh); text-align: center; line-height: 1.25; min-height: 2.5em; display: grid; place-items: center; overflow-wrap: anywhere; }
+.eq-stats { display: flex; flex-direction: column; gap: 2px; align-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh); }
 .eq-stats span { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
 .eq .tile.locked { background: #8f857c; }
 .eq-lock { font-size: var(--fs-xs); color: #f2e6da; text-shadow: var(--sh1); text-align: center; line-height: 1.2; }
@@ -486,7 +499,7 @@ a.btn { text-decoration: none; }
 /* daily gift: a 7 × 4 calendar */
 .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s1); }
 .day { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; justify-items: center; align-items: center; padding: 3px 2px 4px; min-height: 56px; background: var(--parch3); box-shadow: var(--edge), var(--bevel); min-width: 0; font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
-.day .dn { justify-self: start; padding-left: 1px; font-size: var(--fs-xs); color: var(--ink3); line-height: 1; }
+.day .dn { justify-self: start; padding-left: 1px; font-size: var(--fs-xs); color: var(--ink2); line-height: 1; }
 .day .ico { width: 20px; height: 20px; }
 .day .amt { line-height: 1; white-space: nowrap; }
 .day.big { background: #fbe6a6; }
@@ -510,7 +523,7 @@ a.btn { text-decoration: none; }
 .toggle.on { border-image-source: var(--ui-btn-green); }
 textarea, input, select { font: inherit; font-size: var(--fs-s); border: 0; box-shadow: var(--edge); padding: 8px; background: var(--white); color: var(--ink); -webkit-user-select: text; user-select: text; box-sizing: border-box; border-radius: 0; min-height: 36px; }
 textarea { width: 100%; margin-top: var(--s2); resize: none; }
-.version { text-align: center; color: var(--ink3); font-size: var(--fs-s); margin-top: var(--s3); padding: var(--s2); }
+.version { text-align: center; color: var(--ink2); font-size: var(--fs-s); margin-top: var(--s3); padding: var(--s2); }
 .backup { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
 .backup small { min-width: 0; font-size: var(--fs-xs); line-height: 1.3; }
 
@@ -887,12 +900,39 @@ label.set-row { cursor: pointer; }
   .stats3 .stat b { gap: 2px; font-size: var(--fs-s); }
 }
 
+/* ---------- Bigger text (Settings): ui.snapFonts sets .big-text and every --fs-* x1.15 ----------
+   Keys keep their heights: the letters sit inside the face (Handjet's glyph box is 1.14 em, its letters about 0.95).
+   The hotbar tabs size to their words, so "Adventure" keeps every letter; the wallet rows grow with their numbers; an
+   upgrade's numbers wrap instead of running under the price key; the stage sign and the window titles take the size
+   the normal text has on a narrow phone, and a window's head shows one wallet chip under 390 px (under 360 normally).
+   On phones up to 700 px tall the HUD, the upgrades and the hotbar keep the normal sizes, so the field keeps its room
+   for the bubbles and the boss button; panels, dialogs, tips, toasts and banners still grow. */
+@media (min-height: 701px) {
+  .big-text .hb { flex: 1 1 auto; }
+  .big-text .up-stat, .big-text .up-val { white-space: normal; }
+  .big-text .res { height: auto; min-height: 28px; line-height: 1.15; }
+  .big-text #res-coins { min-height: 32px; }
+}
+@media (max-height: 700px) {
+  .big-text #hud, .big-text #bottom-ui { --fs-xs: var(--fs-xs-n); --fs-s: var(--fs-s-n); --fs-m: var(--fs-m-n); --fs-l: var(--fs-l-n); --fs-xl: var(--fs-xl-n); --fs-xxl: var(--fs-xxl-n); }
+}
+@media (max-width: 400px) and (min-height: 701px) {
+  .big-text .sign b { font-size: var(--fs-s); }
+}
+@media (max-width: 389px) {
+  .big-text .sheet-title { font-size: var(--fs-s); }
+  .big-text .sheet-wallet .chip + .chip { display: none; }
+}
+@media (max-width: 359px) {
+  .big-text .btn.tall .lbl { font-size: var(--fs-xs); }
+}
+
 /* ---------- Carrot Rain button: fills from the bottom, glows when full ---------- */
 /* A ui_slot like the bubbles (ui_slot_on when ready); the meter fills by scaleY (--fill, set by ui.updateHud). */
 #rain-btn { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 8px); width: 56px; height: 60px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 #rain-btn .ico { position: relative; z-index: 1; width: 28px; height: 28px; }
 /* The meter in words: how full it is, then what to do. */
-#rain-btn .rain-lbl { position: relative; z-index: 1; font-style: normal; font-size: var(--fs-xs); line-height: 1; color: var(--white); text-shadow: var(--sh1); white-space: nowrap; }
+#rain-btn .rain-lbl { position: relative; z-index: 1; font-style: normal; font-size: var(--fs-xs); line-height: 1; color: var(--white); text-shadow: var(--sh); white-space: nowrap; }
 #rain-btn.ready .rain-lbl { color: var(--gold-t, #ffe07a); }
 #rain-name { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 72px); pointer-events: none; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 0 var(--s1); font-size: var(--fs-s); line-height: 1.4; color: var(--gold-t, #ffe07a); text-shadow: var(--sh1); white-space: nowrap; animation: tin .38s var(--spring); }
 /* The meter rises in 5 % steps. It keeps its own layer: promoted for each step's transition and dropped after, it
@@ -4153,6 +4193,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 
   // Spaced in lightness as well as hue, so every grade stays apart with any colour blindness (art/fx.py, cvd check).
   const GRADE_COLORS = ['#9899a7', '#59b585', '#616ee7', '#f7e452', '#ea7421', '#a8496f', '#5ef2f0', '#5e1ca3', '#741812', '#100c2c'];
+  // The grade letter on its badge, whichever of ink and white reads at 4.5:1 or better (test/a11y.test.js):
+  // 'ink' on the light grades; white (with the small drop) on the dark ones; 'halo' is white with the full ink
+  // outline, for A, where neither colour alone reaches 4.5:1 (white 4.1, ink 3.8).
+  const GRADE_TEXT = ['ink', 'ink', 'halo', 'ink', 'ink', '', 'ink', '', '', ''];
   const VEG_KINDS = ['cabbage', 'pumpkin', 'tomato', 'eggplant', 'broccoli', 'corn', 'turnip', 'beet', 'potato', 'onion', 'pepper', 'mushroom'];
   const WEAPON_AMMO = ['#8ad46a', '#e6c27a', '#ffd84a', '#ff9a3c', '#bdf0ff', '#ff9a3c', '#7ff5e8', '#e6d1ff', '#ffb8f4', '#fff3b0'];
   const BIOME_TILES = ['meadow', 'pumpkin', 'greenhouse', 'mushroom', 'desert', 'frost', 'swamp', 'moon'];
@@ -4230,7 +4274,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   let family = '';
   const font = (px) => `${px}px ${family || (family = getComputedStyle(document.documentElement).getPropertyValue('--font').trim() || 'sans-serif')}`;
 
-  BB.art = { GRADE_COLORS, VEG_KINDS, WEAPON_AMMO, BIOME_TILES, src, img, has, tinted, flash, palette, tag, icon, item, font };
+  BB.art = { GRADE_COLORS, GRADE_TEXT, VEG_KINDS, WEAPON_AMMO, BIOME_TILES, src, img, has, tinted, flash, palette, tag, icon, item, font };
 })(typeof self !== 'undefined' ? self : this);
 
 // ---- services.js
@@ -7810,7 +7854,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   const ico = (name, cls = 'ico') => art.icon(name, cls);
   const spr = (name, cls = 'spr') => art.tag(name, cls);
   const itemArt = (kind, g, cls) => art.item(kind, g, cls);
-  const gradeBadge = (g) => `<span class="grade" style="--gc:${art.GRADE_COLORS[g]}">${eco.C.GRADES[g]}</span>`;
+  const gradeBadge = (g) => `<span class="grade ${art.GRADE_TEXT[g]}" style="--gc:${art.GRADE_COLORS[g]}">${eco.C.GRADES[g]}</span>`;
   const cost = (icon, n, cls = '') => `<span class="cost ${cls}">${ico(icon, 'ico sm')}${fmt.num(n)}</span>`;
 
   // ---------- toasts ----------
@@ -8088,7 +8132,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const big = S() && S().settings.bigText ? 1.15 : 1;
     const fs = { xs: 16, s: 18, m: 21, l: 26, xl: 32, xxl: 40 };
     const rs = document.documentElement.style;
-    for (const [k, px] of Object.entries(fs)) rs.setProperty('--fs-' + k, Math.round(px * big) + 'px');
+    // --fs-*-n keep the normal sizes: on phones up to 700 px tall the HUD, the upgrades and the hotbar stay at them
+    // (style.css, .big-text).
+    for (const [k, px] of Object.entries(fs)) { rs.setProperty('--fs-' + k, Math.round(px * big) + 'px'); rs.setProperty('--fs-' + k + '-n', px + 'px'); }
+    document.documentElement.classList.toggle('big-text', big > 1);
     // One UI art pixel is a whole number of device pixels (2 CSS px would be 5.25 on a 2.625x phone: uneven frames).
     rs.setProperty('--p', (Math.max(1, Math.floor(2 * dpr())) / dpr()).toFixed(4) + 'px');
   }
@@ -8213,7 +8260,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     el.innerHTML = `<div class="drawer-top"><b>${t('up.title')}</b><div class="seg sm" role="radiogroup" aria-label="${t('up.title')}">${[1, 10, 'max'].map((m) => `<button role="radio" data-mult="${m}">${m === 'max' ? t('buy.max') : 'x' + m}</button>`).join('')}</div></div>
       ${UPS.map(([k, icon]) => `<button class="up-row" id="up-${k}" data-up="${k}">
         <span class="up-ico">${ico(icon)}</span>
-        <span class="up-info"><span class="up-head"><b class="up-name">${t('up.' + k)}</b><i class="lv up-lv"></i></span><span class="up-stat"><b class="up-val"></b><i class="up-next"></i></span></span>
+        <span class="up-info"><span class="up-head"><b class="up-name">${t('up.' + k)}</b><i class="lv up-lv"></i></span><span class="up-stat"><b class="up-val ellip"></b><i class="up-next"></i></span></span>
         <span class="btn green up-cost"><span class="cost">${ico('coin', 'ico sm')}<b></b></span><i class="badge up-n" hidden></i><i class="meter"></i></span>
       </button>`).join('')}`;
     el.querySelectorAll('[data-mult]').forEach((b) => { b.onclick = () => setMult(b.dataset.mult === 'max' ? 'max' : Number(b.dataset.mult)); });
