@@ -602,18 +602,22 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 /* Captions size to their words (max-content), so a short line is not squeezed into a narrow column. */
 .coach-cap, .tip-cap { position: absolute; transform: translate(-50%, 0); pointer-events: none; width: max-content; max-width: min(360px, calc(100% - 24px)); }
 .coach-cap.up, .tip-cap.up { transform: translate(-50%, -100%); }
-.coach-cap span, .tip-cap span { display: block; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; color: #ffe07a; text-shadow: var(--sh1); padding: 2px var(--s2); font-size: var(--fs-m); text-align: center; }
+.coach-cap > span, .tip-cap > span { display: block; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; color: var(--white); text-shadow: var(--sh1); padding: 2px var(--s2); font-size: var(--fs-m); text-align: center; }
+/* The key word of a caption (marked *like this* in its string): gold, the one word to catch at a glance. Colour only,
+   never a fake bold (DESIGN_SYSTEM 1.3). */
+.coach-cap b, .tip-cap b { color: var(--gold-t); }
 .coach-paw { position: absolute; width: 32px; height: 32px; pointer-events: none; animation: paw 1.1s var(--breathe) infinite; }
-/* a newcomer on the field (tips.js FOES): its picture beside the words */
-.tip-cap.art span { display: flex; align-items: center; gap: var(--s2); text-align: left; }
+/* the picture of what a tip is about (a newcomer on the field, a crystal, the piggy) beside the words */
+.tip-cap.art > span { display: flex; align-items: center; gap: var(--s2); text-align: left; }
+/* 28 px on every phone: a 27-px trickster or a 23-px pet in anything smaller drops to one device pixel per pixel
+   on a 2x screen and shrinks to a speck (the words are short enough to spare the room). */
 .tip-art { width: 28px; height: 28px; object-fit: contain; flex: none; }
-@media (max-width: 359px) { .tip-art { width: 20px; height: 20px; } }
 @keyframes paw { 50% { transform: translate(calc(var(--p) * -2), calc(var(--p) * -2)); } }
 /* First-time tips: the coach caption's frame without the dimmed screen; a tap anywhere puts one away. */
 .tip { position: absolute; inset: 0; z-index: 15; pointer-events: none; animation: tin .38s var(--spring); }   /* under any dialog (20) */
 .tip.out { opacity: 0; transition: opacity .25s; }
-.tip-cap span { line-height: 1.35; color: var(--white); }
-@media (max-width: 359px) { .tip-cap span { font-size: var(--fs-s); } }
+.tip-cap > span { line-height: 1.35; }
+@media (max-width: 359px) { .tip-cap > span { font-size: var(--fs-s); } }
 /* A reward popping up where it came from: springs in big, hangs a beat, rises away (static in calm mode). */
 .fx-pop { position: absolute; z-index: 40; transform: translate(-50%, -50%); pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 2px; width: max-content; max-width: calc(100% - 24px); border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 2px var(--s2); color: var(--white); text-shadow: var(--sh1); font-size: var(--fs-l); text-align: center; animation: fxpop 1.4s var(--ease-out) forwards; }
 .fx-pop .reward-line { display: flex; align-items: center; justify-content: center; gap: var(--s2); flex-wrap: wrap; }
@@ -1377,7 +1381,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.locked': "Not available yet", 'shop.unavailable': "The store is not available right now. Try again later.", 'shop.web': "Purchases are only in the Bunny Boom app. Everything else here is free to play.", 'ad.web': "Videos for rewards are only in the Bunny Boom app.", 'save.failed': "Can't save: the device storage is full. Free some space to keep your progress.", 'shop.restore': "Restore purchases", 'shop.restored': "Purchases restored", 'ad.none': "No ad right now, and nothing was used up. Try again in a minute.", 'save.pick.title': "Two saves found", 'save.pick.text': "This device and the cloud have different progress. Which one do you want to keep?", 'save.pick.local': "This device", 'save.pick.remote': "Cloud", 'save.pick.line': "World {w} · {r} rebirths · {h} played", 'settings.backups': "Backups", 'settings.backup.none': "No backups yet", 'settings.backup.load': "Restore", 'settings.backup.confirm': "Go back to this backup? Progress since then will be lost.", 'settings.edited': "This save was changed outside the game.",
       'leap.title': "Moon Leap!", 'boss.intro': "BOSS!", 'rebirth.ready': "Rebirth ready!",
       'pity.left': "{g} or better within {n} draws", 'pity.text': "Paid draws only: an x10 always holds an {a} or better, and your {n}th draw at the latest is an {g} or better.",
-      'tut.new': "New: {name}!", 'tut.power': "Coins! Spend them here to pop veggies faster", 'tut.hold': "Each level hits harder. Hold to buy fast", 'tut.stage': "Pop 10 veggies to clear this field", 'tut.boss': "Beat it in {s}s!", 'tut.retry': "Upgrade, then try again", 'tut.gear': "New: Blasters! Tap to open", 'tut.freedraw': "A free blaster for you!", 'tut.merge': "Drag onto its twin to merge", 'tut.equip': "Drag it here to equip", 'pass.tierup': "Garden Pass: tier {n}!",
+      'tut.new': "New: {name}!", 'tut.power': "*Spend coins here* to hit harder", 'tut.hold': "*Hold* to keep buying levels", 'tut.stage': "*Pop 10 veggies* to clear the field", 'tut.boss': "Beat it in {s}s!", 'tut.retry': "Upgrade, then try again", 'tut.gear': "*Open Blasters*: a gift inside", 'tut.freedraw': "*Draw a free blaster*!", 'tut.merge': "*Drag* onto its twin to merge", 'tut.equip': "*Drag it here* to equip", 'pass.tierup': "Garden Pass: tier {n}!",
       'tut.opens.stage': "Opens at stage {s}",
       'open': "Open", 'club.title': "Garden Club", 'club.daily': "Daily member gift", 'club.daily.d': "+{n} crystals every day while active", 'club.p.gems': "Claim {n} crystals each day", 'club.p.noads': "No forced ads", 'club.p.cave': "Crystal Cave entries a day", 'club.p.rewards': "Raid & Tower rewards", 'club.p.conv': "Auto merge, quick clear, short trips", 'club.price': "{p} / month", 'club.manage': "Manage", 'club.fine.store': "Renews monthly at {p} until you cancel. Cancel anytime in Google Play > Payments & subscriptions.", 'club.fine': "Test mode: 30 days. In the store app it renews monthly until you cancel in Google Play / App Store.", 'shop.sprout': "Sprout Week", 'shop.sprout.d': "{now} crystals now and {n} more every day for 7 days.", 'piggy.text2': "Every boss you beat drops 10 crystals in. Break it open once it holds {n} (max {max}).", 'warp.title': "Time Warp", 'warp.d': "Get hours of income at once. Right now 1 hour = {c} coins.", 'warp.h': "{n} h", 'warp.confirm': "Warp {n} h ahead for {c} coins?", 'pass.title': "Garden Pass · Season {n}", 'pass.short': "Pass", 'pass.tier': "Tier {n}/{max}", 'pass.ends': "ends in {t}", 'pass.premium': "Premium", 'pass.plus': "Premium+", 'pass.premium.d': "Unlock the golden track: 30 more rewards, an SS pet and an SS butterfly. Premium+ also skips 10 tiers and gives +20% XP.", 'pass.buytier': "+1 tier", 'pass.claimall': "Claim all ({n})", 'pass.free': "Free", 'pass.xp.hint': "XP: daily quest {d}, weekly quest {w}, boss {b} (first 10 a day).", 'egg.tap': "Tap to skip", 'egg.close': "Tap to close", 'quests.title': "Quests", 'quests.daily': "Daily", 'quests.weekly': "Weekly", 'quests.hint': "Quests give Garden Pass XP. New ones every day and every Monday.", 'q.kills': "Smash veggies ×{n}", 'q.bosses': "Beat bosses ×{n}", 'q.upgrades': "Buy upgrades ×{n}", 'q.draws': "Draw ×{n}", 'q.merges': "Merge ×{n}", 'q.golden': "Catch golden carrots ×{n}", 'q.raids': "Win slug raids ×{n}", 'q.caves': "Dig in the Crystal Cave ×{n}", 'q.towers': "Win Boss Tower fights ×{n}", 'q.rebirths': "Rebirth ×{n}", 'goals.title': "Goals", 'goals.hint': "One-time goals. Each pays crystals once.", 'goal.kills': "Smash veggies ×{n}", 'goal.bosses': "Beat bosses ×{n}", 'goal.maxWorld': "Reach World {n}", 'goal.rebirths': "Rebirth ×{n}", 'goal.merges': "Merge ×{n}", 'goal.draws': "Draw ×{n}", 'goal.golden': "Catch golden carrots ×{n}", 'goal.raids': "Win slug raids ×{n}", 'goal.towers': "Win Boss Tower fights ×{n}", 'goal.caves': "Visit the Crystal Cave ×{n}", 'daily.pause': "28 days of gifts. Missed a day? The calendar just waits for you.",
       // Seed pick before a Raid or Tower run (seeds.js)
@@ -1396,27 +1400,27 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'album.title': "Album", 'album.p.veggies': "Veggies", 'album.p.shiny': "Shiny veggies", 'album.p.bosses': "Giants", 'album.p.flowers': "Flowers", 'album.p.visitors': "Visitors", 'album.p.blasters': "Blasters", 'album.p.pets': "Pets", 'album.p.flies': "Butterflies", 'album.p.costumes': "Costumes", 'album.g.garden': "Field", 'album.g.wild': "Wild", 'album.g.collection': "Collection", 'album.found': "Found {n} of {m}", 'album.bonus': "Finished pages: +{p}% coins for good", 'album.intro': "Everything you meet goes here. Finish a page for a lasting bonus.", 'album.boss': "Giant {name}", 'album.shiny': "Shiny {name}", 'album.seen': "Seen ×{n}", 'album.new': "New in the album: {name}", 'album.newn': "{n} new in the album", 'album.newtag': "NEW", 'album.page.done': "Page complete!", 'album.page.reward': "+{g} crystals and +{p}% coins for good", 'album.shiny.got': "Shiny {name}! ×10 coins", 'album.h.biome': "Grows in {b}", 'album.h.shiny': "Very rare. Look closely in {b}", 'album.h.boss': "The giant of {b}", 'album.h.flower': "Plant one in {b}", 'album.h.rare': "Now and then a flower in {b} opens in a rare colour", 'album.h.v.lemon': "Visits by day, anywhere", 'album.h.v.sky': "By day, in the meadow, the greenhouse and the snow", 'album.h.v.peach': "At dawn and at dusk", 'album.h.v.moth': "Only at night", 'album.h.v.glow': "At night, in the mushroom woods, the swamp and the moon garden", 'album.h.v.royal': "Rare. Any time, anywhere. Lucky you!", 'album.h.gear': "From the egg in Blasters", 'album.h.pet': "From the egg in Pets", 'album.h.fly': "From the egg in Butterflies", 'album.h.skin': "Costumes are in the Bunny tab",
       'rain.name': "Carrot Rain", 'tut.rain': "Carrot Rain is ready: tap!",
       'boss.help': "Help, friends!",
-      'tut.tapveg': "Your blasters fire on their own. Tap a veggie to help!",
-      'tut.speed': "New: Speed. Your blasters shoot faster", 'tut.money': "New: Money. More coins from every veggie",
-      'tip.new_bunny': "New: the Bunny tab. Costumes give bonuses, even when not worn",
-      'tip.new_shop': "New: the Shop. Crystal packs, time warps and helpers",
-      'tip.new_crystals': "Crystals! Spend them on new blasters and pets",
-      'tip.new_daily': "Daily gift: come back every day, the gifts grow",
-      'tip.new_mission': "Quests: small goals that pay crystals. The Album is in here too",
-      'tip.new_free': "Free crystals: a short ad, a few times a day",
-      'tip.new_piggy': "Piggy bank: every boss you beat drops crystals in",
-      'tip.new_pets': "New: Pets! They bring more coins and speed. Hatch one here",
-      'tip.new_pets.free': "New: Pets! More coins and speed, and the first one hatches free",
-      'tip.new_clovers': "Clovers: they hatch pets",
-      'tip.new_adv': "New: Adventure. Side fights for clovers and crystals",
-      'tip.new_buffs': "Boosts: double power, speed or coins for a while",
-      'tip.new_fly': "New: Butterflies, in the Pets tab. Every one adds power",
-      'tip.new_cave': "New: the Crystal Cave, in Adventure. Break rocks for crystals",
-      'tip.new_auto': "Auto upgrade: it buys upgrades for you",
-      'tip.drawGear': "Enough crystals for a new blaster! Draw one in Gear",
-      'tip.drawPets': "You can hatch a new pet! Open Pets",
-      'tip.mergePets': "Two alike? Drag one onto the other to merge them into a better one",
-      'tip.equipPets': "Drag a pet into this free slot to bring it along",
+      'tut.tapveg': "*Tap a veggie* to help your squad",
+      'tut.speed': "*Upgrade Speed*: blasters shoot faster", 'tut.money': "*Upgrade Money*: more coins per veggie",
+      'tip.new_bunny': "*Costumes*: each one adds a bonus",
+      'tip.new_shop': "*Shop*: crystals, time warps, helpers",
+      'tip.new_crystals': "*Crystals* buy new blasters and pets",
+      'tip.new_daily': "*Come back daily*: the gifts grow",
+      'tip.new_mission': "*Quests*: small goals that pay crystals",
+      'tip.new_free': "*Crystals for an ad*, a few times a day",
+      'tip.new_piggy': "*Piggy*: every boss you beat adds crystals",
+      'tip.new_pets': "*Hatch a pet* here: more coins and speed",
+      'tip.new_pets.free': "*Hatch a free pet*: more coins and speed",
+      'tip.new_clovers': "*Clovers* hatch new pets",
+      'tip.new_adv': "*Adventure*: win clovers and crystals",
+      'tip.new_buffs': "*Buffs*: x2 power, speed or coins",
+      'tip.new_fly': "*Butterflies*, in Pets: each adds power",
+      'tip.new_cave': "*Crystal Cave*: break rocks for crystals",
+      'tip.new_auto': "*Auto upgrade* buys upgrades for you",
+      'tip.drawGear': "*Draw a new blaster*: open Blasters",
+      'tip.drawPets': "*Hatch a new pet*: open Pets",
+      'tip.mergePets': "*Drag* onto a twin to make a better one",
+      'tip.equipPets': "*Drag a pet here* to take it along",
       'shiny.pop': "Shiny! ×10", 'pop.pet': "New pet!", 'pop.fly': "New butterfly!",
       'lang.title': "Choose a language", 'lang.later': "You can change it any time in Settings",
       'story.title': "How it all began", 'story.next': "Next", 'story.go': "Let's go!", 'story.skip': "Skip", 'story.watch': "Watch",
@@ -1426,20 +1430,20 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'album.squad': "Your squad", 'squad.join.1': "Joins you when you equip a second blaster", 'squad.join.2': "Joins you when you equip a third blaster",
       'biome.next': "Next: {b}",
       'rain.go': "Tap!", 'rain.banner': "Carrot Rain!", 'rain.dmg': "{n} damage",
-      'tip.tapVeg': "Your squad now aims where you tap, and every tap fires an extra shot",
-      'tip.tapBoss': "Tap the boss fast: quick taps build a combo, up to double damage",
-      'tip.boss': "A boss! Pop it before the timer runs out to reach the next world",
-      'tip.bossWin': "Boss down! A new world: tougher veggies, more coins for each one",
-      'tip.bossFail': "Out of time? No problem: upgrade a little, then try the boss here",
-      'tip.shiny': "A shiny veggie! They are rare and pay 10× coins",
-      'tip.golden': "Golden Carrot! Catch it when it flies by: coins, crystals or a boost",
-      'tip.plant': "A flower! Each new kind that blooms goes in the Album: +{n} crystals",
-      'tip.bloom': "It bloomed! Butterflies visit flowers. Plant {n} for a Goal reward",
-      'tip.rainReady': "Carrot Rain is full! Tap it to rain carrots on every veggie",
-      'tip.rain': "Each carrot hits everything it lands on. Fight to fill it again",
-      'tip.merge': "Two of a kind make one of the next grade: one slot, far more power",
-      'tip.offline': "Your squad works while you are away: up to {h} hours of coins",
-      'tip.rebirth': "Hit a wall? Rebirth in the Bunny tab: World 1 again, stronger for good",
+      'tip.tapVeg': "*The squad aims* where you tap",
+      'tip.tapBoss': "*Tap fast*: combos deal up to x2 damage",
+      'tip.boss': "*Beat the boss* before the timer ends",
+      'tip.bossWin': "*New world!* Tougher veggies, more coins",
+      'tip.bossFail': "*Upgrade a bit*, then challenge the boss here",
+      'tip.shiny': "*Shiny veggie!* Pop it for 10× coins",
+      'tip.golden': "*Catch golden carrots* for prizes",
+      'tip.plant': "*+{n} crystals* when a new kind blooms",
+      'tip.bloom': "*Plant {n} flowers* for a Goals reward",
+      'tip.rainReady': "*Tap!* Carrots rain on every veggie",
+      'tip.rain': "*Keep fighting* to recharge the rain",
+      'tip.merge': "*One grade up*: one slot, far more power",
+      'tip.offline': "*Earn while away*: up to {h} hours",
+      'tip.rebirth': "Stuck? *Rebirth*: World 1, but stronger",
       'shop.thanks': 'Thank you! Purchase complete.', 'shop.bought': 'Purchased',
       'shop.failed': "The purchase didn't go through. Please try again.", 'shop.restore.none': "Nothing to restore: this store account has no purchases that are kept for good.",
       'shop.pending': 'Payment pending', 'shop.pending.d': "The store hasn't confirmed this payment yet. Your purchase arrives by itself as soon as it does.",
@@ -1468,21 +1472,21 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'rb.reborn': 'Reborn!', 'rb.fresh': 'A fresh start in World 1', 'rb.next': 'Next rebirth: +{n} Moonstones', 'rb.next.x': 'up to x{x} power',
       'auto.on': 'Auto upgrade on', 'auto.off': 'Auto upgrade off', 'auto.locked': 'Auto Upgrade is in the Shop. Try it 10 min for an ad?', 'auto.trial': 'Try 10 min', 'auto.notrial': "Today's two free trials are used. Auto Upgrade is in the Shop.",
       // the garden's tricksters (foes.js): first-time tips, event banners, little words over the field
-      'tip.foe_runner': "A radish runner! Pop it before it gets away: lots of coins",
-      'tip.foe_armor': "A pot-head! The pot stops shots. Tap it or crit it to crack it",
-      'tip.foe_splitter': "Garlic pops into two cloves. Pop those too!",
-      'tip.foe_shield': "A lid stops shots from the front. Side blasters and taps get round it",
-      'tip.foe_healer': "A sprout mends its friends. Pop it first!",
-      'tip.foe_digger': "A digger! Tap its mound to pull it out",
-      'tip.foe_chili': "A chili popper blasts its neighbours. Pop it in a crowd!",
-      'tip.foe_elite': "Two tricks at once! Tougher, and it pays for both",
-      'tip.ev_rush': "Veggie rush! Pop them all before they hop off for a bonus",
-      'tip.ev_treasure': "A gem spud! Tap it 3 times before it digs away: crystals",
-      'tip.ev_mini': "A mini-boss! Beat it for a sure drop of crystals",
-      'tip.boss_wrap': "It hides in leaves! Tap fast to tear them off. The timer waits",
-      'tip.boss_summon': "Its helpers mend it. Pop the helpers first!",
-      'tip.boss_boil': "It's boiling! Tap it 3 times while it glows to cool it down",
-      'tip.boss_burrow': "It dug in! Tap the mound to pull it out. The timer waits",
+      'tip.foe_runner': "*Pop the radish* before it runs off",
+      'tip.foe_armor': "*Tap the pot* until it cracks",
+      'tip.foe_splitter': "*Garlic splits*: pop both cloves",
+      'tip.foe_shield': "*Tap* to knock its lid aside",
+      'tip.foe_healer': "*Pop the sprout first*: it heals friends",
+      'tip.foe_digger': "*Tap the mound* to pull the digger out",
+      'tip.foe_chili': "*Pop the chili* near others: it blasts them",
+      'tip.foe_elite': "*Two tricks at once*: tougher, pays more",
+      'tip.ev_rush': "*Pop them all* before they hop off: bonus!",
+      'tip.ev_treasure': "*Tap it 3 times* before it hides: crystals!",
+      'tip.ev_mini': "*Beat the mini-boss*: crystals guaranteed",
+      'tip.boss_wrap': "*Tap fast* to tear off its leaves",
+      'tip.boss_summon': "*Pop the helpers first*: they heal the boss",
+      'tip.boss_boil': "*Tap it 3 times* while it glows!",
+      'tip.boss_burrow': "*Tap the mound* to pull it out",
       'ev.rush': "Veggie Rush!", 'ev.treasure': "Gem Spud!", 'ev.mini': "Mini-boss!",
       'ev.got.rush': "rush cleared", 'ev.got.treasure': "gem spud caught", 'ev.got.mini': "mini-boss drop",
       'foe.say.dizzy': "Dizzy!", 'foe.say.crack': "Crack!", 'foe.say.gone': "Bye!", 'foe.say.perfect': "Perfect!", 'foe.say.grr': "Grr!", 'foe.say.splat': "Splat!", 'foe.say.cool': "Pssh!",
@@ -1581,7 +1585,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.locked': "Поки недоступно", 'shop.unavailable': "Магазин зараз недоступний. Спробуй пізніше.", 'shop.web': "Покупки є лише в застосунку Bunny Boom. Усе інше тут безкоштовне.", 'ad.web': "Відео за нагороди є лише в застосунку Bunny Boom.", 'save.failed': "Не вдається зберегти: пам'ять пристрою заповнена. Звільни місце, щоб не втратити прогрес.", 'shop.restore': "Відновити покупки", 'shop.restored': "Покупки відновлено", 'ad.none': "Реклами зараз немає, і нічого не витрачено. Спробуй за хвилину.", 'save.pick.title': "Знайдено два збереження", 'save.pick.text': "На цьому пристрої і в хмарі різний прогрес. Яке залишити?", 'save.pick.local': "Цей пристрій", 'save.pick.remote': "Хмара", 'save.pick.line': "Світ {w} · перероджень: {r} · у грі {h}", 'settings.backups': "Резервні копії", 'settings.backup.none': "Копій ще немає", 'settings.backup.load': "Відновити", 'settings.backup.confirm': "Повернутися до цієї копії? Прогрес після неї зникне.", 'settings.edited': "Це збереження змінили поза грою.",
       'leap.title': "Місячний стрибок!", 'boss.intro': "БОС!", 'rebirth.ready': "Можна переродитися!",
       'pity.left': "{g} або краще не пізніше ніж за {n} спроб", 'pity.text': "Лише платні спроби: у x10 завжди є {a} або краще, а не пізніше ніж {n}-та спроба дає {g} або краще.",
-      'tut.new': "Нове: {name}!", 'tut.power': "Монети! Витрачай їх тут — овочі падатимуть швидше", 'tut.hold': "Кожен рівень б'є сильніше. Затисни — купує швидко", 'tut.stage': "Розбий 10 овочів — і поле пройдено", 'tut.boss': "Здолай за {s} с!", 'tut.retry': "Прокачайся і спробуй ще", 'tut.gear': "Нове: бластери! Тисни, щоб відкрити", 'tut.freedraw': "Бластер у подарунок!", 'tut.merge': "Перетягни на такий самий — злиття", 'tut.equip': "Перетягни сюди, щоб вдягнути", 'pass.tierup': "Садовий пропуск: рівень {n}!",
+      'tut.new': "Нове: {name}!", 'tut.power': "*Витрачай монети тут*, щоб бити сильніше", 'tut.hold': "*Затисни* — купуй рівень за рівнем", 'tut.stage': "*Розбий 10 овочів* — і поле пройдено", 'tut.boss': "Здолай за {s} с!", 'tut.retry': "Прокачайся і спробуй ще", 'tut.gear': "*Відкрий «Зброю»*: там подарунок", 'tut.freedraw': "*Витягни бластер* — задарма!", 'tut.merge': "*Перетягни* на такий самий, щоб об'єднати", 'tut.equip': "*Перетягни сюди*, щоб вдягнути", 'pass.tierup': "Садовий пропуск: рівень {n}!",
       'tut.opens.stage': "Відкриється на етапі {s}",
       'open': "Відкрити", 'club.title': "Садовий клуб", 'club.daily': "Щоденний подарунок клубу", 'club.daily.d': "+{n} кристалів щодня, поки діє", 'club.p.gems': "Забирай {n} кристалів щодня", 'club.p.noads': "Без примусової реклами", 'club.p.cave': "Входів у Кришталеву печеру на день", 'club.p.rewards': "Нагороди Набігу і Вежі", 'club.p.conv': "Автооб'єднання, швидка зачистка, короткі подорожі", 'club.price': "{p} / місяць", 'club.manage': "Керувати", 'club.fine.store': "Поновлюється щомісяця за {p}, доки не скасуєш. Скасувати можна будь-коли: Google Play > Платежі й підписки.", 'club.fine': "Тестовий режим: 30 днів. У застосунку з магазину поновлюється щомісяця, доки не скасуєш у Google Play / App Store.", 'shop.sprout': "Тиждень паростка", 'shop.sprout.d': "{now} кристалів одразу і ще по {n} щодня 7 днів.", 'piggy.text2': "Кожен переможений бос кидає сюди 10 кристалів. Розбий, коли назбирається {n} (макс. {max}).", 'warp.title': "Пришвидшення часу", 'warp.d': "Отримай години доходу одразу. Зараз 1 година = {c} монет.", 'warp.h': "{n} год", 'warp.confirm': "Пришвидшити на {n} год за {c} монет?", 'pass.title': "Садовий пропуск · Сезон {n}", 'pass.short': "Пропуск", 'pass.tier': "Рівень {n}/{max}", 'pass.ends': "до кінця {t}", 'pass.premium': "Преміум", 'pass.plus': "Преміум+", 'pass.premium.d': "Відкрий золоту доріжку: ще 30 нагород, улюбленець SS і метелик SS. Преміум+ ще й одразу дає 10 рівнів і +20% досвіду.", 'pass.buytier': "+1 рівень", 'pass.claimall': "Забрати все ({n})", 'pass.free': "Безкоштовно", 'pass.xp.hint': "Досвід: щоденне завдання {d}, тижневе {w}, бос {b} (перші 10 за день).", 'egg.tap': "Торкнись, щоб пропустити", 'egg.close': "Торкнись, щоб закрити", 'quests.title': "Завдання", 'quests.daily': "На сьогодні", 'quests.weekly': "На тиждень", 'quests.hint': "Завдання дають досвід Садового пропуску. Нові — щодня і щопонеділка.", 'q.kills': "Розбий овочі ×{n}", 'q.bosses': "Здолай босів ×{n}", 'q.upgrades': "Купи покращення ×{n}", 'q.draws': "Витягни ×{n}", 'q.merges': "Об'єднай ×{n}", 'q.golden': "Злови золоті морквини ×{n}", 'q.raids': "Відбий набіги слимаків ×{n}", 'q.caves': "Покопай у печері ×{n}", 'q.towers': "Виграй бої у Вежі ×{n}", 'q.rebirths': "Переродись ×{n}", 'goals.title': "Цілі", 'goals.hint': "Одноразові цілі. Кожна дає кристали один раз.", 'goal.kills': "Розбий овочі ×{n}", 'goal.bosses': "Здолай босів ×{n}", 'goal.maxWorld': "Дійди до Світу {n}", 'goal.rebirths': "Переродись ×{n}", 'goal.merges': "Об'єднай ×{n}", 'goal.draws': "Витягни ×{n}", 'goal.golden': "Злови золоті морквини ×{n}", 'goal.raids': "Відбий набіги слимаків ×{n}", 'goal.towers': "Виграй бої у Вежі ×{n}", 'goal.caves': "Завітай у печеру ×{n}", 'daily.pause': "28 днів подарунків. Пропустив день? Календар просто зачекає.",
       // Вибір насіння перед набігом чи вежею (seeds.js)
@@ -1600,27 +1604,27 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'album.title': "Альбом", 'album.p.veggies': "Овочі", 'album.p.shiny': "Сяйливі овочі", 'album.p.bosses': "Велетні", 'album.p.flowers': "Квіти", 'album.p.visitors': "Гості", 'album.p.blasters': "Бластери", 'album.p.pets': "Звірі", 'album.p.flies': "Метелики", 'album.p.costumes': "Костюми", 'album.g.garden': "Поле", 'album.g.wild': "Природа", 'album.g.collection': "Колекція", 'album.found': "Знайдено {n} з {m}", 'album.bonus': "Завершені сторінки: назавжди +{p}% монет", 'album.intro': "Сюди потрапляє все, що ти зустрічаєш. Збери сторінку — отримаєш постійний бонус.", 'album.boss': "Велетень: {name}", 'album.shiny': "Сяйливий овоч: {name}", 'album.seen': "Бачено ×{n}", 'album.new': "Нове в альбомі: {name}", 'album.newn': "Нових записів в альбомі: {n}", 'album.newtag': "НОВЕ", 'album.page.done': "Сторінку зібрано!", 'album.page.reward': "+{g} кристалів і назавжди +{p}% монет", 'album.shiny.got': "Сяйливий овоч: {name}! ×10 монет", 'album.h.biome': "Росте тут: {b}", 'album.h.shiny': "Дуже рідкісний. Придивляйся: {b}", 'album.h.boss': "Велетень місцини: {b}", 'album.h.flower': "Посади квітку тут: {b}", 'album.h.rare': "Іноді квітка тут розквітає рідкісним кольором: {b}", 'album.h.v.lemon': "Прилітає вдень, будь-де", 'album.h.v.sky': "Вдень: на лузі, в теплиці й у снігах", 'album.h.v.peach': "На світанку й у сутінках", 'album.h.v.moth': "Лише вночі", 'album.h.v.glow': "Уночі: у грибному лісі, на болоті й у місячному саду", 'album.h.v.royal': "Рідкісний. Будь-коли й будь-де. Щасти!", 'album.h.gear': "З яйця у Бластерах", 'album.h.pet': "З яйця у Звірях", 'album.h.fly': "З яйця в Метеликах", 'album.h.skin': "Костюми — у вкладці Кролик",
       'rain.name': "Морквяний дощ", 'tut.rain': "Морквяний дощ готовий: тисни!",
       'boss.help': "Друзі, на допомогу!",
-      'tut.tapveg': "Бластери стріляють самі. Тапни по овочу, щоб допомогти!",
-      'tut.speed': "Нове: Швидкість. Бластери стріляють частіше", 'tut.money': "Нове: Гроші. Більше монет з кожного овоча",
-      'tip.new_bunny': "Нове: вкладка «Кролик». Костюми дають бонус, навіть якщо не вдягнені",
-      'tip.new_shop': "Нове: Магазин. Кристали, пришвидшення часу й помічники",
-      'tip.new_crystals': "Кристали! За них — нові бластери й улюбленці",
-      'tip.new_daily': "Щоденний подарунок: заходь щодня — подарунки ростуть",
-      'tip.new_mission': "Завдання: маленькі цілі за кристали. Тут і Альбом",
-      'tip.new_free': "Кристали задарма: коротка реклама, кілька разів на день",
-      'tip.new_piggy': "Скарбничка: кожен переможений бос кидає туди кристали",
-      'tip.new_pets': "Нове: улюбленці! Більше монет і швидкості. Виведи першого тут",
-      'tip.new_pets.free': "Нове: улюбленці! Більше монет і швидкості, а перший — задарма",
-      'tip.new_clovers': "Конюшина: за неї виводять улюбленців",
-      'tip.new_adv': "Нове: Пригоди. Бої збоку за конюшину й кристали",
-      'tip.new_buffs': "Бафи: подвійна сила, швидкість чи монети на якийсь час",
-      'tip.new_fly': "Нове: метелики, у вкладці «Звірі». Кожен додає сили",
-      'tip.new_cave': "Нове: Кришталева печера в Пригодах. Розбивай каміння за кристали",
-      'tip.new_auto': "Автопрокачка: купує покращення за тебе",
-      'tip.drawGear': "Вистачає кристалів на новий бластер! Витягни його у «Зброя»",
-      'tip.drawPets': "Можна вивести нового улюбленця! Відкрий «Звірі»",
-      'tip.mergePets': "Два однакових? Перетягни один на інший — вийде кращий",
-      'tip.equipPets': "Перетягни улюбленця в цей вільний слот — він піде з тобою",
+      'tut.tapveg': "*Тапни по овочу* — допоможи загону",
+      'tut.speed': "*Прокачай Швидкість* — частіші постріли", 'tut.money': "*Прокачай Гроші* — більше монет з овоча",
+      'tip.new_bunny': "*Костюми*: кожен у колекції дає бонус",
+      'tip.new_shop': "*Лавка*: кристали, пришвидшення часу, помічники",
+      'tip.new_crystals': "*Кристали*: нові бластери й улюбленці",
+      'tip.new_daily': "*Заходь щодня* — подарунки ростуть",
+      'tip.new_mission': "*Завдання*: маленькі цілі за кристали",
+      'tip.new_free': "*Кристали за рекламу* — кілька разів на день",
+      'tip.new_piggy': "*Скарбничка*: кожен бос докидає кристали",
+      'tip.new_pets': "*Виведи улюбленця* тут: більше монет і швидкості",
+      'tip.new_pets.free': "*Виведи улюбленця задарма*: більше монет і швидкості",
+      'tip.new_clovers': "*Конюшина*: за неї — нові улюбленці",
+      'tip.new_adv': "*Мандри*: бої за конюшину й кристали",
+      'tip.new_buffs': "*Бафи*: x2 сили, швидкості чи монет",
+      'tip.new_fly': "*Метелики* у «Звірях»: кожен додає сили",
+      'tip.new_cave': "*Кришталева печера*: бий каміння, бери кристали",
+      'tip.new_auto': "*Автопрокачка* качає за тебе",
+      'tip.drawGear': "*Витягни бластер* у «Зброї»",
+      'tip.drawPets': "*Виведи улюбленця* у «Звірях»",
+      'tip.mergePets': "*Перетягни* на такого ж — вийде кращий",
+      'tip.equipPets': "*Перетягни улюбленця сюди* — він піде з тобою",
       'shiny.pop': "Сяйливий! ×10", 'pop.pet': "Новий улюбленець!", 'pop.fly': "Новий метелик!",
       'lang.title': "Обери мову", 'lang.later': "Змінити можна будь-коли в Налаштуваннях",
       'story.title': "Як усе почалося", 'story.next': "Далі", 'story.go': "Уперед!", 'story.skip': "Пропустити", 'story.watch': "Дивитися",
@@ -1630,20 +1634,20 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'album.squad': "Твій загін", 'squad.join.1': "Прийде, коли вдягнеш другий бластер", 'squad.join.2': "Прийде, коли вдягнеш третій бластер",
       'biome.next': "Далі: {b}",
       'rain.go': "Тисни!", 'rain.banner': "Морквяний дощ!", 'rain.dmg': "{n} шкоди",
-      'tip.tapVeg': "Загін б'є туди, куди ти тапнеш, а кожен тап — ще один постріл",
-      'tip.tapBoss': "Тапай боса швидко: тапи поспіль дають комбо, до подвійної шкоди",
-      'tip.boss': "Бос! Розбий його, поки йде таймер, — і далі новий світ",
-      'tip.bossWin': "Боса переможено! Новий світ: овочі міцніші, зате й монет більше",
-      'tip.bossFail': "Забракло часу? Не біда: прокачайся трохи й спробуй боса тут",
-      'tip.shiny': "Сяйливий овоч! Трапляється рідко й дає ×10 монет",
-      'tip.golden': "Золота морквина! Лови, коли пролітає: монети, кристали чи бонус",
-      'tip.plant': "Квітка! Кожен новий вид, що розквітне, — в Альбом і +{n} кристалів",
-      'tip.bloom': "Розквітла! До квітів прилітають метелики. Посади {n} — нагорода в Цілях",
-      'tip.rainReady': "Морквяний дощ готовий! Тисни — морква впаде на всі овочі",
-      'tip.rain': "Морквина б'є все, куди впаде. У бою шкала знову наповниться",
-      'tip.merge': "Два однакових стають одним наступного грейду: місце одне, сили більше",
-      'tip.offline': "Загін працює й без тебе: до {h} годин монет",
-      'tip.rebirth': "Стіна? Переродження у вкладці «Кролик»: знову Світ 1, але сильніше",
+      'tip.tapVeg': "*Загін цілиться* туди, куди ти тапнеш",
+      'tip.tapBoss': "*Тапай швидко*: комбо дає до x2 шкоди",
+      'tip.boss': "*Здолай боса*, поки не вийшов час",
+      'tip.bossWin': "*Новий світ!* Овочі міцніші, монет більше",
+      'tip.bossFail': "*Прокачайся* трохи — і виклич боса тут",
+      'tip.shiny': "*Сяйливий овоч*: ×10 монет!",
+      'tip.golden': "*Лови золоті морквини* — у них призи",
+      'tip.plant': "*+{n} кристалів* за кожен новий вид",
+      'tip.bloom': "*Посади {n} квітів* — нагорода в Цілях",
+      'tip.rainReady': "*Тисни!* Морква впаде на всі овочі",
+      'tip.rain': "*Бийся далі* — і дощ знову зарядиться",
+      'tip.merge': "*На грейд вище*: одне місце, а сили більше",
+      'tip.offline': "*Заробляєш і без гри*: до {h} годин",
+      'tip.rebirth': "Стіна? *Переродись*: Світ 1, але сильніше",
       'shop.thanks': 'Дякуємо! Покупку завершено.', 'shop.bought': 'Куплено',
       'shop.failed': 'Покупка не вдалася. Спробуй ще раз.', 'shop.restore.none': 'Нічого відновлювати: на цьому акаунті магазину немає покупок назавжди.',
       'shop.pending': 'Оплата очікується', 'shop.pending.d': 'Магазин ще не підтвердив оплату. Покупка прийде сама, щойно він це зробить.',
@@ -1668,21 +1672,21 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'rb.reborn': 'Переродження!', 'rb.fresh': 'Новий початок у Світі 1', 'rb.next': 'Наступне переродження: +{n} Місячних каменів', 'rb.next.x': 'до x{x} сили',
       'auto.on': 'Автопокращення увімкнено', 'auto.off': 'Автопокращення вимкнено', 'auto.locked': 'Автопокращення є в Лавці. Спробувати 10 хв за рекламу?', 'auto.trial': 'Спробувати 10 хв', 'auto.notrial': 'Дві безкоштовні спроби на сьогодні вже використано. Автопокращення є в Лавці.',
       // хитрі овочі (foes.js): підказки першого разу, банери подій, слівця над полем
-      'tip.foe_runner': "Редиска-бігунець! Розбий, поки не втекла: багато монет",
-      'tip.foe_armor': "Овоч у горщику! Горщик тримає постріли. Тап або крит — і він трісне",
-      'tip.foe_splitter': "Часник розпадається на два зубчики. Розбий і їх!",
-      'tip.foe_shield': "Кришка тримає постріли спереду. Бокові бластери й тапи її обходять",
-      'tip.foe_healer': "Паросток лікує друзів. Розбий його першим!",
-      'tip.foe_digger': "Копач! Тапни по горбику, щоб витягти його",
-      'tip.foe_chili': "Чилі-хлопавка б'є сусідів, коли лусне. Розбий її в натовпі!",
-      'tip.foe_elite': "Одразу два трюки! Міцніший, але й платить за обидва",
-      'tip.ev_rush': "Овочевий набіг! Розбий усіх, поки не втекли, — буде бонус",
-      'tip.ev_treasure': "Самоцвітна картопля! 3 тапи, поки не закопалась: кристали",
-      'tip.ev_mini': "Міні-бос! Переможи — і точно отримаєш кристали",
-      'tip.boss_wrap': "Ховається в листя! Тапай швидко, щоб зірвати. Таймер чекає",
-      'tip.boss_summon': "Помічники лікують боса. Спершу розбий їх!",
-      'tip.boss_boil': "Закипає! 3 тапи, поки світиться, — і він охолоне",
-      'tip.boss_burrow': "Закопався! Тапни по горбику, щоб витягти. Таймер чекає",
+      'tip.foe_runner': "*Розбий редиску*, поки не втекла",
+      'tip.foe_armor': "*Тапай по горщику*, поки не трісне",
+      'tip.foe_splitter': "*Часник ділиться*: розбий обидва зубчики",
+      'tip.foe_shield': "*Тапни*, щоб відбити кришку вбік",
+      'tip.foe_healer': "*Спершу розбий паросток*: він лікує друзів",
+      'tip.foe_digger': "*Тапни по горбику* — і витягнеш копача",
+      'tip.foe_chili': "*Розбий чилі* в натовпі — вибух зачепить сусідів",
+      'tip.foe_elite': "*Два трюки разом*: міцніший, але платить більше",
+      'tip.ev_rush': "*Розбий усіх*, поки не втекли, — буде бонус",
+      'tip.ev_treasure': "*Тапни 3 рази*, поки не сховалась: кристали!",
+      'tip.ev_mini': "*Здолай міні-боса* — кристали гарантовано",
+      'tip.boss_wrap': "*Тапай швидко*, щоб зірвати листя",
+      'tip.boss_summon': "*Спершу розбий помічників* — вони лікують боса",
+      'tip.boss_boil': "*Тапни 3 рази*, поки світиться!",
+      'tip.boss_burrow': "*Тапни по горбику*, щоб витягти боса",
       'ev.rush': "Овочевий набіг!", 'ev.treasure': "Самоцвітна картопля!", 'ev.mini': "Міні-бос!",
       'ev.got.rush': "набіг відбито", 'ev.got.treasure': "картоплю спіймано", 'ev.got.mini': "здобич міні-боса",
       'foe.say.dizzy': "Ой-ой!", 'foe.say.crack': "Трісь!", 'foe.say.gone': "Бувай!", 'foe.say.perfect': "Ідеально!", 'foe.say.grr': "Гррр!", 'foe.say.splat': "Шльоп!", 'foe.say.cool': "Пш-ш!",
@@ -1784,7 +1788,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'shop.locked': 'Jeszcze niedostępne', 'shop.unavailable': 'Sklep jest teraz niedostępny. Spróbuj później.', 'shop.web': 'Zakupy są tylko w aplikacji Bunny Boom. Wszystko inne jest tu za darmo.', 'ad.web': 'Filmy za nagrody są tylko w aplikacji Bunny Boom.', 'save.failed': 'Nie można zapisać: pamięć urządzenia jest pełna. Zwolnij trochę miejsca, by nie stracić postępu.', 'shop.restore': 'Przywróć zakupy', 'shop.restored': 'Zakupy przywrócone', 'ad.none': 'Teraz nie ma reklamy, ale nic nie przepadło. Spróbuj za minutę.', 'save.pick.title': 'Są dwa zapisy', 'save.pick.text': 'Na tym urządzeniu i w chmurze jest inny postęp. Który zapis zostawić?', 'save.pick.local': 'To urządzenie', 'save.pick.remote': 'Chmura', 'save.pick.line': 'Świat {w} · odrodzenia: {r} · w grze {h}', 'settings.backups': 'Kopie zapasowe', 'settings.backup.none': 'Na razie brak kopii', 'settings.backup.load': 'Przywróć', 'settings.backup.confirm': 'Wrócić do tej kopii? Postęp od tamtej chwili przepadnie.', 'settings.edited': 'Ten zapis zmieniono poza grą.',
       'leap.title': 'Księżycowy skok!', 'boss.intro': 'BOSS!', 'rebirth.ready': 'Można się odrodzić!',
       'pity.left': '{g} lub lepszy w ciągu {n} losowań', 'pity.text': 'Tylko płatne losowania: x10 zawsze zawiera {a} lub lepszy, a najpóźniej {n}. losowanie daje {g} lub lepszy.',
-      'tut.new': 'Nowość: {name}!', 'tut.power': 'Monety! Wydawaj je tu, by szybciej rozbijać warzywa', 'tut.hold': 'Każdy poziom bije mocniej. Przytrzymaj, by kupować szybko', 'tut.stage': 'Rozbij 10 warzyw, by zaliczyć to pole', 'tut.boss': 'Pokonaj w {s} s!', 'tut.retry': 'Ulepsz się i spróbuj znowu', 'tut.gear': 'Nowość: blastery! Stuknij, by otworzyć', 'tut.freedraw': 'Darmowy blaster dla ciebie!', 'tut.merge': 'Przeciągnij na bliźniaka, by połączyć', 'tut.equip': 'Przeciągnij tutaj, by założyć', 'pass.tierup': 'Przepustka Ogrodowa: poziom {n}!',
+      'tut.new': 'Nowość: {name}!', 'tut.power': '*Wydawaj monety tutaj*, by bić mocniej', 'tut.hold': '*Przytrzymaj*, by kupować szybciej', 'tut.stage': '*Rozbij 10 warzyw*, by zaliczyć pole', 'tut.boss': 'Pokonaj w {s} s!', 'tut.retry': 'Ulepsz się i spróbuj znowu', 'tut.gear': '*Otwórz Blastery*: czeka prezent', 'tut.freedraw': '*Wylosuj blaster* za darmo!', 'tut.merge': '*Przeciągnij* na bliźniaka, by połączyć', 'tut.equip': '*Przeciągnij tutaj*, by założyć', 'pass.tierup': 'Przepustka Ogrodowa: poziom {n}!',
       'tut.opens.stage': 'Otworzy się na etapie {s}',
       'open': 'Otwórz', 'club.title': 'Klub Ogrodowy', 'club.daily': 'Codzienny prezent klubowy', 'club.daily.d': '+{n} kryształów codziennie, póki trwa', 'club.p.gems': 'Odbieraj {n} kryształów codziennie', 'club.p.noads': 'Bez wymuszonych reklam', 'club.p.cave': 'Wejścia do Kryształowej jaskini dziennie', 'club.p.rewards': 'Nagrody z Inwazji i Wieży', 'club.p.conv': 'Auto-łączenie, szybkie przejście, krótkie wyprawy', 'club.price': '{p} / miesiąc', 'club.manage': 'Zarządzaj', 'club.fine.store': 'Odnawia się co miesiąc za {p}, dopóki nie anulujesz. Anulujesz kiedy chcesz w Google Play > Płatności i subskrypcje.','club.fine': 'Tryb testowy: 30 dni. W aplikacji ze sklepu odnawia się co miesiąc, dopóki nie anulujesz w Google Play / App Store.', 'shop.sprout': 'Tydzień Kiełka', 'shop.sprout.d': '{now} kryształów od razu i po {n} więcej codziennie przez 7 dni.', 'piggy.text2': 'Każdy pokonany boss wrzuca tu 10 kryształów. Rozbij świnkę, gdy uzbiera {n} (maks. {max}).', 'warp.title': 'Skok w czasie', 'warp.d': 'Zgarnij od razu dochód z kilku godzin. Teraz 1 godzina = {c} monet.', 'warp.h': '{n} h', 'warp.confirm': 'Skoczyć {n} h do przodu za {c} monet?', 'pass.title': 'Przepustka Ogrodowa · Sezon {n}', 'pass.short': 'Przepustka', 'pass.tier': 'Poziom {n}/{max}', 'pass.ends': 'koniec za {t}', 'pass.premium': 'Premium', 'pass.plus': 'Premium+', 'pass.premium.d': 'Odblokuj złotą ścieżkę: 30 nagród więcej, pupil SS i motyl SS. Premium+ od razu przeskakuje 10 poziomów i daje +20% XP.', 'pass.buytier': '+1 poziom', 'pass.claimall': 'Odbierz wszystko ({n})', 'pass.free': 'Za darmo', 'pass.xp.hint': 'XP: zadanie dzienne {d}, tygodniowe {w}, boss {b} (pierwszych 10 dziennie).', 'egg.tap': 'Stuknij, by pominąć', 'egg.close': 'Stuknij, by zamknąć', 'quests.title': 'Zadania', 'quests.daily': 'Dzienne', 'quests.weekly': 'Tygodniowe', 'quests.hint': 'Zadania dają XP do Przepustki Ogrodowej. Nowe codziennie i w każdy poniedziałek.', 'q.kills': 'Rozbij warzywa ×{n}', 'q.bosses': 'Pokonaj bossów ×{n}', 'q.upgrades': 'Kup ulepszenia ×{n}', 'q.draws': 'Losuj ×{n}', 'q.merges': 'Połącz ×{n}', 'q.golden': 'Złap złote marchewki ×{n}', 'q.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'q.caves': 'Kop w Kryształowej jaskini ×{n}', 'q.towers': 'Wygraj walki w Wieży ×{n}', 'q.rebirths': 'Odródź się ×{n}', 'goals.title': 'Cele', 'goals.hint': 'Cele jednorazowe. Każdy daje kryształy tylko raz.', 'goal.kills': 'Rozbij warzywa ×{n}', 'goal.bosses': 'Pokonaj bossów ×{n}', 'goal.maxWorld': 'Dotrzyj do Świata {n}', 'goal.rebirths': 'Odródź się ×{n}', 'goal.merges': 'Połącz ×{n}', 'goal.draws': 'Losuj ×{n}', 'goal.golden': 'Złap złote marchewki ×{n}', 'goal.raids': 'Odeprzyj inwazje ślimaków ×{n}', 'goal.towers': 'Wygraj walki w Wieży ×{n}', 'goal.caves': 'Odwiedź Kryształową jaskinię ×{n}', 'daily.pause': '28 dni prezentów. Ominął cię dzień? Kalendarz po prostu poczeka.',
       // Seed pick before a Raid or Tower run (seeds.js)
@@ -1809,60 +1813,60 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       'album.title': 'Album', 'album.p.veggies': 'Warzywa', 'album.p.shiny': 'Lśniące warzywa', 'album.p.bosses': 'Olbrzymy', 'album.p.flowers': 'Kwiaty', 'album.p.visitors': 'Goście', 'album.p.blasters': 'Blastery', 'album.p.pets': 'Pupile', 'album.p.flies': 'Motyle', 'album.p.costumes': 'Stroje', 'album.g.garden': 'Pole', 'album.g.wild': 'Przyroda', 'album.g.collection': 'Kolekcja', 'album.found': 'Znaleziono {n} z {m}', 'album.bonus': 'Skończone strony: na zawsze +{p}% monet', 'album.intro': 'Trafia tu wszystko, co spotkasz. Skończ stronę, a dostaniesz stały bonus.', 'album.boss': 'Olbrzym: {name}', 'album.shiny': 'Lśniąca odmiana: {name}', 'album.seen': 'Widziano ×{n}', 'album.new': 'Nowość w albumie: {name}', 'album.newn': 'Nowe w albumie: {n}', 'album.newtag': 'NOWE', 'album.page.done': 'Strona skończona!', 'album.page.reward': '+{g} kryształów i na zawsze +{p}% monet', 'album.shiny.got': 'Lśniąca odmiana: {name}! ×10 monet', 'album.h.biome': 'Rośnie tu: {b}', 'album.h.shiny': 'Bardzo rzadkie. Wypatruj tu: {b}', 'album.h.boss': 'Olbrzym tej krainy: {b}', 'album.h.flower': 'Posadź tu: {b}', 'album.h.rare': 'Czasem kwiat rozkwita tu w rzadkim kolorze: {b}', 'album.h.v.lemon': 'Przylatuje za dnia, wszędzie', 'album.h.v.sky': 'Za dnia: na łące, w szklarni i w śniegu', 'album.h.v.peach': 'O świcie i o zmierzchu', 'album.h.v.moth': 'Tylko nocą', 'album.h.v.glow': 'Nocą: w grzybowym lesie, na bagnach i w księżycowym ogrodzie', 'album.h.v.royal': 'Rzadki gość. O każdej porze, wszędzie. Masz szczęście!', 'album.h.gear': 'Z jajka w Blasterach', 'album.h.pet': 'Z jajka w Pupilach', 'album.h.fly': 'Z jajka w Motylach', 'album.h.skin': 'Stroje są w zakładce Królik',
       'rain.name': 'Marchewkowy deszcz', 'tut.rain': 'Marchewkowy deszcz gotowy: stuknij!',
       'boss.help': 'Na pomoc, przyjaciele!',
-      'tut.tapveg': 'Blastery strzelają same. Stuknij warzywo, by pomóc!',
-      'tut.speed': 'Nowość: Szybkość. Blastery strzelają szybciej', 'tut.money': 'Nowość: Zysk. Więcej monet z każdego warzywa',
-      'tip.new_bunny': 'Nowość: zakładka Królik. Stroje dają bonus, nawet gdy ich nie nosisz',
-      'tip.new_shop': 'Nowość: Sklep. Kryształy, skoki w czasie i pomocnicy',
-      'tip.new_crystals': 'Kryształy! Wydaj je na nowe blastery i pupile',
-      'tip.new_daily': 'Codzienny prezent: wracaj co dzień, a prezenty rosną',
-      'tip.new_mission': 'Zadania: małe cele za kryształy. Tu jest też Album',
-      'tip.new_free': 'Darmowe kryształy: krótka reklama, kilka razy dziennie',
-      'tip.new_piggy': 'Świnka: każdy pokonany boss wrzuca do niej kryształy',
-      'tip.new_pets': 'Nowość: Pupile! Więcej monet i szybkości. Wykluj tu pierwszego',
-      'tip.new_pets.free': 'Nowość: Pupile! Więcej monet i szybkości, a pierwszy za darmo',
-      'tip.new_clovers': 'Koniczyny: za nie wykluwasz pupile',
-      'tip.new_adv': 'Nowość: Przygody. Walki poboczne o koniczyny i kryształy',
-      'tip.new_buffs': 'Buffy: podwójna siła, szybkość lub monety na jakiś czas',
-      'tip.new_fly': 'Nowość: Motyle, w zakładce Pupile. Każdy dodaje siły',
-      'tip.new_cave': 'Nowość: Kryształowa jaskinia w Przygodach. Skały kryją kryształy',
-      'tip.new_auto': 'Auto-ulepszanie: kupuje ulepszenia za ciebie',
-      'tip.drawGear': 'Starczy kryształów na nowy blaster! Wylosuj go w Blasterach',
-      'tip.drawPets': 'Możesz wykluć nowego pupila! Otwórz Pupile',
-      'tip.mergePets': 'Dwa takie same? Przeciągnij jeden na drugi, a powstanie lepszy',
-      'tip.equipPets': 'Przeciągnij pupila do wolnego slotu, a pójdzie z tobą',
+      'tut.tapveg': '*Stuknij warzywo*, by pomóc drużynie',
+      'tut.speed': '*Ulepsz Szybkość*: blastery strzelają szybciej', 'tut.money': '*Ulepsz Zysk*: więcej monet z warzywa',
+      'tip.new_bunny': '*Stroje*: każdy w kolekcji daje bonus',
+      'tip.new_shop': '*Sklep*: kryształy, skoki w czasie, pomocnicy',
+      'tip.new_crystals': '*Kryształy*: nowe blastery i pupile',
+      'tip.new_daily': '*Wracaj codziennie*: prezenty rosną',
+      'tip.new_mission': '*Zadania*: małe cele za kryształy',
+      'tip.new_free': '*Kryształy za reklamę*, kilka razy dziennie',
+      'tip.new_piggy': '*Świnka*: każdy pokonany boss dorzuca kryształy',
+      'tip.new_pets': '*Wykluj pupila* tutaj: więcej monet i szybkości',
+      'tip.new_pets.free': '*Wykluj pupila za darmo*: więcej monet i szybkości',
+      'tip.new_clovers': '*Koniczyny*: za nie wykluwasz pupile',
+      'tip.new_adv': '*Przygody*: walki o koniczyny i kryształy',
+      'tip.new_buffs': '*Buffy*: x2 siły, szybkości lub monet',
+      'tip.new_fly': '*Motyle* w Pupilach: każdy dodaje siły',
+      'tip.new_cave': '*Kryształowa jaskinia*: rozbijaj skały po kryształy',
+      'tip.new_auto': '*Auto-ulepszanie* ulepsza za ciebie',
+      'tip.drawGear': '*Wylosuj nowy blaster*: otwórz Blastery',
+      'tip.drawPets': '*Wykluj nowego pupila*: otwórz Pupile',
+      'tip.mergePets': '*Przeciągnij* na bliźniaka, a powstanie lepszy',
+      'tip.equipPets': '*Przeciągnij pupila tutaj*, a pójdzie z tobą',
       'shiny.pop': 'Lśniący! ×10', 'pop.pet': 'Nowy pupil!', 'pop.fly': 'Nowy motyl!',
       'lang.title': 'Wybierz język', 'lang.later': 'Zmienisz go w każdej chwili w Ustawieniach',
       'rain.go': 'Stuknij!', 'rain.banner': 'Marchewkowy deszcz!', 'rain.dmg': '{n} obr.',
-      'tip.tapVeg': 'Drużyna celuje, gdzie stukniesz, a stuknięcie to dodatkowy strzał',
-      'tip.tapBoss': 'Stukaj bossa szybko: seria stuknięć to combo, aż do x2 obrażeń',
-      'tip.boss': 'Boss! Pokonaj go, zanim minie czas, a ruszysz do nowego świata',
-      'tip.bossWin': 'Boss pokonany! Nowy świat: twardsze warzywa, ale i więcej monet',
-      'tip.bossFail': 'Zabrakło czasu? Nic nie szkodzi: ulepsz się i wyzwij bossa tutaj',
-      'tip.shiny': 'Lśniące warzywo! Trafia się rzadko i daje ×10 monet',
-      'tip.golden': 'Złota marchewka! Złap ją, gdy przelatuje: monety, kryształy lub buff',
-      'tip.plant': 'Kwiatek! Każdy nowy gatunek trafia do Albumu: +{n} kryształów',
-      'tip.bloom': 'Zakwitł! Motyle lubią kwiaty. Posadź {n}, a w Celach czeka nagroda',
-      'tip.rainReady': 'Marchewkowy deszcz gotowy! Stuknij, by obsypać wszystkie warzywa',
-      'tip.rain': 'Marchewka trafia wszystko pod sobą. Walcz, by deszcz wrócił',
-      'tip.merge': 'Dwa takie same dają jeden wyższej rangi: jeden slot, więcej siły',
-      'tip.offline': 'Drużyna pracuje, gdy cię nie ma: monety nawet za {h} godz.',
-      'tip.rebirth': 'Ani rusz? Odródź się w zakładce Królik: znów Świat 1, ale silniej',
+      'tip.tapVeg': '*Drużyna celuje* tam, gdzie stukniesz',
+      'tip.tapBoss': '*Stukaj szybko*: combo daje do x2 obrażeń',
+      'tip.boss': '*Pokonaj bossa*, zanim minie czas',
+      'tip.bossWin': '*Nowy świat!* Twardsze warzywa, więcej monet',
+      'tip.bossFail': '*Ulepsz się* i wyzwij bossa tutaj',
+      'tip.shiny': '*Lśniące warzywo!* Rozbij je: ×10 monet',
+      'tip.golden': '*Łap złote marchewki*: w nich nagrody',
+      'tip.plant': '*+{n} kryształów* za każdy nowy gatunek',
+      'tip.bloom': '*Posadź {n} kwiatów*: nagroda w Celach',
+      'tip.rainReady': '*Stuknij!* Marchewki spadną na wszystkie warzywa',
+      'tip.rain': '*Walcz dalej*, a deszcz znów się naładuje',
+      'tip.merge': '*Ranga wyżej*: jeden slot, dużo więcej siły',
+      'tip.offline': '*Zarabiasz też offline*: do {h} godz.',
+      'tip.rebirth': 'Ani rusz? *Odródź się*: Świat 1, ale silniej',
       // the garden's tricksters (foes.js): first-time tips, event banners, little words over the field
-      'tip.foe_runner': 'Rzodkiewka biegaczka! Rozbij ją, zanim ucieknie: dużo monet',
-      'tip.foe_armor': 'Doniczkowiec! Doniczka łapie strzały, ale stuk lub kryt ją rozbije',
-      'tip.foe_splitter': 'Czosnek rozpada się na dwa ząbki. Rozbij i je!',
-      'tip.foe_shield': 'Pokrywka chroni przód. Boczne blastery i stuknięcia ją omijają',
-      'tip.foe_healer': 'Kiełek leczy przyjaciół. Rozbij go pierwszego!',
-      'tip.foe_digger': 'Kopacz! Stuknij w kopczyk, by go wyciągnąć',
-      'tip.foe_chili': 'Wybuchowe chili rani sąsiadów. Rozbij je w tłumie!',
-      'tip.foe_elite': 'Dwie sztuczki naraz! Twardszy, ale płaci za obie',
-      'tip.ev_rush': 'Szarża warzyw! Rozbij wszystkie, zanim uciekną, a będzie bonus',
-      'tip.ev_treasure': 'Kryształowy ziemniak! Stuknij 3 razy, zanim się zakopie: kryształy',
-      'tip.ev_mini': 'Mini-boss! Pokonaj go, a kryształy masz pewne',
-      'tip.boss_wrap': 'Chowa się w liściach! Stukaj szybko, by je zerwać. Licznik czeka',
-      'tip.boss_summon': 'Pomocnicy go leczą. Najpierw rozbij pomocników!',
-      'tip.boss_boil': 'Wrze! Stuknij go 3 razy, póki świeci, by go ostudzić',
-      'tip.boss_burrow': 'Zakopał się! Stuknij w kopczyk, by go wyciągnąć. Licznik czeka',
+      'tip.foe_runner': '*Rozbij rzodkiewkę*, zanim ucieknie',
+      'tip.foe_armor': '*Stukaj w doniczkę*, aż pęknie',
+      'tip.foe_splitter': '*Czosnek się dzieli*: rozbij oba ząbki',
+      'tip.foe_shield': '*Stuknij*, a pokrywka odskoczy',
+      'tip.foe_healer': '*Najpierw rozbij kiełek*: leczy innych',
+      'tip.foe_digger': '*Stuknij w kopczyk*, by wyciągnąć kopacza',
+      'tip.foe_chili': '*Rozbij chili* w tłumie: wybuch rani sąsiadów',
+      'tip.foe_elite': '*Dwie sztuczki naraz*: twardszy, ale płaci więcej',
+      'tip.ev_rush': '*Rozbij wszystkie*, zanim uciekną: bonus!',
+      'tip.ev_treasure': '*Stuknij 3 razy*, zanim się schowa: kryształy!',
+      'tip.ev_mini': '*Pokonaj mini-bossa*: kryształy gwarantowane',
+      'tip.boss_wrap': '*Stukaj szybko*, by zerwać liście',
+      'tip.boss_summon': '*Najpierw rozbij pomocników*: leczą bossa',
+      'tip.boss_boil': '*Stuknij 3 razy*, póki świeci!',
+      'tip.boss_burrow': '*Stuknij w kopczyk*, by wyciągnąć bossa',
       'ev.rush': 'Szarża warzyw!', 'ev.treasure': 'Kryształowy ziemniak!', 'ev.mini': 'Mini-boss!',
       'ev.got.rush': 'za odpartą szarżę', 'ev.got.treasure': 'za złapany ziemniak', 'ev.got.mini': 'z mini-bossa',
       'foe.say.dizzy': 'Ojej!', 'foe.say.crack': 'Trzask!', 'foe.say.gone': 'Pa pa!', 'foe.say.perfect': 'Idealnie!', 'foe.say.grr': 'Grrr!', 'foe.say.splat': 'Plask!', 'foe.say.cool': 'Psss!',
@@ -3807,6 +3811,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 // First-time tips: the first time something happens, one short line says what it was and why it matters.
 // This is the rule part (which tip, when, only once); tutorial.js puts it on screen. A tip is remembered in
 // s.tut.seen['tip:<id>'] once it has been on screen, so it never comes back.
+// A tip is read in a glance while the game keeps running: the action or the payoff in the first words, one idea,
+// about 6–9 words, and its key word marked *like this* in the string (shown in gold; tutorial.js builds it).
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -3814,35 +3820,39 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
 })(typeof self !== 'undefined' ? self : this, function () {
   // at: what the caption sits by ('bunny' = above the squad, else a selector). place: above | below.
   // paw: a paw bobs at it. sheet: shows over an open panel (and only there). known: a player past the
-  // tutorial already knows this, so an older save skips it.
+  // tutorial already knows this, so an older save skips it. art: the picture of the thing beside the words.
   const TIPS = {
     tapVeg: { at: 'bunny' },
     tapBoss: { at: 'bunny' },
     boss: { at: '#progress', place: 'below', known: true },
     bossWin: { at: 'bunny', known: true },
     bossFail: { at: '#boss-btn', place: 'below', paw: true, known: true },
-    shiny: { at: 'bunny', known: true },
-    golden: { at: 'bunny', known: true },
-    plant: { at: 'bunny' },
-    bloom: { at: 'bunny' },
-    rainReady: { at: '#rain-btn', place: 'above', paw: true },
-    rain: { at: 'bunny' },
+    shiny: { at: 'bunny', known: true, art: 'icon_star' },
+    golden: { at: 'bunny', known: true, art: 'icon_goldcarrot' },
+    plant: { at: 'bunny', art: 'icon_crystal' },
+    bloom: { at: 'bunny', art: 'flower_meadow_3' },
+    rainReady: { at: '#rain-btn', place: 'above', paw: true, art: 'icon_carrot' },
+    rain: { at: 'bunny', art: 'icon_carrot' },
     merge: { at: '.sheet-head', place: 'below', sheet: true, known: true },
-    offline: { at: 'bunny', known: true },
-    rebirth: { at: '#tab-bunny', place: 'above', paw: true },
+    offline: { at: 'bunny', known: true, art: 'icon_coin' },
+    rebirth: { at: '#tab-bunny', place: 'above', paw: true, art: 'icon_moon' },
     // A draw just became affordable: the tab it lives in.
-    drawGear: { at: '#tab-gear', place: 'above', paw: true },
-    drawPets: { at: '#tab-pets', place: 'above', paw: true },
+    drawGear: { at: '#tab-gear', place: 'above', paw: true, art: 'icon_egg' },
+    drawPets: { at: '#tab-pets', place: 'above', paw: true, art: 'icon_egg' },
     // In the Pets panel: the first pair to merge, the first pet that could come along.
     mergePets: { at: '.gacha .grid', place: 'above', sheet: true, known: true },
     equipPets: { at: '.eq-row .tile.slot.empty', place: 'below', paw: true, sheet: true, known: true },
   };
-  // A feature that just opened, introduced where it lives. keep: it waits its turn as long as it takes.
+  // A feature that just opened, introduced where it lives (with its icon). keep: it waits its turn as long as it takes.
   const NEW = {
     bunny: '#tab-bunny', shop: '#tab-shop', crystals: '#res-crystals', daily: '#btn-daily', mission: '#btn-mission', free: '#bb-free',
     piggy: '#bb-piggy', pets: '#tab-pets', clovers: '#res-clovers', adv: '#tab-adv', buffs: '#bb-buffs', fly: '#tab-pets', cave: '#tab-adv', auto: '#bb-auto',
   };
-  for (const [k, at] of Object.entries(NEW)) TIPS['new_' + k] = { at, place: at.startsWith('#tab') ? 'above' : 'below', paw: true, known: true, keep: true };
+  const NEW_ART = {
+    bunny: 'icon_shirt', shop: 'icon_shop', crystals: 'icon_crystal', daily: 'icon_gift', mission: 'icon_scroll', free: 'icon_ad',
+    piggy: 'icon_piggy', pets: 'pet_0', clovers: 'icon_clover', adv: 'icon_map', buffs: 'icon_power', fly: 'fly_0_0', cave: 'icon_pickaxe', auto: 'icon_magnet',
+  };
+  for (const [k, at] of Object.entries(NEW)) TIPS['new_' + k] = { at, place: at.startsWith('#tab') ? 'above' : 'below', paw: true, known: true, keep: true, art: NEW_ART[k] };
   // The garden's tricksters (foes.js): a new trick, a boss's trick or a mini-event, the first time it turns up, with
   // its picture (art). Everyone gets these, an older save too: they are new to everyone.
   const FOES = {
@@ -3879,10 +3889,36 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   }
   // It was on screen: never again.
   function shown(s, id) { s.tut.seen = s.tut.seen || {}; s.tut.seen[key(id)] = 1; }
-  // How long a tip stays if nobody taps: time to read it, not a second more.
-  const duration = (text) => Math.max(4000, Math.min(8000, 2500 + String(text).length * 40));
 
-  return { TIPS, IDS, NEW, KEEP, seen, wanted, ask, next, shown, duration };
+  // ---------- the words ----------
+  // A tip's (or a coach mark's) words as pieces, [text, key]: the key word is marked *like this* in the string.
+  // A star with no partner stays a plain star.
+  function parts(text) {
+    const s = String(text), out = [], re = /\*([^*]+)\*/g;
+    let i = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > i) out.push([s.slice(i, m.index), false]);
+      out.push([m[1], true]);
+      i = re.lastIndex;
+    }
+    if (i < s.length) out.push([s.slice(i), false]);
+    return out;
+  }
+  // What the player reads (no marks), and how many words that is: a word has a letter or a digit in it (a dash or
+  // a colon standing alone is not one).
+  const plain = (text) => parts(text).map((p) => p[0]).join('');
+  const isWord = (w) => /\d/.test(w) || w.toLowerCase() !== w.toUpperCase();
+  const words = (text) => plain(text).split(/\s+/).filter(isWord).length;
+  // How long a tip stays if nobody taps: a moment to notice it and its picture, then about 250 ms a word (a casual
+  // reader on a phone), never so short it goes before it is read, never so long it hangs about. A word counts at
+  // least one per six letters, so the longer words of Ukrainian and Polish get their time too.
+  const READ = { base: 2500, word: 250, letters: 6, min: 3500, max: 6000 };
+  const duration = (text) => {
+    const n = Math.max(words(text), plain(text).length / READ.letters);
+    return Math.round(Math.max(READ.min, Math.min(READ.max, READ.base + n * READ.word)));
+  };
+
+  return { TIPS, IDS, NEW, KEEP, READ, seen, wanted, ask, next, shown, parts, plain, words, duration };
 });
 
 // ---- seeds.js
@@ -9877,6 +9913,16 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     cap.style.top = (above ? y - 10 : y + h + 10) + 'px';
     cap.classList.toggle('up', above);
   }
+  // A caption's words, its *key word* in gold (tips.parts): built as text nodes, so nothing in a string becomes markup.
+  function say(el, text) {
+    el.textContent = '';
+    for (const [w, key] of tips.parts(text)) {
+      if (!key) { el.appendChild(document.createTextNode(w)); continue; }
+      const b = document.createElement('b');
+      b.textContent = w;
+      el.appendChild(b);
+    }
+  }
 
   // ---------- coach mark ----------
   // A mark points at an element, or (VEG) at a veggie on the field: it follows one veggie, and the next when it pops.
@@ -9889,7 +9935,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const box = document.createElement('div');
     box.className = 'coach' + (sel === VEG ? ' veg' : '');
     box.innerHTML = `<div class="coach-hole"></div><div class="coach-cap ${place}"><span></span></div>${paw()}`;
-    box.querySelector('.coach-cap span').textContent = text;
+    say(box.querySelector('.coach-cap span'), text);
     document.getElementById('app').appendChild(box);
     mark = { el, box, id, until, sel, place, capAt, t0: performance.now(), outside: 0, timer: setInterval(place2, sel === VEG ? 150 : 400) };
     place2();
@@ -10032,10 +10078,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const text = t(TEXT[x.id] ? TEXT[x.id]() : 'tip.' + x.id, x.vars || undefined);
     const box = document.createElement('div');
     box.className = 'tip';
-    box.innerHTML = `<div class="tip-cap"><span></span></div>${T.paw ? paw() : ''}`;
-    box.querySelector('span').textContent = text;
-    // A newcomer on the field (a trick, an event) shows its picture beside the words.
-    if (T.art && art.has(T.art)) { box.querySelector('.tip-cap').classList.add('art'); box.querySelector('span').insertAdjacentHTML('afterbegin', art.tag(T.art, 'tip-art')); }
+    box.innerHTML = `<div class="tip-cap"><span><span class="tip-t"></span></span></div>${T.paw ? paw() : ''}`;
+    say(box.querySelector('.tip-t'), text);
+    // The picture of what it is about (a newcomer on the field, a crystal, the piggy) sits beside the words.
+    if (T.art && art.has(T.art)) { box.querySelector('.tip-cap').classList.add('art'); box.querySelector('.tip-cap > span').insertAdjacentHTML('afterbegin', art.tag(T.art, 'tip-art')); }
     document.getElementById('app').appendChild(box);
     tipUp = { ...x, box, t0: performance.now(), timer: setTimeout(() => closeTip(), tips.duration(text)) };
     placeTip(tipUp);
@@ -10313,6 +10359,14 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     showTip: (id, vars) => { closeTip(); showTip({ id, vars: vars || null }); },
     tipUp: () => tipUp && tipUp.id,
     clearTips: () => { tipQ.length = 0; closeTip(); },
+    // For tests and screenshots: every coach mark's words, and one of them on screen now, where its step points
+    // (the progress bar when that isn't there).
+    COACH: TRACK.map((x) => x[2]).concat('tut.freedraw', 'tut.merge', 'tut.equip'),
+    showCoach: (key) => {
+      const x = TRACK.find((r) => r[2] === key) || [];
+      const veg = x[1] === VEG && BB.engine.targets().some((v) => v.type === 'veg');
+      show(veg || (x[1] && x[1] !== VEG && $(x[1])) ? x[1] : '#progress', t(key), { ...(x[5] || {}), id: 'test' });
+    },
   };
 })(typeof self !== 'undefined' ? self : this);
 
