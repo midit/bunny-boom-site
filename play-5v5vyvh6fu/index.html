@@ -80,25 +80,44 @@ img.px, .px { image-rendering: pixelated; image-rendering: crisp-edges; flex: no
 .ellip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
 /* ---------- buttons: raised 9-slice keys with a lip ---------- */
+/* A key's colour says what it costs or does (docs/DESIGN_SYSTEM.md 5.1): green get / confirm / pay real money,
+   yellow spend crystals or start a fight, sky (blue) watch an ad, plum moonstones and rebirth, red lose something,
+   cream secondary. Grey is a state, never a role: .poor (can't afford yet: still a key, with a lip and a meter of
+   how close you are) and :disabled (flat, faded: not a key right now). */
+:root { --hit: 48px; }
 .btn { --b: var(--ui-btn-cream); --bon: var(--ui-btn-cream-on); --fg: var(--ink); --tsh: none;
-  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none;
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--s1); flex: none;
   min-height: 44px; min-width: 44px; padding: 0 var(--s1); box-sizing: border-box;
   border: calc(5 * var(--p)) solid transparent; border-image: var(--b) 5 fill / calc(5 * var(--p)); image-rendering: pixelated;
   font-size: var(--fs-m); line-height: 1; white-space: nowrap; color: var(--fg); text-shadow: var(--tsh); }
-.btn { transition: transform .14s var(--ease-out), filter .2s; }
+.btn { transition: transform .14s var(--ease-out); }
 .btn:active:not(:disabled) { border-image-source: var(--bon); transform: scale(.97); transition-duration: .05s; }
 .btn:active:not(:disabled) > * { transform: translateY(var(--p)); }
-.btn:disabled { --b: var(--ui-btn-grey); --fg: #efe7ef; --tsh: var(--sh1); cursor: default; }
-.btn:disabled .ico { filter: grayscale(.6); }
 a.btn { text-decoration: none; }
 .btn.green { --b: var(--ui-btn-green); --bon: var(--ui-btn-green-on); --fg: var(--white); --tsh: var(--sh1); }
 .btn.yellow { --b: var(--ui-btn-yellow); --bon: var(--ui-btn-yellow-on); }
 .btn.red { --b: var(--ui-btn-red); --bon: var(--ui-btn-red-on); --fg: var(--white); --tsh: var(--sh1); }
 .btn.sky { --b: var(--ui-btn-blue); --bon: var(--ui-btn-blue-on); --fg: var(--white); --tsh: var(--sh1); }
 .btn.berry, .btn.plum { --b: var(--ui-btn-purple); --bon: var(--ui-btn-purple-on); --fg: var(--white); --tsh: var(--sh1); }
+/* States come after the roles so they win over every colour (a disabled green key used to stay green). */
+.btn.poor { --b: var(--ui-btn-grey); --bon: var(--ui-btn-grey-on); --fg: var(--ink); --tsh: none; box-shadow: inset 0 calc(var(--p) * -2) 0 rgba(43, 26, 46, .28); }
+.btn:disabled, .btn[aria-disabled="true"] { --b: var(--ui-btn-grey-on); --bon: var(--ui-btn-grey-on); --fg: rgba(43, 26, 46, .55); --tsh: none; cursor: default; box-shadow: none; }
+.btn:disabled .ico { filter: grayscale(.6); }
+.btn:active:not(:disabled) > .meter { transform: translateY(var(--p)) scaleX(var(--k, 0)); }
+/* How close a saved-up key is: a strip along the bottom of the face (--k = have / cost, in tenths). */
+.btn .meter { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--p) * 2); background: var(--leaf); transform-origin: left; transform: scaleX(var(--k, 0)); pointer-events: none; }
+.btn:not(.poor) .meter, .btn:disabled .meter { display: none; }
+/* Every key takes a finger: drawn smaller than 48 px, an invisible layer makes up the difference (it grows evenly,
+   and never past the 48, so neighbours a gap apart don't share it). */
+.btn::before { content: ""; position: absolute; inset: min(0px, calc((100% - var(--hit)) / 2)); }
 .btn.sm { min-height: 40px; font-size: var(--fs-s); }
 .btn.big { min-height: 52px; font-size: var(--fs-l); padding: 0 var(--s3); }
 .btn.wide { display: flex; width: 100%; }
+/* A square key with one icon (the crystal +, a panel's close). */
+.btn.icon { width: 44px; min-width: 44px; padding: 0; }
+.btn.icon.sm { width: 40px; min-width: 40px; min-height: 40px; }
+.btn.icon .ico { width: 24px; height: 24px; }
+.btn.icon.sm .ico { width: 20px; height: 20px; }
 /* Two lines: a small label over the price. */
 .btn.tall { flex-direction: column; gap: 3px; min-height: 58px; }
 .btn .lbl { font-size: var(--fs-s); }
@@ -160,32 +179,44 @@ a.btn { text-decoration: none; }
 .pmeta { display: flex; justify-content: space-between; gap: var(--s2); font-size: var(--fs-xs); color: var(--ink2); font-variant-numeric: tabular-nums; }
 
 /* ---------- HUD ---------- */
-/* Wallet left, stage sign in the middle, menu rail right. The side bubbles hang from their HUD column and the boss
-   button from the whole HUD (top: 100%): bigger text or a taller wallet carries them along, no pixel offsets. */
-#hud { position: absolute; top: 0; left: 0; right: 0; z-index: 3; padding: calc(6px + var(--st)) var(--gr) 0 var(--gl); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s2); align-items: start; pointer-events: none; }
+/* Wallet left, stage sign in the middle, menu rail right: one dark board, one top line, one width for the sign and
+   its bar (docs/DESIGN_SYSTEM.md 8). The side bubbles hang from their HUD column and the boss button from the whole
+   HUD (top: 100%): bigger text or a taller wallet carries them along, no pixel offsets. */
+#hud { position: absolute; top: 0; left: 0; right: 0; z-index: 3; padding: calc(var(--st) + var(--s2)) var(--gr) 0 var(--gl); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s2); align-items: start; pointer-events: none; }
 #hud button { pointer-events: auto; }
 .hud-l, .hud-r { position: relative; }
-.res-board { border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 0 2px; display: flex; flex-direction: column; gap: 2px; min-width: 104px; }
-.res { display: grid; grid-template-columns: 24px minmax(0, 1fr) 24px; align-items: center; gap: var(--s1); height: 26px; color: var(--white); font-size: var(--fs-m); text-shadow: var(--sh1); font-variant-numeric: tabular-nums; }
+.res-board { border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 0 2px; display: flex; flex-direction: column; gap: 2px; min-width: 112px; box-sizing: border-box; }
+/* icon | number (left-aligned after the icon, so it grows to the right and never jumps) | the crystal + */
+.res { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: var(--s1); height: 28px; color: var(--white); font-size: var(--fs-m); text-shadow: var(--sh1); font-variant-numeric: tabular-nums; }
 .res .ri { display: grid; place-items: center; } .res .ico { width: 20px; height: 20px; }
-.res b { text-align: right; white-space: nowrap; }
-#res-coins { height: 30px; font-size: var(--fs-l); } #res-coins .ico { width: 24px; height: 24px; }
-#res-clovers { font-size: var(--fs-s); }
-.plus-btn { position: relative; width: 24px; height: 24px; display: grid; place-items: center; background: var(--leaf); box-shadow: var(--edge), inset 0 var(--p) 0 #9ae88a, inset 0 calc(var(--p) * -2) 0 var(--leaf-d); color: var(--white); text-shadow: var(--sh1); font-size: var(--fs-m); line-height: 1; }
-.plus-btn::after { content: ""; position: absolute; inset: -10px; }
+.res b { text-align: left; white-space: nowrap; }
+#res-coins { height: 32px; font-size: var(--fs-l); } #res-coins .ico { width: 24px; height: 24px; }
+#res-clovers { font-size: var(--fs-m); }
+/* The crystal +: a little green key (it opens the Shop), drawn with whole art pixels; a finger gets 48 px. */
+.plus-btn { position: relative; width: 32px; height: 32px; margin: -2px 0; display: grid; place-items: center; box-sizing: border-box; border: calc(5 * var(--p)) solid transparent; border-image: var(--ui-btn-green) 5 fill / calc(5 * var(--p)); image-rendering: pixelated; }
+.plus-btn:active { border-image-source: var(--ui-btn-green-on); }
+.plus-btn:active > .plus-ico { transform: translateY(var(--p)); }
+.plus-btn::after { content: ""; position: absolute; inset: min(0px, calc((100% - var(--hit)) / 2)); }
+.plus-ico { position: relative; isolation: isolate; width: calc(6 * var(--p)); height: calc(6 * var(--p)); margin-top: calc(var(--p) * -1); pointer-events: none; }
+.plus-ico::before, .plus-ico::after { content: ""; position: absolute; background: var(--white); box-shadow: 0 var(--p) 0 var(--ink); }
+.plus-ico::before { left: calc(2 * var(--p)); top: 0; width: calc(2 * var(--p)); height: 100%; }
+.plus-ico::after { z-index: -1; left: 0; top: calc(2 * var(--p)); width: 100%; height: calc(2 * var(--p)); }
 .res.bump b { animation: bump .3s var(--spring); }
 .sign-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--s1); min-width: 0; }
-.sign { border: calc(5 * var(--p)) solid transparent; border-image: var(--ui-sign) 5 fill / calc(5 * var(--p)); image-rendering: pixelated; padding: 0 var(--s3); text-align: center; max-width: 100%; box-sizing: border-box; min-width: 0; }
+.sign { width: 100%; max-width: 220px; border: calc(5 * var(--p)) solid transparent; border-image: var(--ui-sign) 5 fill / calc(5 * var(--p)); image-rendering: pixelated; padding: 0 var(--s3); text-align: center; box-sizing: border-box; min-width: 0; }
 .sign b { display: block; font-size: var(--fs-l); color: var(--white); text-shadow: var(--sh); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.progress { position: relative; width: 100%; max-width: 190px; height: 22px; box-sizing: border-box; border: calc(3 * var(--p)) solid transparent; border-image: var(--ui-bar) 3 fill / calc(3 * var(--p)); image-rendering: pixelated; }
-#progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--gold); box-shadow: inset 0 var(--p) 0 #fff3a8, inset 0 calc(var(--p) * -1) 0 #c98f1e; }
+/* The bar lives in a fixed 30-px slot: it grows from 22 to 30 px in a boss fight and the pips under it stay put. */
+.progress-slot { width: 100%; max-width: 220px; height: 30px; display: grid; align-items: center; }
+.progress { position: relative; width: 100%; max-width: none; height: 22px; box-sizing: border-box; border: calc(3 * var(--p)) solid transparent; border-image: var(--ui-bar) 3 fill / calc(3 * var(--p)); image-rendering: pixelated; }
+/* Filled by scaleX (--k = 0..1, set by ui.updateHud): no layout, no repaint of the bar. */
+#progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transform-origin: left; transform: scaleX(var(--k, 0)); background: var(--gold); box-shadow: inset 0 var(--p) 0 #fff3a8, inset 0 calc(var(--p) * -1) 0 #c98f1e; }
 .progress.boss #progress-fill { background: var(--red); box-shadow: inset 0 var(--p) 0 #ff9a8a, inset 0 calc(var(--p) * -1) 0 #9c2a26; }
 .progress.hp::before { content: ""; position: absolute; z-index: 1; left: calc(var(--p) * -6); top: 50%; width: 16px; height: 16px; transform: translateY(-50%); background: var(--ico-heart) center / contain no-repeat; image-rendering: pixelated; }
 /* In a boss fight the bar grows and carries the clock in big type; the last 10 s pulse red. */
 .progress.boss { height: 30px; }
 .progress.urgent::after { content: ""; position: absolute; inset: 0; background: #ff3a2a; opacity: 0; pointer-events: none; animation: fadepulse .8s var(--breathe) infinite; }
 .progress.boss #progress-label { font-size: var(--fs-m); }
-.progress.urgent #progress-label { color: #ffe07a; }
+.progress.urgent #progress-label { color: var(--gold-t, #ffe07a); }
 #progress-label { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); white-space: nowrap; }
 .pips { display: flex; gap: 6px; align-items: center; }
 .pips i { position: relative; width: 8px; height: 8px; background: #6d5a52; box-shadow: var(--edge); }
@@ -195,63 +226,64 @@ a.btn { text-decoration: none; }
 .pips i.cur { background: var(--white); }
 .pips i.cur::after { content: ""; position: absolute; inset: 0; background: var(--gold); opacity: 0; animation: fadepulse 1.6s var(--breathe) infinite; }
 @keyframes fadepulse { 50% { opacity: 1; } }
-/* Settings, quests and the gift share one quiet rail instead of three framed slots. */
-.hud-tools { display: flex; flex-direction: column; background: var(--dark); box-shadow: var(--edge), inset 0 var(--p) 0 rgba(255, 255, 255, .12); }
-/* Square pixel slots for HUD tools, bubbles and hotbar: drawn in CSS so they work at any size. */
-.tool, .bubble, .hb { position: relative; display: grid; place-items: center; box-sizing: border-box; background: #7a5a48; box-shadow: var(--edge), inset 0 0 0 var(--p) var(--wood), inset 0 0 0 calc(var(--p) * 2) var(--wood-d), inset 0 calc(var(--p) * 3) 0 calc(var(--p) * 2) #6a4c3c; }
-.tool.on, .bubble.active, .hb.on { background: #c08a52; box-shadow: var(--edge), inset 0 0 0 var(--p) #ffe07a, inset 0 0 0 calc(var(--p) * 2) #c98f1e, inset 0 calc(var(--p) * 3) 0 calc(var(--p) * 2) #a87442; }
-.tool { width: 40px; height: 40px; }
-.hud-tools .tool { background: none; box-shadow: none; }
+/* Settings, quests and the gift: one rail on the same dark board as the wallet. */
+.hud-tools { display: flex; flex-direction: column; border: calc(4 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; background: none; box-shadow: none; }
+/* Everything tapped at the field's edges sits in the generated ui_slot 9-slice (ui_slot_on, a gold rim, when on):
+   the bubbles, the hotbar tabs, Carrot Rain. The rail's tools sit straight on its board. */
+.tool, .bubble, .hb { position: relative; display: grid; place-items: center; box-sizing: border-box; background: none; box-shadow: none; }
+.bubble, #rain-btn { border: calc(4 * var(--p)) solid transparent; border-image: var(--ui-slot) 4 fill / calc(4 * var(--p)); image-rendering: pixelated; }
+.bubble.active, #rain-btn.ready { border-image-source: var(--ui-slot-on); }
+.tool { width: 44px; height: 44px; }
 .tool .ico { width: 24px; height: 24px; }
+.hud-tools .tool:active { background: rgba(255, 248, 236, .1); }
 .tool:active, .hb:active, .bubble:active { transform: translateY(var(--p)); }
-/* "Something free is waiting": a still red corner (a screen full of hopping dots was noise). */
-.dot { position: absolute; top: -5px; right: -5px; width: 10px; height: 10px; background: var(--red); box-shadow: var(--edge), inset var(--p) var(--p) 0 #ff9a8a; display: none; }
-.note > .dot { display: block; }
-.hud-tools .dot { top: 4px; right: 4px; width: 8px; height: 8px; }
+.tool::after, .bubble::after { content: ""; position: absolute; inset: min(0px, calc((100% - var(--hit)) / 2)); }
 @keyframes hop { 50% { transform: translateY(calc(var(--p) * -1.5)); } }
-#boss-btn { position: absolute; z-index: 1; left: 50%; transform: translateX(-50%); top: calc(100% + var(--s2)); font-size: var(--fs-m); padding: 0 var(--s3); }
+/* Under the HUD, only while farming after a lost boss: a yellow key (start a fight) with a sword. */
+#boss-btn { position: absolute; z-index: 1; left: 50%; transform: translateX(-50%); top: calc(100% + var(--s2)); min-height: 44px; font-size: var(--fs-m); padding: 0 var(--s3); }
+#boss-btn .ico { width: 20px; height: 20px; }
 #boss-btn.pulse { animation: pulse 1.2s var(--breathe) infinite; }
 @keyframes pulse { 50% { transform: translateX(-50%) translateY(calc(var(--p) * -2)); } }
 
 /* ---------- side bubbles: icons only (the name is the aria-label), each one there only while it matters ---------- */
-/* Left, under the wallet: buffs, free crystals, auto. Right, under the rail: one offer at a time, never a price tag. */
+/* Left, under the wallet: buffs, free crystals, auto. Right, under the rail: one offer at a time, never a price tag.
+   48 px slots, edge to edge with the board above them. */
 #bubbles, #bubbles-r { position: absolute; left: 0; top: calc(100% + var(--s3)); display: flex; flex-direction: column; gap: var(--s2); }
 #bubbles-r { left: auto; right: 0; }
 .in-sheet #bubbles-r { visibility: hidden; }
-.bubble { width: 44px; height: 44px; }
+.bubble { width: 48px; height: 48px; }
 .bubble .ico { width: 28px; height: 28px; }
 .bubble.locked > .ico { filter: saturate(.25) brightness(.8); }
-.lockmark { position: absolute; top: -8px; left: -8px; display: none; }
+.lockmark { position: absolute; display: none; line-height: 0; }
 .bubble.locked .lockmark { display: block; }
 
 /* ---------- bottom: upgrades drawer + hotbar ---------- */
-#bottom-ui { position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; padding: 0 var(--gr) calc(6px + var(--sb)) var(--gl); display: flex; flex-direction: column; gap: var(--s1); }
+#bottom-ui { position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; padding: 0 var(--gr) calc(var(--s2) + var(--sb)) var(--gl); display: flex; flex-direction: column; gap: var(--s1); }
 #drawer { position: relative; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-wood) 6 fill / calc(5 * var(--p)); image-rendering: pixelated; padding: 0 2px 2px; display: flex; flex-direction: column; gap: var(--s1); }
 .in-sheet #drawer { visibility: hidden; }
-.drawer-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); height: 28px; }
-.drawer-top b { font-size: var(--fs-m); color: var(--wood-d); white-space: nowrap; }
-/* x1 / x10 / MAX: a three-way switch */
-.mults { display: flex; box-shadow: var(--edge); }
-.mults button { min-width: 44px; height: 26px; padding: 0 var(--s2); font-size: var(--fs-s); background: var(--parch2); color: var(--ink2); box-shadow: inset 0 var(--p) 0 var(--parch4); }
-.mults button + button { box-shadow: inset 0 var(--p) 0 var(--parch4), calc(var(--p) * -1) 0 0 var(--ink); }
-.mults button.on { background: var(--gold); color: var(--ink); box-shadow: inset 0 calc(var(--p) * -2) 0 #c98f1e, calc(var(--p) * -1) 0 0 var(--ink); }
-.mults button:first-child.on { box-shadow: inset 0 calc(var(--p) * -2) 0 #c98f1e; }
-/* icon | name + numbers | price */
-.up-row { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr) 104px; align-items: center; gap: var(--s2); min-height: 48px; padding: 2px var(--s1) 2px var(--s2); box-sizing: border-box; background: var(--parch3); box-shadow: var(--edge), var(--bevel); text-align: left; touch-action: none; }
+/* "Upgrades" left, x1 / x10 / MAX (the one segmented control, .seg.sm) right. */
+.drawer-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); height: 36px; }
+.drawer-top b { font-size: var(--fs-m); color: var(--wood-d); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+/* icon | name, level + numbers | price */
+.up-row { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) 112px; align-items: center; gap: var(--s2); min-height: 52px; padding: var(--s1) var(--s1) var(--s1) var(--s2); box-sizing: border-box; background: var(--parch3); box-shadow: var(--edge), var(--bevel); text-align: left; touch-action: none; }
 .up-row:active { background: var(--parch2); }
+/* The whole row is the button: pressing it presses its price key too. */
+.up-row:active .up-cost { border-image-source: var(--bon); }
+.up-row:active .up-cost > .cost { transform: translateY(var(--p)); }
 .up-ico { position: relative; display: grid; place-items: center; }
 .up-ico .ico { width: 32px; height: 32px; }
 .up-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.up-head { display: flex; align-items: center; gap: var(--s1); min-width: 0; }
+.up-head { display: flex; align-items: baseline; gap: var(--s2); min-width: 0; }
 .up-name { font-size: var(--fs-m); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.lv { flex: none; font-style: normal; font-size: var(--fs-xs); line-height: 1; padding: 2px 4px; background: var(--dark); color: var(--white); text-shadow: var(--sh1); box-shadow: var(--edge); }
-.up-stat { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--fs-s); color: var(--wood-d); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow: hidden; }
-.up-next { color: var(--leaf-d); }
-.up-row.poor .up-next { color: var(--ink3); }
+/* The level is words after the name ("Lv.12"), not a box. */
+.lv { flex: none; font-style: normal; font-size: var(--fs-s); line-height: 1; color: var(--ink2); white-space: nowrap; }
+.up-stat { display: flex; align-items: baseline; gap: var(--s2); font-size: var(--fs-s); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 0; overflow: hidden; }
+.up-next { font-style: normal; color: var(--leaf-t, #2f7a2f); }
+.up-row.poor .up-next { color: var(--ink2); }
+/* The price key: green (coins buy it); grey with its lip and a meter while you save up (.btn.poor). */
 .up-cost { width: 100%; min-height: 44px; font-size: var(--fs-m); padding: 0 2px; }
-.up-cost .cost { gap: 4px; }
+.up-cost .cost { gap: var(--s1); }
 .up-cost .badge { top: -10px; right: -6px; background: var(--plum-d); }
-.up-row.poor .up-cost { --b: var(--ui-btn-grey); --fg: #f1e9f1; }
 .up-row.afford .up-cost { animation: afford .9s var(--breathe) 1; }
 @keyframes afford { 40% { transform: scale(1.04); } }
 @keyframes afford-shine { 40% { opacity: .22; } }
@@ -259,26 +291,31 @@ a.btn { text-decoration: none; }
 @keyframes nope { 33% { transform: translateX(calc(var(--p) * -2)); } 66% { transform: translateX(calc(var(--p) * 2)); } }
 .up-row.bump .up-stat b { animation: bump .3s var(--spring); display: inline-block; }
 @keyframes bump { 40% { transform: translateY(calc(var(--p) * -2)) scale(1.12); } }
-/* Only the tabs already reached, as a centred group; each is as wide as its word needs (a sixth of the bar, up to
-   half again when there is room), so "Upgrade" or "Мандри" fit from 360 px up. */
-#hotbar { display: flex; justify-content: center; gap: var(--s1); padding: var(--s1); border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; }
-.hb { flex: 1 1 auto; max-width: calc((100% - 5 * var(--s1)) / 4); height: 54px; min-width: 0; grid-template-rows: 1fr auto; padding: 6px 2px 5px; gap: 1px; }
-.hb .ico { width: 26px; height: 26px; }
+/* The hotbar: square slots on the dark board, our own block-slot bar. Only the tabs already reached show, as a
+   centred group; every tab is the same width (up to 72 px) with its label under the slot. The lit slot is the panel
+   on screen. */
+#hotbar { display: flex; justify-content: center; gap: 0; padding: var(--s1) 0 0; border: calc(4 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; }
+.hb { flex: 1 1 0; max-width: 72px; min-width: 0; height: 62px; grid-template-rows: 44px auto; place-items: center; align-content: start; row-gap: 1px; padding: 0; isolation: isolate; }
+.hb::after { content: ""; position: absolute; z-index: -1; top: 0; left: 50%; width: min(44px, 100%); height: 44px; transform: translateX(-50%); box-sizing: border-box; border: calc(4 * var(--p)) solid transparent; border-image: var(--ui-slot) 4 fill / calc(4 * var(--p)); image-rendering: pixelated; pointer-events: none; }
+.hb.on::after { border-image-source: var(--ui-slot-on); }
+.hb .ico { width: 28px; height: 28px; }
 .hb .ico.wide { width: 40px; height: 22px; }
 .hb span { font-size: var(--fs-xs); color: var(--white); text-shadow: var(--sh1); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; line-height: 1; }
-.hb.on span { color: #ffe07a; }
+.hb.on span { color: var(--gold-t, #ffe07a); }
 .hb > .ico, .hb > img { transition: transform .3s var(--spring); }
 .hb.on > .ico, .hb.on > img { transform: translateY(-2px) scale(1.08); }
-.hb.glow { isolation: isolate; }
-.hb.glow::before { content: ""; position: absolute; inset: 0; z-index: -1; background: #d39a60; opacity: 0; pointer-events: none; animation: fadepulse 1.6s var(--breathe) infinite; }
+/* "Rebirth is worth it": a gold ring that breathes around the slot (opacity only). */
+.hb.glow::before { content: ""; position: absolute; z-index: -2; top: 0; left: 50%; width: min(44px, 100%); height: 44px; transform: translateX(-50%); box-shadow: 0 0 0 calc(var(--p) * 2) #ffd23f; opacity: 0; pointer-events: none; animation: fadepulse 1.6s var(--breathe) infinite; }
 .in-mode #bottom-ui, .in-mode #hud { visibility: hidden; }
 
 /* ---------- mode HUD ---------- */
-#mode-hud { position: absolute; z-index: 4; top: calc(8px + var(--st)); left: var(--gl); right: var(--gr); border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 2px var(--s1) var(--s1); color: var(--white); }
+#mode-hud { position: absolute; z-index: 4; top: calc(var(--st) + var(--s2)); left: var(--gl); right: var(--gr); border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 2px var(--s1) var(--s1); color: var(--white); }
 .mode-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); font-size: var(--fs-m); text-shadow: var(--sh1); }
 .mode-top b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mode-top .btn { padding: 0 var(--s2); }
 .mode-track { position: relative; height: 24px; margin-top: var(--s2); border: calc(3 * var(--p)) solid transparent; border-image: var(--ui-bar) 3 fill / calc(3 * var(--p)); image-rendering: pixelated; }
-#mode-fill { position: absolute; inset: 0 auto 0 0; background: var(--gold); width: 100%; box-shadow: inset 0 var(--p) 0 #fff3a8; }
+/* The clock drains by scaleX (--k = time left / total, set by ui.updateModeHud). */
+#mode-fill { position: absolute; inset: 0 auto 0 0; width: 100%; transform-origin: left; transform: scaleX(var(--k, 1)); background: var(--gold); box-shadow: inset 0 var(--p) 0 #fff3a8; }
 #mode-time { position: absolute; inset: 0; display: grid; place-items: center; font-size: var(--fs-xs); text-shadow: var(--sh1); font-variant-numeric: tabular-nums; }
 .mode-progress { text-align: center; font-size: var(--fs-xl); margin-top: var(--s1); text-shadow: var(--sh); }
 
@@ -568,20 +605,30 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .lang-dlg .muted { font-size: var(--fs-s); }
 
 /* ---------- small and short screens ---------- */
-/* Narrow Androids (360-389 px): the sign a step smaller, so "Farming 300-4" fits beside the wallet and the rail. */
-@media (max-width: 389px) {
+/* Narrow Androids (360-400 px): the sign a step smaller, so "Farming 300-4" fits beside the wallet and the rail. */
+@media (max-width: 400px) {
   .sign b { font-size: var(--fs-m); }
-  .sign { padding: 0 var(--s2); }
+  .sign { padding: 0 var(--s1); }
+}
+/* Under 380 px the hotbar runs edge to edge, so six slots keep their words ("Adventure" fits at 360). */
+@media (max-width: 379px) {
+  #hotbar { margin: 0 calc(var(--gr) * -1) 0 calc(var(--gl) * -1); }
 }
 @media (max-width: 359px) {
   .seg-btn { font-size: var(--fs-xs); padding: 0 2px; }
   .sign b { font-size: var(--fs-s); }
-  .sign { padding: 0 var(--s1); }
-  .res { font-size: var(--fs-s); } #res-coins { font-size: var(--fs-m); } #res-clovers { font-size: var(--fs-xs); }
+  .sign { padding: 0 2px; }
+  #hud { column-gap: var(--s1); }
+  .res { gap: 2px; font-size: var(--fs-s); } #res-coins { font-size: var(--fs-m); } #res-clovers { font-size: var(--fs-s); }
+  .res-board { min-width: 0; }
+  .tool { width: 40px; height: 40px; }
+  /* Six slots and no room for six words: the lit slot is the label. */
   .hb span { display: none; }
-  .hb { grid-template-rows: 1fr; }
-  .up-row { grid-template-columns: 30px minmax(0, 1fr) 92px; gap: var(--s1); }
-  .up-ico .ico { width: 26px; height: 26px; }
+  .hb { height: 48px; grid-template-rows: 48px; }
+  .hb::after, .hb.glow::before { top: 2px; }
+  #boss-btn { padding: 0 var(--s2); }
+  .up-row { grid-template-columns: 36px minmax(0, 1fr) 96px; gap: var(--s1); }
+  .up-ico .ico { width: 28px; height: 28px; }
   .gems { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .row { gap: var(--s2); }
   .row-act .btn { min-width: 64px; }
@@ -589,8 +636,16 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
   .draw-result { grid-template-columns: repeat(4, 52px); }
   .draw-result .tile { width: 52px; }
 }
+/* Up to 700 px tall the tool rail (taller than the wallet) stops pushing the field down: it hangs over the field's
+   right edge like the bubbles, and the offer bubble hangs under it. */
+@media (max-height: 700px) {
+  .hud-r { display: flex; flex-direction: column; align-items: flex-end; height: 0; }
+  #bubbles-r { position: static; margin-top: var(--s3); }
+}
 @media (max-height: 660px) {
-  #bubbles, #bubbles-r { top: calc(100% + var(--s2)); gap: 6px; }
+  #bubbles, #bubbles-r { gap: 6px; }
+  #bubbles { top: calc(100% + var(--s2)); }
+  #bubbles-r { margin-top: var(--s2); }
   .bubble { width: 40px; height: 40px; }
   .bubble .ico { width: 24px; height: 24px; }
 }
@@ -598,9 +653,49 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 @media (max-height: 600px) {
   #bubbles, #bubbles-r { gap: 4px; }
   .bubble { width: 36px; height: 36px; }
+  .drawer-top { height: 32px; }
   .up-row { min-height: 44px; }
   .up-name { font-size: var(--fs-s); }
   .up-stat { font-size: var(--fs-xs); }
+}
+/* Short windows (Android split screen, a phone's browser held sideways): the field needs every row. The wallet and
+   the sign a step tighter; the upgrades become one row of three keys (the icon says which; the price key, its colour
+   and its meter say the rest) under a slimmer x1 / x10 / MAX; the hotbar keeps its slots and drops the words. */
+@media (max-height: 560px) {
+  #hud { padding-top: calc(var(--st) + 2px); }
+  .res { height: 22px; } #res-coins { height: 26px; }
+  .sign b { font-size: var(--fs-m); }
+  .sign { padding: 0 var(--s2); }
+  .progress-slot { height: 26px; }
+  #bottom-ui { gap: 2px; padding-bottom: calc(var(--s1) + var(--sb)); }
+  #drawer { flex-flow: row wrap; gap: 2px var(--s1); }
+  .drawer-top { flex: 1 0 100%; height: 28px; }
+  .seg.sm > button, #drawer .mults > button { height: 28px; }
+  .seg.sm > button::after, #drawer .mults > button::after { top: -20px; }
+  .up-row { flex: 1 1 0; min-width: 0; grid-template-columns: 24px minmax(0, 1fr); gap: 2px; min-height: 48px; padding: 2px; }
+  .up-ico .ico { width: 24px; height: 24px; }
+  .up-info { display: none; }
+  .up-cost { padding: 0; }
+  .up-cost .cost > .ico { display: none; }
+  #hotbar { padding-top: 0; }
+  .hb span { display: none; }
+  .hb { height: 48px; grid-template-rows: 48px; }
+  .hb::after, .hb.glow::before { top: 2px; }
+  /* The boosts go side by side under the wallet; Carrot Rain is a plain 48-px slot. */
+  #bubbles { flex-direction: row; }
+  #rain-btn { width: 48px; height: 48px; }
+  #rain-btn .rain-lbl { display: none; }
+  #rain-name { bottom: calc(100% + 60px); }
+}
+/* A window wider than it is tall (a desktop browser, a phone held sideways): the game stays a portrait column in the
+   middle, as wide as the height leaves room for, so the field keeps its depth and the bunny never sits under the HUD
+   (the world is 160 art pixels across whatever the width). */
+@media (min-aspect-ratio: 1/1) {
+  body { background: #4f7a3c; }
+  #app { width: clamp(360px, (100vh - 456px) * 3.5, 480px); margin: 0 auto; box-shadow: 0 0 0 var(--p) var(--ink); }
+}
+@media (min-aspect-ratio: 1/1) and (max-height: 560px) {
+  #app { width: clamp(360px, (100vh - 274px) * 3.5, 480px); }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
@@ -642,13 +737,14 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 @media (max-width: 359px) { .segs.n4 { display: grid; grid-template-columns: 1fr 1fr; } }
 
 /* ---------- Carrot Rain button: fills from the bottom, glows when full ---------- */
-#rain-btn { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 8px); width: 56px; height: 52px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+/* A ui_slot like the bubbles (ui_slot_on when ready); the meter fills by scaleY (--fill, set by ui.updateHud). */
+#rain-btn { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 8px); width: 56px; height: 60px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
 #rain-btn .ico { position: relative; z-index: 1; width: 28px; height: 28px; }
 /* The meter in words: how full it is, then what to do. */
 #rain-btn .rain-lbl { position: relative; z-index: 1; font-style: normal; font-size: var(--fs-xs); line-height: 1; color: var(--white); text-shadow: var(--sh1); white-space: nowrap; }
-#rain-btn.ready .rain-lbl { color: #ffe07a; }
-#rain-name { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 64px); pointer-events: none; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 0 var(--s1); font-size: var(--fs-s); line-height: 1.4; color: #ffe07a; text-shadow: var(--sh1); white-space: nowrap; animation: tin .38s var(--spring); }
-#rain-btn .rain-fill { position: absolute; left: calc(var(--p) * 2); right: calc(var(--p) * 2); bottom: calc(var(--p) * 2); height: 0; background: rgba(255, 168, 64, .55); transition: height .4s var(--ease-out); }
+#rain-btn.ready .rain-lbl { color: var(--gold-t, #ffe07a); }
+#rain-name { position: absolute; z-index: 2; right: var(--gr); bottom: calc(100% + 72px); pointer-events: none; border: calc(6 * var(--p)) solid transparent; border-image: var(--ui-dark) 6 fill / calc(4 * var(--p)); image-rendering: pixelated; padding: 0 var(--s1); font-size: var(--fs-s); line-height: 1.4; color: var(--gold-t, #ffe07a); text-shadow: var(--sh1); white-space: nowrap; animation: tin .38s var(--spring); }
+#rain-btn .rain-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; transform-origin: bottom; transform: scaleY(var(--fill, 0)); background: rgba(255, 168, 64, .55); transition: transform .4s var(--ease-out); }
 #rain-btn:not(.ready) .ico { filter: saturate(.5) brightness(.85); }
 #rain-btn.ready { animation: rainready 1.4s var(--breathe) infinite; }
 #rain-btn.ready .rain-fill { background: rgba(255, 196, 80, .8); }
@@ -659,7 +755,50 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 #rain-btn.nope { animation: nope .28s var(--ease-out); }
 .in-mode #rain-btn, .in-sheet #rain-btn, .in-mode #rain-name, .in-sheet #rain-name { visibility: hidden; }
 /* The shortest phones have no room under the right-hand bubbles: the button moves one column in. */
-@media (max-height: 599px) { #rain-btn, #rain-name { right: calc(var(--gr) + 54px); } }
+@media (max-height: 599px) { #rain-btn, #rain-name { right: calc(var(--gr) + 56px); } }
+
+/* ---------- controls (B): one segmented control, one switch, links, chips and timers, markers ---------- */
+/* .seg: joined keys for one choice out of a few (x1 / x10 / MAX, the language, the album's groups). The picked key
+   wears the yellow key's face, the others sit back on parchment; a 1-art-px ink line between them. 36 px tall (.sm
+   32) to the eye and 48 to a finger: the .sm one grows upwards only, into the empty band above it, never into the
+   rows under it. (.mults is the old class name: the same look until every template says .seg.) */
+.seg { display: inline-flex; flex: none; gap: 0; }
+.mults:not(.album-groups) { display: flex; }
+.seg, .mults { box-shadow: var(--edge); background: var(--ink); }
+.seg > button, .mults > button { position: relative; min-width: 48px; height: 36px; padding: 0 var(--s2); box-sizing: border-box; border: 0; border-image: none; background: var(--parch2); color: var(--ink2); font-size: var(--fs-s); line-height: 1; white-space: nowrap; text-shadow: none; box-shadow: inset 0 var(--p) 0 var(--parch4), inset 0 calc(var(--p) * -1) 0 rgba(43, 26, 46, .14); }
+.seg > button + button, .mults > button + button { margin-left: var(--p); }
+.seg > button.on, .mults > button.on { background: var(--gold); color: var(--ink); box-shadow: inset 0 var(--p) 0 #ffe9a0, inset 0 calc(var(--p) * -2) 0 #c98f1e; }
+.seg > button:active:not(.on), .mults > button:active:not(.on) { background: var(--parch); box-shadow: inset 0 var(--p) 0 rgba(43, 26, 46, .22); }
+.seg > button::after, .mults > button::after { content: ""; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
+.seg.sm > button, #drawer .mults > button { height: 32px; }
+.seg.sm > button::after, #drawer .mults > button::after { top: -16px; bottom: 0; }
+/* .switch: the one on/off control. Track 52 x 28, knob 20 x 20, no words on it (its row says what it is); the whole
+   label is the target. */
+.switch { position: relative; display: inline-flex; align-items: center; gap: var(--s2); min-height: var(--hit); font-size: var(--fs-s); cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.switch span { position: relative; flex: none; width: 52px; height: 28px; box-sizing: border-box; background: #a8a0a8; box-shadow: var(--edge), inset 0 var(--p) 0 rgba(43, 26, 46, .25); }
+.switch span::after { content: ""; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; background: var(--white); box-shadow: var(--edge), inset 0 calc(var(--p) * -1) 0 var(--parch2); }
+.switch input:checked + span { background: var(--leaf); }
+.switch input:checked + span::after { left: 4px; transform: translateX(24px); }
+.switch input:focus-visible + span { outline: var(--p) dashed var(--gold); outline-offset: var(--p); }
+.switch.off { opacity: .55; }
+/* .link: quiet words that open something (Odds, the privacy policy), never the main action; 48 px to a finger. */
+.link { position: relative; display: inline-block; padding: var(--s1); color: var(--ink2); font-size: var(--fs-s); line-height: 1.2; text-decoration: underline; text-underline-offset: 2px; }
+.link::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, var(--hit)); height: var(--hit); transform: translate(-50%, -50%); }
+/* Money you have and clocks: small dark boards, 32 px. */
+.chip, .timer { display: inline-flex; align-items: center; justify-content: center; gap: var(--s1); min-height: 32px; padding: 0 var(--s2); box-sizing: border-box; vertical-align: middle; }
+.timer.big { min-height: 40px; padding: 0 var(--s3); }
+/* Markers. A count or level on a corner; it may sit on the edge. */
+.badge { min-width: 20px; min-height: 20px; box-sizing: border-box; display: inline-grid; place-items: center; }
+/* "Something free is waiting": a still red square inside its slot's top-right corner (never past its board). */
+.dot { position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; background: var(--red); box-shadow: var(--edge), inset var(--p) var(--p) 0 #ff9a8a; display: none; pointer-events: none; }
+.note > .dot { display: block; }
+.hud-tools .dot, .tabs .dot { top: 4px; right: 4px; }
+.hb .dot { top: 4px; right: calc(50% - min(22px, 50%) + 4px); }
+/* NEW on a hotbar tab: gold, at its slot's corner, inside the board. */
+.hb .newtag { top: -6px; right: calc(50% - min(22px, 50%) - 6px); padding: 2px 3px; background: #ffd23f; color: var(--ink); font-size: var(--fs-xs); line-height: 1; text-shadow: none; box-shadow: var(--edge); }
+/* Locked: the padlock inside the slot's bottom-right corner. */
+.lockmark { top: auto; left: auto; right: var(--p); bottom: var(--p); }
 
 /* ---------- toasts: one at a time, on one line, never on the upgrades or a panel title ---------- */
 /* Over the field a toast floats just above the upgrades (--bottom-h is measured in ui.layout()); in a panel or a
@@ -669,25 +808,21 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
 .toast { display: block; box-sizing: border-box; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .toast > * { vertical-align: middle; }
 
-/* ---------- hit areas: at least 44 px everywhere ---------- */
-/* Where a key is drawn smaller than 44 px, an invisible pseudo-element extends what a finger can hit
-   (like .plus-btn). Neighbours never share the extra: it grows away from them. */
+/* ---------- hit areas: at least 48 px everywhere ---------- */
+/* Where a control is drawn smaller than 48 px, an invisible pseudo-element extends what a finger can hit (.btn,
+   .tool, .bubble and .plus-btn above, .seg, .switch and .link in the controls). It grows evenly up to 48 px and no
+   further, so neighbours a gap apart don't share it. test/ui.e2e.js (hitAreas) checks it. */
 .x { position: relative; }
-.x::after { content: ""; position: absolute; inset: calc(-5 * var(--p) - 2px); }
-.tool::after, .bubble::after { content: ""; position: absolute; inset: -3px; }
-.hb::before { content: ""; position: absolute; left: 0; right: 0; top: -2px; bottom: -2px; }
+.x::after { content: ""; position: absolute; inset: min(0px, calc((100% - var(--hit)) / 2)); }
 /* Sub-tabs clip their text (an ellipsis), which would clip an ::after too: they are simply 44 px tall. */
 .seg-btn { height: 44px; }
-.toggle, .seg button, .link, .mults button { position: relative; }
-.toggle::after, .seg button::after { content: ""; position: absolute; inset: calc(-5 * var(--p) - 4px) calc(-5 * var(--p)); }
-#drawer .mults button::after { content: ""; position: absolute; left: 0; right: 0; top: -18px; bottom: 0; }
-.album-groups button::after { content: ""; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
-.link::after { content: ""; position: absolute; inset: -11px 0; }
+.toggle { position: relative; }
+.toggle::after { content: ""; position: absolute; inset: calc(-5 * var(--p) - 6px) calc(-5 * var(--p)); }
 
 /* ---------- side bubbles on short phones (ui.fitBubbles) ---------- */
-#bubbles.tight, #bubbles-r.tight { gap: 8px; }
+#bubbles.tight, #bubbles-r.tight { gap: 4px; }
 .tight .bubble span { display: none; }
-.tiny .bubble { width: 40px; height: 40px; }
+.tiny .bubble { width: 36px; height: 36px; }
 .tiny .bubble .ico { width: 24px; height: 24px; }
 
 /* ---------- gacha: Merge all / Equip best in the top row beside the wallet, the odds in the sticky draw bar ---------- */
@@ -718,14 +853,14 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
     <div class="hud-l">
       <div class="res-board">
         <div class="res" id="res-coins"><span class="ri"></span><b>0</b></div>
-        <div class="res" id="res-crystals"><span class="ri"></span><b>0</b><button class="plus-btn" data-act="shop" data-ta="btn.shop" aria-label="Shop">+</button></div>
+        <div class="res" id="res-crystals"><span class="ri"></span><b>0</b><button class="plus-btn" data-act="shop" data-ta="btn.shop" aria-label="Shop"><i class="plus-ico"></i></button></div>
         <div class="res" id="res-clovers"><span class="ri"></span><b>0</b></div>
       </div>
       <aside id="bubbles" aria-label="Bonuses"></aside>
     </div>
     <div class="sign-wrap">
       <div class="sign"><b id="stage-label">World 1-1</b></div>
-      <div class="progress" id="progress"><div id="progress-fill"></div><span id="progress-label"></span></div>
+      <div class="progress-slot"><div class="progress" id="progress"><div id="progress-fill"></div><span id="progress-label"></span></div></div>
       <div class="pips" aria-hidden="true"><i id="dot1"></i><i id="dot2"></i><i id="dot3"></i><i id="dot4"></i><i id="dot5" class="boss"></i></div>
     </div>
     <div class="hud-r">
@@ -736,11 +871,11 @@ textarea { width: 100%; margin-top: var(--s2); resize: none; }
       </div>
       <aside id="bubbles-r" aria-label="Offers"></aside>
     </div>
-    <button id="boss-btn" class="btn yellow" data-act="boss" hidden data-t="boss.challenge">Challenge Boss</button>
+    <button id="boss-btn" class="btn yellow" data-act="boss" hidden><span class="bico"></span><span id="boss-lbl" data-t="boss.challenge">Challenge Boss</span></button>
   </header>
   <div id="banner" class="banner" aria-live="polite"></div>
   <div id="mode-hud" hidden>
-    <div class="mode-top"><b id="mode-title"></b><button class="btn sm red" data-act="exitmode" data-t="exit">Exit</button></div>
+    <div class="mode-top"><b id="mode-title"></b><button class="btn sm red" data-act="exitmode"><span class="bico"></span><span data-t="exit">Exit</span></button></div>
     <div class="mode-track"><div id="mode-fill"></div><span id="mode-time"></span></div>
     <div id="mode-progress" class="mode-progress"></div>
   </div>
@@ -6367,6 +6502,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     $('#btn-settings').innerHTML = ico('gear');
     $('#btn-mission').innerHTML = ico('scroll') + '<i class="dot"></i>';
     $('#btn-daily').innerHTML = ico('gift') + '<i class="dot"></i>';
+    // Icons beside words that relabel() rewrites: they live in a sibling span of their own.
+    $('#boss-btn .bico').innerHTML = ico('sword', 'ico sm');
+    $('#mode-hud .bico').innerHTML = ico('close', 'ico sm');
     $('#rain-btn').insertAdjacentHTML('beforeend', ico('carrot') + '<i class="rain-lbl"></i>');
     $('#rain-btn').insertAdjacentHTML('afterend', '<span id="rain-name" data-t="rain.name" hidden></span>');
     $('#rain-btn').onclick = (e) => { e.stopPropagation(); BB.sound.unlock(); if (BB.engine.useRain()) { restart($('#rain-btn'), 'fire'); if (BB.tutorial) BB.tutorial.event('rain'); } else { BB.sound.play('bonk'); restart($('#rain-btn'), 'nope'); } };
@@ -6379,9 +6517,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const bubble = ([id, icon, label]) => (id === 'offer' ? '<button class="bubble" id="bb-offer" data-act="offer" hidden></button>' : `<button class="bubble" id="bb-${id}" data-act="${id}" data-ta="${label}" aria-label="${esc(t(label))}">${id === 'starter' ? spr('pet_3', 'ico') : ico(icon)}<i class="dot"></i><i class="lockmark">${ico('lock', 'ico xs')}</i></button>`);
     $('#bubbles').innerHTML = BUBBLES.map(bubble).join('');
     $('#bubbles-r').innerHTML = BUBBLES_R.map(bubble).join('');
+    // A panel opened from the HUD rail is not one of the hotbar's tabs: no slot is lit while it is open.
+    const fromRail = (open) => () => { open(); if (sheet) setTab(null); };
     bind($('#app'), {
       free: () => freeCrystals(), auto: () => toggleAuto(), buffs: () => openBunny('buffs'), offer: () => tapOffer(),
-      settings: () => openSettings(), mission: () => openMission(), daily: () => openDaily(), shop: () => openShop(),
+      settings: fromRail(() => openSettings()), mission: fromRail(() => openMission()), daily: fromRail(() => openDaily()), shop: () => openShop(),
       boss: () => { BB.engine.challengeBoss(); }, exitmode: () => exitModeConfirm(),
     });
     document.querySelectorAll('#hotbar .hb').forEach((b) => {
@@ -6443,11 +6583,11 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   const UPS = [['power', 'power'], ['speed', 'speed'], ['money', 'money']];
   function buildUpgrades() {
     const el = $('#drawer');
-    el.innerHTML = `<div class="drawer-top"><b>${t('up.title')}</b><div class="mults" role="radiogroup" aria-label="${t('up.title')}">${[1, 10, 'max'].map((m) => `<button data-mult="${m}">${m === 'max' ? t('buy.max') : 'x' + m}</button>`).join('')}</div></div>
+    el.innerHTML = `<div class="drawer-top"><b>${t('up.title')}</b><div class="seg sm" role="radiogroup" aria-label="${t('up.title')}">${[1, 10, 'max'].map((m) => `<button role="radio" data-mult="${m}">${m === 'max' ? t('buy.max') : 'x' + m}</button>`).join('')}</div></div>
       ${UPS.map(([k, icon]) => `<button class="up-row" id="up-${k}" data-up="${k}">
         <span class="up-ico">${ico(icon)}</span>
         <span class="up-info"><span class="up-head"><b class="up-name">${t('up.' + k)}</b><i class="lv up-lv"></i></span><span class="up-stat"><b class="up-val"></b><i class="up-next"></i></span></span>
-        <span class="btn green up-cost"><span class="cost">${ico('coin', 'ico sm')}<b></b></span><i class="badge up-n" hidden></i></span>
+        <span class="btn green up-cost"><span class="cost">${ico('coin', 'ico sm')}<b></b></span><i class="badge up-n" hidden></i><i class="meter"></i></span>
       </button>`).join('')}`;
     el.querySelectorAll('[data-mult]').forEach((b) => { b.onclick = () => setMult(b.dataset.mult === 'max' ? 'max' : Number(b.dataset.mult)); });
     el.querySelectorAll('[data-up]').forEach((b) => holdRepeat(b, () => { if (b.classList.contains('gated')) lockedToast(b.dataset.up); else buyUp(b.dataset.up); }));
@@ -6484,7 +6624,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
   function updateUpgrades(st) {
     const s = S();
     const m = s.settings.buyMult;
-    if (hudCache.mult !== m) { hudCache.mult = m; document.querySelectorAll('[data-mult]').forEach((b) => b.classList.toggle('on', String(m) === b.dataset.mult)); }
+    if (hudCache.mult !== m) { hudCache.mult = m; document.querySelectorAll('[data-mult]').forEach((b) => { const on = String(m) === b.dataset.mult; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); }); }
     const n = s.stage.farming ? Math.max(0, eco.stageN(s.stage.world, s.stage.sub) - 1) : eco.stageN(s.stage.world, Math.min(s.stage.sub, 4));
     // With a unit each: damage per volley, shots a second, coins per veggie.
     const values = { power: st.guns.reduce((a, g) => a + g.dmg, 0), speed: st.guns.reduce((a, g) => a + g.rate, 0), money: eco.coins(n) * st.money };
@@ -6493,7 +6633,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       const cnt = m === 'max' ? Math.max(1, eco.upMaxAffordable(k, L, s.coins).n) : m;
       const c = eco.upCostN(k, L, cnt);
       const gain = (eco.upMult(k, L + cnt) / eco.upMult(k, L) - 1) * 100;
-      setText(`#up-${k} .up-lv`, String(L));
+      setText(`#up-${k} .up-lv`, t('tower.lvl', { n: L }));
       setText(`#up-${k} .up-val`, t('up.v.' + k, { v: fmt.num(values[k]) }));
       setText(`#up-${k} .up-next`, '+' + fmt.num(gain) + '%');
       setText(`#up-${k} .up-cost b`, fmt.num(c));
@@ -6504,6 +6644,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
       if (hudCache['poor' + k] === true && !poor) restart($('#up-' + k), 'afford');
       hudCache['poor' + k] = poor;
       setClass('#up-' + k, 'poor', poor);
+      // Saving up: the price key turns grey (still a key) and its meter shows how close, in tenths.
+      setClass(`#up-${k} .up-cost`, 'poor', poor);
+      const kk = poor ? Math.floor(Math.min(1, s.coins / c) * 10) / 10 : 1;
+      if (hudCache['meter' + k] !== kk) { hudCache['meter' + k] = kk; const mt = $(`#up-${k} .meter`); if (mt) mt.style.setProperty('--k', kk); }
     }
   }
 
@@ -6537,7 +6681,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const say = rain.ready ? 2 : rain.active ? 1 : 0;
     if (hudCache.rain !== fill || hudCache.rainSay !== say) {
       hudCache.rain = fill; hudCache.rainSay = say;
-      $('#rain-btn .rain-fill').style.height = fill + '%';
+      $('#rain-btn .rain-fill').style.setProperty('--fill', fill / 100);
       $('#rain-btn .rain-lbl').textContent = say === 2 ? t('rain.go') : say ? '' : fill + '%';
     }
     setClass('#rain-btn', 'ready', rain.ready);
@@ -6554,12 +6698,12 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     setText('#progress-label', boss ? fmt.time(Math.ceil(info.bossT)) : '');
     setClass('#progress', 'hp', boss || info.phase === 'intro');
     const w = Math.round(pct / 5) * 5;
-    if (hudCache.fill !== w) { hudCache.fill = w; $('#progress-fill').style.width = w + '%'; }
+    if (hudCache.fill !== w) { hudCache.fill = w; $('#progress-fill').style.setProperty('--k', w / 100); }
     setClass('#progress', 'boss', boss);
     setClass('#progress', 'urgent', boss && info.bossT <= 10);
     for (let i = 1; i <= 5; i++) { setClass('#dot' + i, 'on', i < sub || (i === sub && !s.stage.farming)); setClass('#dot' + i, 'cur', i === sub); }
     setHidden('#boss-btn', !s.stage.farming || s.stage.world > eco.C.MAX_WORLD);
-    setText('#boss-btn', t(eco.isBoss(s.stage.sub) ? 'boss.challenge' : 'stage.retry'));
+    setText('#boss-lbl', t(eco.isBoss(s.stage.sub) ? 'boss.challenge' : 'stage.retry'));
     setClass('#boss-btn', 'pulse', logic.canRetry(s, st.dps, now()));
   }
 
@@ -6590,7 +6734,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     const titles = { raid: t('raid.title') + ' · ' + t('raid.lvl', { n: c.level }), tower: t('tower.title') + ' · ' + t('tower.lvl', { n: c.level }), cave: t('cave.title') };
     setText('#mode-title', titles[info.mode]);
     setText('#mode-time', fmt.time(Math.ceil(Math.max(0, info.modeT))));
-    $('#mode-fill').style.width = Math.max(0, info.modeT / c.timeTotal) * 100 + '%';
+    // The clock drains by scaleX, in 1/200 steps (written only when it moves a step).
+    const k = Math.round(Math.max(0, Math.min(1, info.modeT / c.timeTotal)) * 200) / 200;
+    if (hudCache.modeK !== k) { hudCache.modeK = k; $('#mode-fill').style.setProperty('--k', k); }
     let p = '';
     if (info.mode === 'raid') p = t('mode.left', { n: c.total - c.killed });
     if (info.mode === 'tower') p = Math.ceil(info.bossHp * 100) + '%';
@@ -6629,8 +6775,9 @@ self.BB = self.BB || {}; BB.DEV = false; BB.SPRITES = {"boss_beet":"data:image/p
     }
     // The trial is an ad reward: two a day (logic.AD_CAPS), instant ones with No Ads included.
     const left = logic.autoTrialLeft(s, now());
-    const trial = left ? [{ label: `<span class="lbl">${t('auto.trial')}</span><span class="cost">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${left}/${logic.AD_CAPS.autoTrial}</span>`, value: 'ad', cls: 'green tall' }] : [];
-    const v = await dialog({ title: t('shop.autoup'), html: `<p>${t(left ? 'auto.locked' : 'auto.notrial')}</p>`, back: false, buttons: [{ label: t('btn.shop'), value: 'shop', cls: 'berry' }, ...trial] });
+    const trial = left ? [{ label: `<span class="lbl">${t('auto.trial')}</span><span class="cost">${s.iap.noAds ? '' : ico('ad', 'ico sm')}${left}/${logic.AD_CAPS.autoTrial}</span>`, value: 'ad', cls: 'sky tall' }] : [];
+    // Roles: the Shop is a way to go (cream), the trial an ad (sky).
+    const v = await dialog({ title: t('shop.autoup'), html: `<p>${t(left ? 'auto.locked' : 'auto.notrial')}</p>`, back: false, buttons: [{ label: t('btn.shop'), value: 'shop' }, ...trial] });
     if (v === 'shop') openShop('special');
     if (v === 'ad' && logic.autoTrialLeft(S(), now()) && (await BB.ads.rewarded('auto_trial')) && logic.startAutoTrial(S(), now()).ok) {
       toast(t('auto.on')); G().changed();
