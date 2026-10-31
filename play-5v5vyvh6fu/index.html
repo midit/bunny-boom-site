@@ -12415,6 +12415,8 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
   // A toast with a `tag` that is still up (on screen, held back, or due) takes new words in place instead of queueing
   // another: an album batch counts up (albumFound). Held and due toasts are [text, kind, tag].
   const held = [], due = [];
+  // A phone 360 CSS px wide or less (the HUD's narrow layout).
+  const NARROW = typeof matchMedia === 'function' ? matchMedia('(max-width: 360px)') : { matches: false };
   const HOLD = '#dialogs .rb-cel:not(.out), #dialogs .story:not(.out), #dialogs .lang-ov:not(.out), #dialogs .overlay:not(.out) .seeds, #banner.sub.show';
   // A banner where the toast would land: the garden banner always (it rests on the upgrades), the middle one where
   // the screen is short enough that it reaches the toasts' lane (a 568-px phone).
@@ -13041,7 +13043,10 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     setClass('#rain-btn', 'ready', rain.ready);
     setClass('#rain-btn', 'active', rain.active);
     setHidden('#rain-btn', !unlocked('rain'));
-    setHidden('#rain-name', !rain.ready || !unlocked('rain'));
+    // On a narrow phone the name would sit on the boss key's label while farming ("Try again" under "Carrot Rain" at
+    // 320 px): there the glowing key says it alone.
+    const bossKey = s.stage.farming && s.stage.world <= eco.C.MAX_WORLD;
+    setHidden('#rain-name', !rain.ready || !unlocked('rain') || (bossKey && NARROW.matches));
     const boss = info.phase === 'boss' || info.phase === 'intro';
     // Farming shows the stage the coins come from: the one before the stage that stopped the bunny.
     const farm = s.stage.farming ? eco.fromN(Math.max(0, eco.stageN(s.stage.world, s.stage.sub) - 1)) : null;
@@ -13056,7 +13061,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     setClass('#progress', 'boss', boss);
     setClass('#progress', 'urgent', boss && info.bossT <= 10);
     for (let i = 1; i <= 5; i++) { setClass('#dot' + i, 'on', i < sub || (i === sub && !s.stage.farming)); setClass('#dot' + i, 'cur', i === sub); }
-    setHidden('#boss-btn', !s.stage.farming || s.stage.world > eco.C.MAX_WORLD);
+    setHidden('#boss-btn', !bossKey);
     setText('#boss-lbl', t(eco.isBoss(s.stage.sub) ? 'boss.challenge' : 'stage.retry'));
     setClass('#boss-btn', 'pulse', logic.canRetry(s, st.dps, now()));
   }
@@ -15987,7 +15992,7 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
 
 // ---- promo-key.js
 // Public half of the promo-code key (tools/promo.js). Safe to ship.
-(self.BB = self.BB || {}).PROMO_KEY = {"kty":"EC","crv":"P-256","x":"nRyvn-_TAwes3Tg4Xet-2KvEa9tvihEzrKaCnBIQpKE","y":"Nu89OfjjzpZ9r-5vjzzdzGpr34VmC1kBwd42kcvyKJs"};
+(self.BB = self.BB || {}).PROMO_KEY = {"kty":"EC","crv":"P-256","x":"FM-sYbDptDCqji7KC9X9zLVHF5oJyjil6rxsY_y8jtw","y":"qU-78PCNEaFrxkVyp9KsZNw2UpGXR4SgGIDY_32lj-8"};
 
 // ---- extras.js
 // The small things: promo codes, a picture to share, reminders, and a few secrets in the garden.
@@ -16222,7 +16227,15 @@ self.BB = self.BB || {}; BB.DEV = false; BB.FIREBASE = 'eyJwcm9qZWN0SWQiOiJidW5u
     if (easters(d.getFullYear()).some((e) => sameDay(e, d))) msg = t('egg.easter');
     else if (fullMoon(d) && (d.getHours() >= 19 || d.getHours() < 5)) msg = t('egg.moon');
     else if (d.getHours() === 3) msg = t('egg.night');
-    if (msg) { s.eggs.greeted = key; setTimeout(() => BB.ui.toast(msg, 'gold'), 2500); }
+    if (!msg) return;
+    s.eggs.greeted = key;
+    // It waits for a free toast lane (up to ~15 s more), so it never replaces what a key or the game just said
+    // ("Garden backed up", the time check's note); still busy by then, it lets today's greeting go.
+    const show = (n) => {
+      if (!document.querySelector('#toasts .toast:not(.out)')) BB.ui.toast(msg, 'gold');
+      else if (n < 10) setTimeout(() => show(n + 1), 1500);
+    };
+    setTimeout(() => show(0), 2500);
   }
   const sleepyHour = () => new Date().getHours() === 3;
 
