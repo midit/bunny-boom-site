@@ -27,10 +27,10 @@
 
 <section id="en" lang="en">
 <h1>Bunny Boom Privacy Policy</h1>
-<p class="muted">Effective 29 October 2026. Covers the Bunny Boom app on Google Play and the App Store and its web version. Developer: Maksym Patrushev, Poland.</p>
+<p class="muted">Effective 31 October 2026. Covers the Bunny Boom app on Google Play and the App Store and its web version. Developer: Maksym Patrushev, Poland.</p>
 
 <h2>In short</h2>
-<p>Bunny Boom has no accounts. It never asks for your name, email, phone number, contacts, photos or location. Your progress is saved on your phone. The only data that leaves your phone is what Google's ad service and the app store need to show ads and handle purchases.</p>
+<p>Bunny Boom has no sign-in. It never asks for your name, email, phone number, contacts, photos or location. Your progress is saved on your phone, and cloud backup keeps an anonymous copy of it so you can bring your garden back on a new phone. The only other data that leaves your phone is what Google's ad service and the app store need to show ads and handle purchases, and anonymous game statistics and crash reports (Google Firebase) that help us fix and balance the game.</p>
 
 <h2>What stays on your device</h2>
 <ul>
@@ -39,7 +39,16 @@
   <li>Reminders are local notifications scheduled on the phone. You can turn them off in the game or in your phone's settings.</li>
   <li>Promo codes are checked inside the app; nothing is sent to us.</li>
 </ul>
-<p>We have no server and do not receive your save. The web version opened inside claude.ai also keeps a copy of your progress in your claude.ai account.</p>
+<p>We run no server of our own. Cloud backup (below) keeps a copy of your progress in Google Firebase. The web version opened inside claude.ai also keeps a copy of your progress in your claude.ai account.</p>
+
+<h2>Cloud backup (Google Firebase)</h2>
+<ul>
+  <li><b>What is stored:</b> a copy of your game progress (the same save the game keeps on your phone: worlds, items, settings and what you own), the date of the backup, the game version, whether it came from the Android app, the iPhone app or a browser, and a random anonymous ID that the game creates for this purpose. No name, email, phone number or advertising ID.</li>
+  <li><b>Where:</b> Google Firebase Cloud Firestore, in the European Union (Warsaw, Poland). Google processes it on our behalf and it travels over an encrypted connection.</li>
+  <li><b>When:</b> automatically while you play (at most every 10 minutes) and when you leave the game, once you have played for a few minutes; also when you tap Back up now. The anonymous ID and a sign-in token are kept on your phone, never inside your save.</li>
+  <li><b>Your recovery code:</b> the backup is filed under a random 12-character code shown in Settings. Anyone who has the code can copy that progress into their own game, so keep it to yourself. Only your device can change or delete the backup; we cannot look backups up without a code.</li>
+  <li><b>How long:</b> until you delete it. Settings &rarr; Cloud backup &rarr; Delete removes the copy and the anonymous ID at once and stops backups on that device. If you no longer have the game, email us your recovery code and we will delete it.</li>
+</ul>
 
 <h2>Ads (Google AdMob)</h2>
 <p>The store version shows ads from Google AdMob, limited to content rated for general audiences. To show and measure ads and to prevent fraud, Google's ad SDK may collect your device's advertising ID and app set ID, IP address (from which an approximate location can be guessed), device and app information, ad interactions and diagnostic data, and sends them to Google over an encrypted connection.</p>
@@ -52,14 +61,20 @@
 <h2>Sharing</h2>
 <p>When you tap Share, your phone's share menu sends the picture and text you see to the app you choose. Nothing is shared without that tap.</p>
 
-<h2>Analytics</h2>
-<p>The game currently uses no analytics or crash-reporting service. If we add one, we will update this policy before that version is released.</p>
+<h2>Analytics, crash reports and settings (Google Firebase)</h2>
+<p>The store version uses Google Firebase, a Google service that processes this data on our behalf:</p>
+<ul>
+  <li><b>Google Analytics for Firebase</b> counts how the game is played: game events such as a world reached, a boss beaten, a tutorial step done, a quest or reward claimed, an offer shown or a purchase made (the product only, never payment details), plus an app-instance ID, device model, OS version, language, country and an approximate location derived from the IP address. It does not collect your advertising ID, and we never use analytics for advertising or link it to Google's ad products.</li>
+  <li><b>Firebase Crashlytics</b> sends a report when the app crashes or hits an error: the error and where in the code it happened, the device model and OS, and a random Crashlytics installation ID.</li>
+  <li><b>Firebase Remote Config</b> lets us adjust game settings (for example season dates or ad pacing) without an update; to do so the app sends its version, platform, language, country and a Firebase installation ID.</li>
+</ul>
+<p>No event contains your name, email or anything you type. Analytics starts only after Google's consent check: in the European Economic Area and the UK it runs without analytics storage (no app-instance ID; Google receives only cookieless counts), because the consent form there covers ads only. Test builds send no analytics. Google Analytics keeps event data for up to 14 months and Crashlytics keeps crash reports for 90 days; see <a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a>. Deleting the app stops all of it; clearing the app's data resets the IDs above.</p>
 
 <h2>Children</h2>
 <p>Bunny Boom is made for a general audience and is not directed at children under 13. We do not knowingly collect personal information from children.</p>
 
 <h2>Deleting your data</h2>
-<p>All game data is on your phone: uninstall the game or clear its data to delete it. Ad data is controlled through Google's settings linked above.</p>
+<p>Game data on your phone: uninstall the game or clear its data to delete it. Cloud backup: Settings &rarr; Cloud backup &rarr; Delete, or email us your recovery code. Ad data is controlled through Google's settings linked above. Analytics and crash data hold no name or contact and expire as described above.</p>
 
 <h2>Changes and contact</h2>
 <p>If this policy changes, the new version will be posted on this page with a new date. Questions: <a href="mailto:bunnyboom@maksympatrushev.com">bunnyboom@maksympatrushev.com</a>.</p>
@@ -67,10 +82,10 @@
 
 <section id="uk" lang="uk">
 <h1>Політика конфіденційності Bunny Boom</h1>
-<p class="muted">Чинна з 29 жовтня 2026 року. Стосується застосунку Bunny Boom у Google Play і App Store та його вебверсії. Розробник: Maksym Patrushev, Польща.</p>
+<p class="muted">Чинна з 31 жовтня 2026 року. Стосується застосунку Bunny Boom у Google Play і App Store та його вебверсії. Розробник: Maksym Patrushev, Польща.</p>
 
 <h2>Коротко</h2>
-<p>У Bunny Boom немає облікових записів. Гра ніколи не питає ім'я, email, номер телефону, контакти, фото чи геолокацію. Прогрес зберігається на твоєму телефоні. З телефона виходять лише ті дані, які потрібні рекламному сервісу Google і магазину застосунків, щоб показувати рекламу й обробляти покупки.</p>
+<p>У Bunny Boom немає входу в обліковий запис. Гра ніколи не питає ім'я, email, номер телефону, контакти, фото чи геолокацію. Прогрес зберігається на твоєму телефоні, а хмарна копія тримає його анонімну копію, щоб сад можна було повернути на новому телефоні. Крім неї, з телефона виходять лише ті дані, які потрібні рекламному сервісу Google і магазину застосунків, щоб показувати рекламу й обробляти покупки, а також анонімна статистика гри й звіти про збої (Google Firebase), які допомагають нам виправляти й налаштовувати гру.</p>
 
 <h2>Що лишається на пристрої</h2>
 <ul>
@@ -79,7 +94,16 @@
   <li>Нагадування — локальні сповіщення, заплановані на самому телефоні. Їх можна вимкнути в грі або в налаштуваннях телефона.</li>
   <li>Промокоди перевіряються всередині застосунку; нам нічого не надсилається.</li>
 </ul>
-<p>У нас немає сервера, і ми не отримуємо твоє збереження. Вебверсія, відкрита в claude.ai, також зберігає копію прогресу у твоєму обліковому записі claude.ai.</p>
+<p>Власного сервера в нас немає. Хмарна копія (нижче) зберігає копію прогресу в Google Firebase. Вебверсія, відкрита в claude.ai, також зберігає копію прогресу у твоєму обліковому записі claude.ai.</p>
+
+<h2>Хмарна копія (Google Firebase)</h2>
+<ul>
+  <li><b>Що зберігається:</b> копія прогресу гри (те саме збереження, що гра тримає на телефоні: світи, предмети, налаштування й куплене), дата копії, версія гри, звідки вона (застосунок для Android, для iPhone чи браузер) і випадковий анонімний ідентифікатор, який гра створює для цього. Без імені, пошти, номера телефону й рекламного ідентифікатора.</li>
+  <li><b>Де:</b> Google Firebase Cloud Firestore у Європейському Союзі (Варшава, Польща). Google обробляє ці дані від нашого імені, вони передаються зашифрованим з'єднанням.</li>
+  <li><b>Коли:</b> автоматично під час гри (не частіше ніж раз на 10 хвилин) і коли ти виходиш із гри, після перших кількох хвилин гри; а також коли натискаєш «Зберегти зараз». Анонімний ідентифікатор і ключ входу лишаються на телефоні й ніколи не потрапляють у збереження.</li>
+  <li><b>Код відновлення:</b> копія лежить під випадковим кодом із 12 символів, який показано в Налаштуваннях. Хто має код, може скопіювати цей прогрес у свою гру, тож не показуй його нікому. Змінити чи видалити копію може лише твій пристрій; без коду ми копій не знаходимо.</li>
+  <li><b>Як довго:</b> доки ти її не видалиш. Налаштування &rarr; Хмарна копія &rarr; Видалити одразу стирає копію й анонімний ідентифікатор і зупиняє копіювання на цьому пристрої. Якщо гри вже немає, надішли нам код відновлення листом, і ми її видалимо.</li>
+</ul>
 
 <h2>Реклама (Google AdMob)</h2>
 <p>Версія з магазину показує рекламу Google AdMob, обмежену вмістом для загальної аудиторії. Щоб показувати й вимірювати рекламу та запобігати шахрайству, рекламний SDK Google може збирати рекламний ідентифікатор і ідентифікатор набору застосунків, IP-адресу (з неї можна приблизно визначити місцезнаходження), дані про пристрій і застосунок, взаємодію з рекламою та діагностичні дані й передає їх Google зашифрованим з'єднанням.</p>
@@ -92,14 +116,20 @@
 <h2>«Поділитися»</h2>
 <p>Коли ти натискаєш «Поділитися», меню телефона надсилає видиму картинку й текст у застосунок, який ти обереш. Без цього натискання нічого не надсилається.</p>
 
-<h2>Аналітика</h2>
-<p>Зараз гра не використовує жодних сервісів аналітики чи звітів про збої. Якщо ми додамо такий сервіс, то оновимо цю політику до виходу тієї версії.</p>
+<h2>Аналітика, звіти про збої й налаштування (Google Firebase)</h2>
+<p>Версія з магазину використовує Google Firebase — сервіс Google, який обробляє ці дані від нашого імені:</p>
+<ul>
+  <li><b>Google Analytics for Firebase</b> рахує, як грають у гру: ігрові події (досягнутий світ, переможений бос, пройдений крок навчання, отримане завдання чи нагорода, показана пропозиція, покупка — лише товар, ніколи не платіжні дані), а також ідентифікатор екземпляра застосунку, модель пристрою, версію ОС, мову, країну й приблизне місцезнаходження, визначене з IP-адреси. Рекламний ідентифікатор вона не збирає, і ми ніколи не використовуємо аналітику для реклами й не пов'язуємо її з рекламними продуктами Google.</li>
+  <li><b>Firebase Crashlytics</b> надсилає звіт, коли застосунок падає або натрапляє на помилку: саму помилку й місце в коді, модель пристрою й ОС та випадковий ідентифікатор встановлення Crashlytics.</li>
+  <li><b>Firebase Remote Config</b> дає нам змінювати налаштування гри (наприклад, дати сезону чи частоту реклами) без оновлення; для цього застосунок надсилає свою версію, платформу, мову, країну та ідентифікатор встановлення Firebase.</li>
+</ul>
+<p>Жодна подія не містить твого імені, пошти чи будь-якого введеного тексту. Аналітика вмикається лише після перевірки згоди Google: у Європейській економічній зоні та Великій Британії вона працює без збереження аналітичних даних (без ідентифікатора екземпляра; Google отримує лише знеособлені лічильники), бо форма згоди там стосується лише реклами. Тестові збірки аналітику не надсилають. Google Analytics зберігає дані подій до 14 місяців, а Crashlytics — звіти про збої 90 днів; див. <a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a>. Видалення гри зупиняє все це; очищення даних застосунку скидає наведені ідентифікатори.</p>
 
 <h2>Діти</h2>
 <p>Bunny Boom створено для загальної аудиторії, гра не орієнтована на дітей до 13 років. Ми свідомо не збираємо персональні дані дітей.</p>
 
 <h2>Видалення даних</h2>
-<p>Усі дані гри — на твоєму телефоні: видали гру або очисти її дані. Рекламні дані керуються через налаштування Google за посиланнями вище.</p>
+<p>Дані гри на телефоні: видали гру або очисти її дані. Хмарна копія: Налаштування &rarr; Хмарна копія &rarr; Видалити, або надішли нам код відновлення листом. Рекламні дані керуються через налаштування Google за посиланнями вище. Дані аналітики й звітів про збої не містять імені чи контактів і видаляються в строки, наведені вище.</p>
 
 <h2>Зміни й контакти</h2>
 <p>Якщо політика зміниться, нова версія з'явиться на цій сторінці з новою датою. Питання: <a href="mailto:bunnyboom@maksympatrushev.com">bunnyboom@maksympatrushev.com</a>.</p>
